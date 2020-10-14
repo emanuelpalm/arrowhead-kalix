@@ -1,7 +1,6 @@
 package se.arkalix.net.http.service;
 
 import se.arkalix.ArService;
-import se.arkalix.ArSystem;
 import se.arkalix.descriptor.EncodingDescriptor;
 import se.arkalix.descriptor.TransportDescriptor;
 import se.arkalix.internal.ArServerRegistry;

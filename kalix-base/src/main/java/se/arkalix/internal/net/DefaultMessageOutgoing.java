@@ -4,12 +4,14 @@ import se.arkalix.descriptor.EncodingDescriptor;
 import se.arkalix.dto.DtoEncoding;
 import se.arkalix.dto.DtoWritable;
 import se.arkalix.net.MessageOutgoing;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+@Internal
 public abstract class DefaultMessageOutgoing<Self> implements MessageOutgoing<Self> {
     private Object body;
     private Charset charset;

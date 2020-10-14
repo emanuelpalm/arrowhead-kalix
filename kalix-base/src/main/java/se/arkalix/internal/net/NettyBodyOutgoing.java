@@ -1,9 +1,11 @@
 package se.arkalix.internal.net;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import se.arkalix.descriptor.EncodingDescriptor;
 import se.arkalix.dto.DtoWritable;
 import se.arkalix.dto.DtoWriteException;
@@ -18,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class NettyBodyOutgoing {
     private final Object content;
@@ -75,7 +78,6 @@ public class NettyBodyOutgoing {
 
             final var buffer = alloc.buffer(string.length());
             buffer.writeCharSequence(string, charset);
-
             length = buffer.readableBytes();
             content = buffer;
         }
@@ -93,6 +95,18 @@ public class NettyBodyOutgoing {
 
     public long length() {
         return length;
+    }
+
+    public Optional<ByteBuf> asByteBuf() {
+        return content instanceof ByteBuf
+            ? Optional.of((ByteBuf) content)
+            : Optional.empty();
+    }
+
+    public Optional<FileRegion> asFileRegion() {
+        return content instanceof FileRegion
+            ? Optional.of((FileRegion) content)
+            : Optional.empty();
     }
 
     public void writeTo(final Channel channel) {

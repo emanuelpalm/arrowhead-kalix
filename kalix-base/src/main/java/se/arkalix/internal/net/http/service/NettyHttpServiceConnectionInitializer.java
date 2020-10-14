@@ -1,6 +1,8 @@
 package se.arkalix.internal.net.http.service;
 
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslHandler;
 import se.arkalix.ArSystem;
@@ -25,8 +27,8 @@ public class NettyHttpServiceConnectionInitializer extends ChannelInitializer<So
     public NettyHttpServiceConnectionInitializer(
         final ArSystem system,
         final HttpServiceLookup serviceLookup,
-        final SslContext sslContext)
-    {
+        final SslContext sslContext
+    ) {
         this.system = Objects.requireNonNull(system, "Expected system");
         this.serviceLookup = Objects.requireNonNull(serviceLookup, "Expected serviceLookup");
         this.sslContext = sslContext;
@@ -50,6 +52,10 @@ public class NettyHttpServiceConnectionInitializer extends ChannelInitializer<So
             .addLast(new HttpContentDecompressor())
             .addLast(new HttpContentCompressor())
 
-            .addLast(new NettyHttpServiceConnection(system, serviceLookup, sslHandler));
+            .addLast(new NettyHttpServiceConnection(system, serviceLookup, sslHandler))
+
+            .addLast(new WebSocketServerCompressionHandler())
+            .addLast(new WebSocketServerProtocolHandler("/", true))
+            .addLast(new NettyHttpServiceWsConnection());
     }
 }

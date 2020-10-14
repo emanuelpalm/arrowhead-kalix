@@ -169,8 +169,10 @@ public class HttpServer implements ArServer {
         if (isShuttingDown.getAndSet(true)) {
             return Future.done();
         }
-        for (final var handle : handles) {
-            handle.dismiss();
+        synchronized (handles) {
+            for (final var handle : handles) {
+                handle.dismiss();
+            }
         }
         handles.clear();
         return adapt(channel.close());

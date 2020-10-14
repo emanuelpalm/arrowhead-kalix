@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.arkalix.ArSystem;
@@ -106,11 +107,16 @@ public class NettyHttpServiceConnection
 
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
-        if (msg instanceof HttpRequest) {
-            readRequest(ctx, (HttpRequest) msg);
+        if (msg instanceof HttpObject) {
+            if (msg instanceof HttpRequest) {
+                readRequest(ctx, (HttpRequest) msg);
+            }
+            if (msg instanceof HttpContent) {
+                readContent((HttpContent) msg);
+            }
         }
-        if (msg instanceof HttpContent) {
-            readContent((HttpContent) msg);
+        else {
+            ctx.fireChannelRead(msg);
         }
     }
 
@@ -155,6 +161,12 @@ public class NettyHttpServiceConnection
                     return;
                 }
             }
+        }
+
+        // TODO: Only do this if upgraded to WebSocket connection.
+        final var wsc = channel.pipeline().get(NettyHttpServiceWsConnection.class);
+        if (wsc != null) {
+            wsc.defaultEncoding(defaultEncoding);
         }
 
         // Ensure consumer is authenticated and authorized.
@@ -355,7 +367,6 @@ public class NettyHttpServiceConnection
         isClosing = true;
         sendEmptyResponseAndCleanup(ctx, INTERNAL_SERVER_ERROR);
     }
-
 
     private void sendEmptyResponseAndCleanup(
         final ChannelHandlerContext ctx,

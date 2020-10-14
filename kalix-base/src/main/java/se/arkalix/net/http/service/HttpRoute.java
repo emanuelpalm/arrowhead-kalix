@@ -10,7 +10,7 @@ import java.util.Optional;
  * Describes the conditions for and where to route matching incoming
  * {@link HttpServiceRequest}s.
  */
-public class HttpRoute implements HttpRoutable {
+public class HttpRoute implements HttpRoutable, HttpRouteHandler {
     private final HttpMethod method;
     private final HttpPattern pattern;
     private final HttpRouteHandler handler;
@@ -31,8 +31,10 @@ public class HttpRoute implements HttpRoutable {
     }
 
     /**
-     * @return {@link HttpMethod}, if any, that routed requests must match
-     * for this route to be invoked.
+     * Gets {@link HttpMethod}, if any, that routed requests must match for
+     * this route to be invoked.
+     *
+     * @return Route method, if any.
      */
     @Override
     public Optional<HttpMethod> method() {
@@ -40,8 +42,10 @@ public class HttpRoute implements HttpRoutable {
     }
 
     /**
-     * @return {@link HttpPattern}, if any, that the paths of routed requests
-     * must match for this route to be invoked.
+     * Gets {@link HttpPattern}, if any, that the paths of routed requests must
+     * match for this route to be invoked.
+     *
+     * @return Route path pattern, if any.
      */
     @Override
     public Optional<HttpPattern> pattern() {
@@ -79,6 +83,7 @@ public class HttpRoute implements HttpRoutable {
      *                   any details and the exception be logged (if logging is
      *                   enabled).
      */
+    @Override
     public Future<?> handle(final HttpServiceRequest request, final HttpServiceResponse response) throws Exception {
         return handler.handle(request, response);
     }
