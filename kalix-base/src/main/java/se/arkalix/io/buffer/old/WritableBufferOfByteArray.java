@@ -1,4 +1,4 @@
-package se.arkalix.codec.binary;
+package se.arkalix.io.buffer.old;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * A {@link BinaryWriter} that writes to a plain byte array.
+ * A {@link WritableBuffer} that writes to a plain byte array.
  * <p>
  * The underlying byte array will either be considered dynamic or static. If
  * dynamic, it will be reallocated as space runs out, while if static it will
@@ -19,7 +19,7 @@ import java.util.Objects;
  * quite informative for most categories of errors.
  */
 @SuppressWarnings("unused")
-public class ByteArrayWriter implements BinaryWriter {
+public class WritableBufferOfByteArray implements WritableBuffer {
     private final boolean isStatic;
 
     private byte[] byteArray;
@@ -28,11 +28,11 @@ public class ByteArrayWriter implements BinaryWriter {
     /**
      * Creates new empty <i>dynamically</i> sized byte array writer.
      */
-    public ByteArrayWriter() {
+    public WritableBufferOfByteArray() {
         this(false, 0);
     }
 
-    private ByteArrayWriter(final boolean isStatic, final int capacity) {
+    private WritableBufferOfByteArray(final boolean isStatic, final int capacity) {
         this.isStatic = isStatic;
         byteArray = new byte[capacity];
     }
@@ -42,7 +42,7 @@ public class ByteArrayWriter implements BinaryWriter {
      *
      * @param byteArray Byte array to write to.
      */
-    public ByteArrayWriter(final byte[] byteArray) {
+    public WritableBufferOfByteArray(final byte[] byteArray) {
         isStatic = true;
         this.byteArray = Objects.requireNonNull(byteArray, "byteArray");
     }
@@ -52,10 +52,10 @@ public class ByteArrayWriter implements BinaryWriter {
      * initial capacity.
      *
      * @param capacity Number of bytes in initially allocated byte buffer.
-     * @return New dynamic {@link ByteArrayWriter}.
+     * @return New dynamic {@link WritableBufferOfByteArray}.
      */
-    public ByteArrayWriter dynamicWithCapacity(final int capacity) {
-        return new ByteArrayWriter(false, capacity);
+    public WritableBufferOfByteArray dynamicWithCapacity(final int capacity) {
+        return new WritableBufferOfByteArray(false, capacity);
     }
 
     /**
@@ -63,10 +63,10 @@ public class ByteArrayWriter implements BinaryWriter {
      * capacity.
      *
      * @param capacity Number of bytes in allocated byte buffer.
-     * @return New static {@link ByteArrayWriter}.
+     * @return New static {@link WritableBufferOfByteArray}.
      */
-    public ByteArrayWriter staticWithCapacity(final int capacity) {
-        return new ByteArrayWriter(true, capacity);
+    public WritableBufferOfByteArray staticWithCapacity(final int capacity) {
+        return new WritableBufferOfByteArray(true, capacity);
     }
 
     @Override

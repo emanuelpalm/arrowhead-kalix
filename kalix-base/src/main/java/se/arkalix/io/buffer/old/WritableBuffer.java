@@ -1,4 +1,4 @@
-package se.arkalix.codec.binary;
+package se.arkalix.io.buffer.old;
 
 /**
  * Represents an object useful for <i>writing</i> binary data.
@@ -7,7 +7,7 @@ package se.arkalix.codec.binary;
  * is also assumed to have an internal {@link #writeOffset() write offset} that
  * is incremented whenever bytes are written.
  */
-public interface BinaryWriter {
+public interface WritableBuffer {
     /**
      * Gets position in target at which the next written byte will be written
      * to.

@@ -1,6 +1,6 @@
 package se.arkalix.codec;
 
-import se.arkalix.codec.binary.BinaryReader;
+import se.arkalix.io.buffer.old.ReadableBuffer;
 
 /**
  * A functional used to decode binary data using one out of a set of different
@@ -22,5 +22,5 @@ public interface MultiDecoder<T> {
      * @throws NullPointerException If {@code reader} or {@code codec} is
      *                              {@code null}.
      */
-    T decode(BinaryReader reader, CodecType codecType);
+    T decode(ReadableBuffer reader, CodecType codecType);
 }

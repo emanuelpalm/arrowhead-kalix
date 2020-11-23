@@ -6,8 +6,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import se.arkalix.codec.CodecType;
 import se.arkalix.codec.DecoderReadUnexpectedToken;
-import se.arkalix.codec.binary.BinaryReader;
-import se.arkalix.codec.binary.BinaryWriter;
+import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io.buffer.old.WritableBuffer;
 import se.arkalix.codec.json.JsonType;
 import se.arkalix.codec.json._internal.JsonPrimitives;
 import se.arkalix.codec.json._internal.JsonTokenBuffer;
@@ -51,7 +51,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
         implementation.addMethod(MethodSpec.methodBuilder(decodeMethodName())
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .returns(typeName)
-            .addParameter(BinaryReader.class, "reader", Modifier.FINAL)
+            .addParameter(ReadableBuffer.class, "reader", Modifier.FINAL)
             .addStatement("return $N($T.tokenize(reader))", decodeMethodName(), JsonTokenizer.class)
             .build());
 
@@ -577,7 +577,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
         final var builder = MethodSpec.methodBuilder(encodeMethodName())
             .addModifiers(Modifier.PUBLIC)
             .returns(TypeName.get(CodecType.class))
-            .addParameter(ParameterSpec.builder(TypeName.get(BinaryWriter.class), "writer")
+            .addParameter(ParameterSpec.builder(TypeName.get(WritableBuffer.class), "writer")
                 .addModifiers(Modifier.FINAL)
                 .build());
 
@@ -766,7 +766,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
         final MethodSpec.Builder builder
     ) {
         final var returnType = CodecType.class.getCanonicalName();
-        final var parameter = BinaryWriter.class.getCanonicalName();
+        final var parameter = WritableBuffer.class.getCanonicalName();
         if (!type.containsPublicMethod(returnType, encodeMethodName(), parameter)) {
             throw new DtoException(type.typeElement(), "No public " +
                 returnType + " " + encodeMethodName() +

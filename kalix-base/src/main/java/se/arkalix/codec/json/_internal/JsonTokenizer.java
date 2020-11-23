@@ -2,7 +2,7 @@ package se.arkalix.codec.json._internal;
 
 import se.arkalix.codec.CodecType;
 import se.arkalix.codec.DecoderReadUnexpectedToken;
-import se.arkalix.codec.binary.BinaryReader;
+import se.arkalix.io.buffer.old.ReadableBuffer;
 import se.arkalix.codec.json.JsonType;
 import se.arkalix.util.annotation.Internal;
 
@@ -13,19 +13,19 @@ import java.util.Objects;
 @Internal
 @SuppressWarnings("unused")
 public final class JsonTokenizer {
-    private final BinaryReader reader;
+    private final ReadableBuffer reader;
     private final ArrayList<JsonToken> tokens;
 
     private int p0;
     private DecoderReadUnexpectedToken error = null;
 
-    private JsonTokenizer(final BinaryReader reader) {
+    private JsonTokenizer(final ReadableBuffer reader) {
         this.reader = Objects.requireNonNull(reader, "reader");
         this.tokens = new ArrayList<>(reader.readableBytes() / 16);
         this.p0 = reader.readOffset();
     }
 
-    public static JsonTokenBuffer tokenize(final BinaryReader reader) {
+    public static JsonTokenBuffer tokenize(final ReadableBuffer reader) {
         final var tokenizer = new JsonTokenizer(reader);
         if (tokenizer.tokenizeValue()) {
             return new JsonTokenBuffer(tokenizer.tokens, reader);

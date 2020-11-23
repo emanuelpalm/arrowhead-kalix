@@ -1,6 +1,6 @@
 package se.arkalix.codec.json._internal;
 
-import se.arkalix.codec.binary.BinaryReader;
+import se.arkalix.io.buffer.old.ReadableBuffer;
 import se.arkalix.codec.json.JsonType;
 import se.arkalix.util.annotation.Internal;
 
@@ -9,10 +9,10 @@ import java.util.List;
 @Internal
 public class JsonTokenBuffer {
     private final List<JsonToken> tokens;
-    private final BinaryReader reader;
+    private final ReadableBuffer reader;
     private int offset;
 
-    JsonTokenBuffer(final List<JsonToken> tokens, final BinaryReader reader) {
+    JsonTokenBuffer(final List<JsonToken> tokens, final ReadableBuffer reader) {
         this.tokens = tokens;
         this.reader = reader;
 
@@ -54,7 +54,7 @@ public class JsonTokenBuffer {
         }
     }
 
-    public BinaryReader reader() {
+    public ReadableBuffer reader() {
         return reader;
     }
 }

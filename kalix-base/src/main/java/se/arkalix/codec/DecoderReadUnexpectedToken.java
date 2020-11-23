@@ -2,7 +2,7 @@ package se.arkalix.codec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.arkalix.codec.binary.BinaryReader;
+import se.arkalix.io.buffer.old.ReadableBuffer;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 public class DecoderReadUnexpectedToken extends CodecException {
     private static final Logger logger = LoggerFactory.getLogger(DecoderReadUnexpectedToken.class);
 
-    private final BinaryReader reader;
+    private final ReadableBuffer reader;
     private final String token;
     private final int offset;
     private final String description;
@@ -35,7 +35,7 @@ public class DecoderReadUnexpectedToken extends CodecException {
      */
     public DecoderReadUnexpectedToken(
         final CodecType codecType,
-        final BinaryReader reader,
+        final ReadableBuffer reader,
         final String token,
         final int offset,
         final String description
@@ -54,7 +54,7 @@ public class DecoderReadUnexpectedToken extends CodecException {
      */
     public DecoderReadUnexpectedToken(
         final CodecType codecType,
-        final BinaryReader reader,
+        final ReadableBuffer reader,
         final String token,
         final int offset,
         final String description,
@@ -75,7 +75,7 @@ public class DecoderReadUnexpectedToken extends CodecException {
      *
      * @return Reader containing offending token.
      */
-    public BinaryReader reader() {
+    public ReadableBuffer reader() {
         return reader;
     }
 

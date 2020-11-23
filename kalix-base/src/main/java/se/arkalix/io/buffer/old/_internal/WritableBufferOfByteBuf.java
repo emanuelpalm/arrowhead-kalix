@@ -1,16 +1,16 @@
-package se.arkalix.codec.binary._internal;
+package se.arkalix.io.buffer.old._internal;
 
-import se.arkalix.codec.binary.BinaryWriter;
+import se.arkalix.io.buffer.old.WritableBuffer;
 import se.arkalix.util.annotation.Internal;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Objects;
 
 @Internal
-public class ByteBufWriter implements BinaryWriter {
+public class WritableBufferOfByteBuf implements WritableBuffer {
     private final ByteBuf byteBuf;
 
-    public ByteBufWriter(final ByteBuf byteBuf) {
+    public WritableBufferOfByteBuf(final ByteBuf byteBuf) {
         this.byteBuf = Objects.requireNonNull(byteBuf, "byteBuf");
     }
 

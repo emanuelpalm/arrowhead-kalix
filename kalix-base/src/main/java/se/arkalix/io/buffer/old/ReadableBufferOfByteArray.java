@@ -1,16 +1,16 @@
-package se.arkalix.codec.binary;
+package se.arkalix.io.buffer.old;
 
 import java.util.Objects;
 
 /**
- * A {@link BinaryReader} that reads from a plain byte array.
+ * A {@link ReadableBuffer} that reads from a plain byte array.
  * <p>
  * This reader is naive in the sense that it does not check for range errors
  * before executing on any contained byte array. However, as range errors are
  * checked by Java on byte array operations, the error messages should still be
  * quite informative for most categories of errors.
  */
-public class ByteArrayReader implements BinaryReader {
+public class ReadableBufferOfByteArray implements ReadableBuffer {
     private final byte[] byteArray;
 
     private int offset = 0;
@@ -20,7 +20,7 @@ public class ByteArrayReader implements BinaryReader {
      *
      * @param byteArray Byte array to read.
      */
-    public ByteArrayReader(final byte[] byteArray) {
+    public ReadableBufferOfByteArray(final byte[] byteArray) {
         this.byteArray = Objects.requireNonNull(byteArray, "byteArray");
     }
 

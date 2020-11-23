@@ -1,14 +1,14 @@
-package se.arkalix.codec.binary._internal;
+package se.arkalix.io.buffer.old._internal;
 
-import se.arkalix.codec.binary.BinaryReader;
+import se.arkalix.io.buffer.old.ReadableBuffer;
 import se.arkalix.util.annotation.Internal;
 import io.netty.buffer.ByteBuf;
 
 @Internal
-public class ByteBufReader implements BinaryReader {
+public class ReadableBufferOfByteBuf implements ReadableBuffer {
     private final ByteBuf byteBuf;
 
-    public ByteBufReader(final ByteBuf buf) {
+    public ReadableBufferOfByteBuf(final ByteBuf buf) {
         byteBuf = buf;
     }
 

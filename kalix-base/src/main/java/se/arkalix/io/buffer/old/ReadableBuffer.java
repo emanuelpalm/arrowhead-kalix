@@ -1,4 +1,4 @@
-package se.arkalix.codec.binary;
+package se.arkalix.io.buffer.old;
 
 /**
  * Represents an object useful for <i>reading</i> binary data.
@@ -8,7 +8,7 @@ package se.arkalix.codec.binary;
  * that is incremented whenever bytes are read.
  */
 @SuppressWarnings("unused")
-public interface BinaryReader {
+public interface ReadableBuffer {
     /**
      * @return Index of next byte to read.
      */
@@ -55,8 +55,7 @@ public interface BinaryReader {
 
     /**
      * Gets bytes at the given {@code offset} without incrementing the internal
-     * {@link #readOffset() read offset}. The number of acquired bytes will be
-     * the same as the length of {@code target}.
+     * {@link #readOffset() read offset}.
      *
      * @param offset       Position of byte to read.
      * @param target       Receiver of read bytes.

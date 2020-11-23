@@ -1,8 +1,8 @@
 package se.arkalix.codec.json;
 
 import se.arkalix.codec.CodecType;
-import se.arkalix.codec.binary.BinaryReader;
-import se.arkalix.codec.binary.BinaryWriter;
+import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io.buffer.old.WritableBuffer;
 import se.arkalix.codec.json._internal.JsonTokenBuffer;
 import se.arkalix.codec.json._internal.JsonTokenizer;
 import se.arkalix.util.annotation.Internal;
@@ -71,7 +71,7 @@ public interface JsonValue {
      * @param writer Writer to which this JSON value will be written.
      * @return {@link CodecType#JSON}.
      */
-    CodecType encodeJson(final BinaryWriter writer);
+    CodecType encodeJson(final WritableBuffer writer);
 
     /**
      * Reads JSON value from given {@code reader}.
@@ -80,7 +80,7 @@ public interface JsonValue {
      *               ignoring any whitespace.
      * @return Decoded JSON value.
      */
-    static JsonValue decodeJson(final BinaryReader reader) {
+    static JsonValue decodeJson(final ReadableBuffer reader) {
          return decodeJson(JsonTokenizer.tokenize(reader));
     }
 

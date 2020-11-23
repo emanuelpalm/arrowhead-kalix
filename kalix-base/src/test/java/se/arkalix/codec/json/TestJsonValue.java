@@ -5,8 +5,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import se.arkalix.codec.CodecType;
-import se.arkalix.codec.binary.ByteArrayReader;
-import se.arkalix.codec.binary.ByteArrayWriter;
+import se.arkalix.io.buffer.old.ReadableBufferOfByteArray;
+import se.arkalix.io.buffer.old.WritableBufferOfByteArray;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
@@ -18,7 +18,7 @@ public class TestJsonValue {
     @ParameterizedTest
     @MethodSource("valuesToRead")
     void shouldReadOne(final JsonValue expected, final String input) {
-        final var reader = new ByteArrayReader(input.getBytes(StandardCharsets.UTF_8));
+        final var reader = new ReadableBufferOfByteArray(input.getBytes(StandardCharsets.UTF_8));
         Assertions.assertEquals(expected, JsonValue.decodeJson(reader));
     }
 
@@ -72,7 +72,7 @@ public class TestJsonValue {
     @ParameterizedTest
     @MethodSource("valuesToWrite")
     void shouldWriteOne(final String expected, final JsonValue input) {
-        final var writer = new ByteArrayWriter(new byte[expected.getBytes(StandardCharsets.UTF_8).length]);
+        final var writer = new WritableBufferOfByteArray(new byte[expected.getBytes(StandardCharsets.UTF_8).length]);
         final var codec = input.encodeJson(writer);
 
         assertEquals(CodecType.JSON, codec);

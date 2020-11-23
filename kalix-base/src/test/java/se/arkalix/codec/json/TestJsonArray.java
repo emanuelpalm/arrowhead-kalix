@@ -3,8 +3,8 @@ package se.arkalix.codec.json;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import se.arkalix.codec.binary.ByteArrayReader;
-import se.arkalix.codec.binary.ByteArrayWriter;
+import se.arkalix.io.buffer.old.ReadableBufferOfByteArray;
+import se.arkalix.io.buffer.old.WritableBufferOfByteArray;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
@@ -16,7 +16,7 @@ public class TestJsonArray {
     @ParameterizedTest
     @MethodSource("arraysToRead")
     void shouldReadArray(final JsonArray expected, final String json) {
-        assertEquals(expected, JsonArray.decodeJson(new ByteArrayReader(json.getBytes(StandardCharsets.UTF_8))));
+        assertEquals(expected, JsonArray.decodeJson(new ReadableBufferOfByteArray(json.getBytes(StandardCharsets.UTF_8))));
     }
 
     static Stream<Arguments> arraysToRead() {
@@ -33,7 +33,7 @@ public class TestJsonArray {
     @ParameterizedTest
     @MethodSource("arraysToWrite")
     void shouldWriteArray(final String expected, final JsonArray array) {
-        final var writer = new ByteArrayWriter(new byte[expected.length()]);
+        final var writer = new WritableBufferOfByteArray(new byte[expected.length()]);
         array.encodeJson(writer);
         assertEquals(expected, new String(writer.asByteArray(), StandardCharsets.UTF_8));
     }

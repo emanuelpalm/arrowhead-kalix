@@ -1,6 +1,6 @@
 package se.arkalix.codec;
 
-import se.arkalix.codec.binary.BinaryWriter;
+import se.arkalix.io.buffer.old.WritableBuffer;
 
 /**
  * A function used to encode an implicit class instance into binary data.
@@ -15,5 +15,5 @@ public interface Encodable {
      * not relevant.
      * @throws NullPointerException If {@code writer} is {@code null}.
      */
-    CodecType encode(BinaryWriter writer);
+    CodecType encode(WritableBuffer writer);
 }
