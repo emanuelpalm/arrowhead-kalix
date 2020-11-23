@@ -104,7 +104,7 @@ public class WritableBufferOfByteArray implements WritableBuffer {
         final var newOffset = offset + bytes.length;
         if (newOffset > byteArray.length) {
             if (isStatic) {
-                throw new IndexOutOfBoundsException("Not enough writable bytes remaining to write all given bytes");
+                throw new IndexOutOfBoundsException("Not enough writable bytes remaining to writeByte all given bytes");
             }
             final var capacity = (newOffset + 4096) & ~4095;
             byteArray = Arrays.copyOf(byteArray, capacity);

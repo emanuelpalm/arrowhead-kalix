@@ -1,54 +1,52 @@
 package se.arkalix.io.buffer;
 
-public interface BufferView {
-    /**
-     * Gets the total number of bytes that can be read from this buffer view,
-     * including any bytes already read.
-     *
-     * @return Buffer capacity, in bytes.
-     * @throws BufferIsReleased If this buffer is released.
-     */
-    int capacity();
-
+/**
+ * A collection of memory that can be read from.
+ */
+public interface BufferView extends AutoCloseable {
     /**
      * Gets new shallow copy of this buffer view.
      * <p>
-     * Cloned buffer views do not share offset pointers, which means that they
-     * can be used in parallel without risks for race conditions. Note, however,
-     * that this method is not thread-safe.
+     * Cloned buffer readers do not share offset pointers, which means that
+     * they can be used in parallel without risks for race conditions. Note,
+     * however, that this method is not thread-safe.
      * <p>
-     * Every buffer must be {@link #release() released} exactly once, after no
-     * longer being in use.
+     * Every buffer, including any clones, must be {@link #close() closed}
+     * exactly once after no longer being in use.
      *
      * @return Shallow buffer view copy.
-     * @throws BufferIsReleased If this buffer is released.
+     * @throws BufferIsClosed If this buffer view has been closed.
      */
     BufferView clone();
 
     /**
+     * Closes this buffer.
+     * <p>
+     * All buffer readers <b>must</b> be closed once on longer in use.
+     * <p>
+     * Calling this method additional times after the first has no effect.
+     */
+    @Override
+    void close();
+
+    /**
+     * Gets position in buffer from which the next byte will be read.
+     *
      * @return Index of next byte to read.
-     * @throws BufferIsReleased If this buffer is released.
+     * @throws BufferIsClosed If this buffer view has been closed.
      */
     int offset();
 
     /**
+     * Sets position in buffer from which the next byte will be read.
+     *
      * @param offset New read offset.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
-     *                                   #remaining() readable bytes}.
-     * @throws BufferIsReleased          If this buffer is released.
+     *                                   #remainder() remaining readable bytes}.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
     void offset(int offset);
-
-    /**
-     * Gets byte at the internal {@link #offset() read offset}, without
-     * incrementing the offset.
-     *
-     * @return Byte at the internal {@link #offset() read offset}.
-     * @throws IndexOutOfBoundsException If there is no byte left to peek.
-     * @throws BufferIsReleased          If this buffer is released.
-     */
-    byte peek();
 
     /**
      * Gets byte at the given {@code offset} without incrementing the internal
@@ -58,10 +56,10 @@ public interface BufferView {
      * @return Read byte.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
-     *                                   #remaining() readable bytes}.
-     * @throws BufferIsReleased          If this buffer is released.
+     *                                   #remainder() readable bytes}.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    byte peek(int offset);
+    byte getByte(int offset);
 
     /**
      * Gets bytes at the given {@code offset} without incrementing the internal
@@ -72,11 +70,13 @@ public interface BufferView {
      * @param target Receiver of read bytes.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
-     *                                   #remaining() readable bytes} minus
+     *                                   #remainder() readable bytes} minus
      *                                   the length of {@code target}.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void peek(int offset, byte[] target);
+    default void getBytes(final int offset, final byte[] target) {
+        getBytes(offset, target, 0, target.length);
+    }
 
     /**
      * Gets bytes at the given {@code offset} without incrementing the internal
@@ -92,9 +92,19 @@ public interface BufferView {
      *                                   negative, out of bounds, or there are
      *                                   less than {@code length} bytes left to
      *                                   read.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void peek(final int offset, final byte[] target, final int targetOffset, final int length);
+    void getBytes(int offset, byte[] target, int targetOffset, int length);
+
+    /**
+     * Gets byte at the internal {@link #offset() read offset}, without
+     * incrementing the offset.
+     *
+     * @return Byte at the internal {@link #offset() read offset}.
+     * @throws IndexOutOfBoundsException If there is no byte left to getByte.
+     * @throws BufferIsClosed            If this buffer view has been closed.
+     */
+    byte peekByte();
 
     /**
      * Gets byte at the internal {@link #offset() read offset} and
@@ -102,9 +112,9 @@ public interface BufferView {
      *
      * @return Byte at the internal {@link #offset() read offset}.
      * @throws IndexOutOfBoundsException If there is no byte left to read.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    byte read();
+    byte readByte();
 
     /**
      * Reads bytes into {@code target}. The number of read bytes will be the
@@ -113,10 +123,10 @@ public interface BufferView {
      * @param target Receiver of read bytes.
      * @throws IndexOutOfBoundsException If less than {@code target.length}
      *                                   bytes are available for reading.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    default void read(byte[] target) {
-        read(target, 0, target.length);
+    default void readBytes(byte[] target) {
+        readBytes(target, 0, target.length);
     }
 
     /**
@@ -131,45 +141,46 @@ public interface BufferView {
      *                                   length} are negative, out of bounds,
      *                                   or there are less than {@code length}
      *                                   bytes left to read.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void read(byte[] target, int targetOffset, int length);
-
-    /**
-     * Releases this buffer view, making any further attempts to use it cause
-     * {@link BufferIsReleased} exceptions to be thrown.
-     * <p>
-     * All buffer views <b>must</b> be released once on longer in use.
-     *
-     * @throws BufferIsReleased If this buffer is already released.
-     */
-    void release();
+    void readBytes(byte[] target, int targetOffset, int length);
 
     /**
      * Gets number of bytes remaining to be read in this buffer view.
      *
      * @return Number of bytes currently left to read.
-     * @throws BufferIsReleased If this buffer is released.
+     * @throws BufferIsClosed If this buffer view has been closed.
      */
-    int remaining();
+    default int remainder() {
+        return size() - offset();
+    }
+
+    /**
+     * Gets the total number of bytes that can be read from this buffer view,
+     * including any bytes already read.
+     *
+     * @return Buffer capacity, in bytes.
+     * @throws BufferIsClosed If this buffer view has been closed.
+     */
+    int size();
 
     /**
      * Increments the internal {@link #offset() read offset} by 1 without
      * getting the byte at the current offset.
      *
      * @throws IndexOutOfBoundsException If there is no byte left to skip.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    default void skip() {
-        skip(1);
+    default void skipByte() {
+        skipBytes(1);
     }
 
     /**
      * Increments the internal {@link #offset() read offset} by {@code n}.
      *
-     * @throws IndexOutOfBoundsException If there are less than {@code n} bytes
-     *                                   left to skip.
-     * @throws BufferIsReleased          If this buffer is released.
+     * @throws IndexOutOfBoundsException If n is less than 0 or there are less
+     *                                   than {@code n} bytes left to skip.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void skip(int n);
+    void skipBytes(int n);
 }

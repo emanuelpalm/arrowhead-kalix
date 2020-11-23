@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  *         ServiceQuery#oneUsing(ArConsumerFactory) oneUsing()} or {@link
  *         ServiceQuery#allUsing(ArConsumerFactory) allUsing()} methods are
  *         used, the provided factory automatically provides additional details
- *         to the query before it is executed. Make sure to read the
+ *         to the query before it is executed. Make sure to readByte the
  *         documentation for the {@link ArConsumerFactory} you want to use with
  *         that method in order to be certain about what details will be
  *         automatically provided. {@link ArConsumerFactory} classes

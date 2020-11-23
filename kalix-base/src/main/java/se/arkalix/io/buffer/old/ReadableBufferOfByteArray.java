@@ -18,7 +18,7 @@ public class ReadableBufferOfByteArray implements ReadableBuffer {
     /**
      * Creates new byte array reader.
      *
-     * @param byteArray Byte array to read.
+     * @param byteArray Byte array to readByte.
      */
     public ReadableBufferOfByteArray(final byte[] byteArray) {
         this.byteArray = Objects.requireNonNull(byteArray, "byteArray");

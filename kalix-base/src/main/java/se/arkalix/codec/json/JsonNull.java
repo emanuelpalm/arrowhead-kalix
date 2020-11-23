@@ -33,11 +33,11 @@ public class JsonNull implements JsonValue {
     /**
      * Reads "null" from given {@code reader}.
      *
-     * @param reader Source containing "null" at the current read offset,
+     * @param reader Source containing "null" at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON null.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
-     *                                    valid JSON null at the current read
+     *                                    valid JSON null at the current readByte
      *                                    offset.
      */
     public static JsonNull decodeJson(final ReadableBuffer reader) {

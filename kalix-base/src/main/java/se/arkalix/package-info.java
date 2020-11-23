@@ -9,7 +9,7 @@
  * se.arkalix.ServiceInterface network interface protocols}.
  * Systems can consume the services other systems provide, where consuming
  * concretely entails exchanging messages. More details about the Arrowhead
- * Framework can be read
+ * Framework can be readByte
  * <a href="https://arrowhead.eu/arrowheadframework/this-is-it">on the official
  * website</a>, while more information about Arrowhead Kalix is available on
  * <a href="https://arkalix.se">https://arkalix.se</a>.

@@ -21,7 +21,7 @@
  * systems try to consume the services its provide, as well as trying to comply
  * with the access requirements of the services it tries to consume itself.
  * <p>
- * More details about the access control paradigms can be read in the classes
+ * More details about the access control paradigms can be readByte in the classes
  * representing them.
  */
 package se.arkalix.security.access;

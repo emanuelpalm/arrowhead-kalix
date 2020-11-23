@@ -153,11 +153,11 @@ public class JsonString implements JsonValue {
     /**
      * Reads JSON string from given {@code reader}.
      *
-     * @param reader Source containing JSON string at the current read offset,
+     * @param reader Source containing JSON string at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON string.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
-     *                                    valid JSON string at the current read
+     *                                    valid JSON string at the current readByte
      *                                    offset.
      */
     public static JsonString decodeJson(final ReadableBuffer reader) {

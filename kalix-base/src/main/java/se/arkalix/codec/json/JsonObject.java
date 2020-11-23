@@ -80,11 +80,11 @@ public class JsonObject implements JsonCollection<String>, Iterable<JsonPair> {
     /**
      * Reads JSON object from given {@code reader}.
      *
-     * @param reader Source containing JSON object at the current read offset,
+     * @param reader Source containing JSON object at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON object.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
-     *                                    valid JSON object at the current read
+     *                                    valid JSON object at the current readByte
      *                                    offset.
      */
     public static JsonObject decodeJson(final ReadableBuffer reader) {

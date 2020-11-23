@@ -40,7 +40,7 @@ public class HttpMediaTypes {
      * "application/exi"}, which is non-standard at the time of writing, as
      * well as {@code "application/senml-exi"}.
      * <p>
-     * More about HTTP content types can be read in RFC 7231, Section 3.1.1.5.
+     * More about HTTP content types can be readByte in RFC 7231, Section 3.1.1.5.
      *
      * @param codecTypes   A list of candidate codecs.
      * @param contentType A content type, assumed to follow the specification
@@ -97,7 +97,7 @@ public class HttpMediaTypes {
             }
         }
 
-        // If a suffix is present in subtype, skip everything else.
+        // If a suffix is present in subtype, skipBytes everything else.
         for (var cx = c1; cx > c0; ) {
             final var c = contentType.charAt(--cx);
             if (c == '+' || c == '-') { // EXI uses '-' as suffix delimiter.
@@ -228,7 +228,7 @@ public class HttpMediaTypes {
                 return codecTypes.get(0);
             }
 
-            // If a suffix is present in subtype, skip everything else.
+            // If a suffix is present in subtype, skipBytes everything else.
             for (var ax = a1; ax > a0; ) {
                 c = acceptHeader.charAt(--ax);
                 if (c == '+' || c == '-') { // EXI uses '-' as suffix delimiter.

@@ -84,15 +84,15 @@ public final class HttpService implements ArService {
     }
 
     /**
-     * Declares what codecs (i.e. data formats) this service can read and write.
+     * Declares what codecs (i.e. data formats) this service can readByte and write.
      * <b>Must be specified.</b>
      * <p>
      * While this service will prevent messages claimed to be encoded with
      * other codecs from being received, stating that a codec can be
-     * read and written does not itself guarantee it. It is up to the service
+     * readByte and written does not itself guarantee it. It is up to the service
      * creator to ensure that such capabilities are indeed available. For most
      * intents and purposes, the most adequate way of achieving this is by
-     * using <i>Data Transfer Objects</i> (DTOs), more of which you can read
+     * using <i>Data Transfer Objects</i> (DTOs), more of which you can readByte
      * about in the package documentation for the
      * {@code se.arkalix.dto} package.
      *
@@ -636,7 +636,7 @@ public final class HttpService implements ArService {
      * <p>
      * Filters are executed with incoming HTTP requests before they end up
      * at their designated routes. Each filter matching the method and path
-     * of the request is given the opportunity read the request, modify its
+     * of the request is given the opportunity readByte the request, modify its
      * headers and, potentially, respond to the request. If a response is
      * generated, no more handler are invoked with the request, unless sending
      * the response fails and a catcher is executed.
@@ -659,7 +659,7 @@ public final class HttpService implements ArService {
      * <p>
      * Filters are executed with incoming HTTP requests before they end up
      * at their designated routes. Each filter matching the method and path
-     * of the request is given the opportunity read the request, modify its
+     * of the request is given the opportunity readByte the request, modify its
      * headers and, potentially, respond to the request. If a response is
      * generated, no more handler are invoked with the request, unless sending
      * the response fails and a catcher is executed.
@@ -685,7 +685,7 @@ public final class HttpService implements ArService {
      * <p>
      * Filters are executed with incoming HTTP requests before they end up
      * at their designated routes. Each filter matching the method and path
-     * of the request is given the opportunity read the request, modify its
+     * of the request is given the opportunity readByte the request, modify its
      * headers and, potentially, respond to the request. If a response is
      * generated, no more handler are invoked with the request, unless sending
      * the response fails and a catcher is executed.
@@ -706,7 +706,7 @@ public final class HttpService implements ArService {
      * <p>
      * Filters are executed with incoming HTTP requests before they end up
      * at their designated routes. Each filter matching the method and path
-     * of the request is given the opportunity read the request, modify its
+     * of the request is given the opportunity readByte the request, modify its
      * headers and, potentially, respond to the request. If a response is
      * generated, no more handler are invoked with the request, unless sending
      * the response fails and a catcher is executed.
@@ -727,7 +727,7 @@ public final class HttpService implements ArService {
      * <p>
      * Filters are executed with incoming HTTP requests before they end up
      * at their designated routes. Each filter matching the method and path
-     * of the request is given the opportunity read the request, modify its
+     * of the request is given the opportunity readByte the request, modify its
      * headers and, potentially, respond to the request. If a response is
      * generated, no more handler are invoked with the request, unless sending
      * the response fails and a catcher is executed.

@@ -3,19 +3,19 @@ package se.arkalix.io.buffer.old;
 /**
  * Represents an object useful for <i>reading</i> binary data.
  * <p>
- * Apart from keeping track of whatever source of bytes is being read, the
- * reader is also assumed to have an internal {@link #readOffset() read offset}
- * that is incremented whenever bytes are read.
+ * Apart from keeping track of whatever source of bytes is being readByte, the
+ * reader is also assumed to have an internal {@link #readOffset() readByte offset}
+ * that is incremented whenever bytes are readByte.
  */
 @SuppressWarnings("unused")
 public interface ReadableBuffer {
     /**
-     * @return Index of next byte to read.
+     * @return Index of next byte to readByte.
      */
     int readOffset();
 
     /**
-     * @param offset New read offset.
+     * @param offset New readByte offset.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #readableBytes() readable bytes}.
@@ -23,15 +23,15 @@ public interface ReadableBuffer {
     void readOffset(int offset);
 
     /**
-     * @return Number of bytes currently left to read.
+     * @return Number of bytes currently left to readByte.
      */
     int readableBytes();
 
     /**
      * Gets byte at the given {@code offset} without incrementing the internal
-     * {@link #readOffset() read offset}.
+     * {@link #readOffset() readByte offset}.
      *
-     * @param offset Position of byte to read.
+     * @param offset Position of byte to readByte.
      * @return Read byte.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
@@ -41,11 +41,11 @@ public interface ReadableBuffer {
 
     /**
      * Gets bytes at the given {@code offset} without incrementing the internal
-     * {@link #readOffset() read offset}. The number of acquired bytes will be
+     * {@link #readOffset() readByte offset}. The number of acquired bytes will be
      * the same as the length of {@code target}.
      *
-     * @param offset Position of byte to read.
-     * @param target Receiver of read bytes.
+     * @param offset Position of byte to readByte.
+     * @param target Receiver of readByte bytes.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #readableBytes() readable bytes} minus
@@ -55,45 +55,45 @@ public interface ReadableBuffer {
 
     /**
      * Gets bytes at the given {@code offset} without incrementing the internal
-     * {@link #readOffset() read offset}.
+     * {@link #readOffset() readByte offset}.
      *
-     * @param offset       Position of byte to read.
-     * @param target       Receiver of read bytes.
+     * @param offset       Position of byte to readByte.
+     * @param target       Receiver of readByte bytes.
      * @param targetOffset Offset from beginning of {@code target} at which the
      *                     received bytes will be written.
-     * @param length       The number of bytes to read into {@code target}.
+     * @param length       The number of bytes to readByte into {@code target}.
      * @throws IndexOutOfBoundsException If {@code  offset}, {@code
      *                                   targetOffset} or {@code length} are
      *                                   negative, out of bounds, or there are
      *                                   less than {@code length} bytes left to
-     *                                   read.
+     *                                   readByte.
      */
     void getBytes(final int offset, final byte[] target, final int targetOffset, final int length);
 
     /**
-     * Gets byte at the internal {@link #readOffset() read offset}, without
+     * Gets byte at the internal {@link #readOffset() readByte offset}, without
      * incrementing the offset.
      *
-     * @return Byte at the internal {@link #readOffset() read offset}.
-     * @throws IndexOutOfBoundsException If there is no byte left to peek.
+     * @return Byte at the internal {@link #readOffset() readByte offset}.
+     * @throws IndexOutOfBoundsException If there is no byte left to getByte.
      */
     byte peekByte();
 
     /**
-     * Gets byte at the internal {@link #readOffset() read offset} and
+     * Gets byte at the internal {@link #readOffset() readByte offset} and
      * increments that offset.
      *
-     * @return Byte at the internal {@link #readOffset() read offset}.
-     * @throws IndexOutOfBoundsException If there is no byte left to read.
+     * @return Byte at the internal {@link #readOffset() readByte offset}.
+     * @throws IndexOutOfBoundsException If there is no byte left to readByte.
      */
     byte readByte();
 
     /**
-     * Gets byte at the internal {@link #readOffset() read offset} and
-     * increments that offset, unless there is nothing more to read, in which
+     * Gets byte at the internal {@link #readOffset() readByte offset} and
+     * increments that offset, unless there is nothing more to readByte, in which
      * case {@code 0} is returned.
      *
-     * @return Byte at the internal {@link #readOffset() read offset} or
+     * @return Byte at the internal {@link #readOffset() readByte offset} or
      * {@code 0}.
      */
     default byte readByteOrZero() {
@@ -103,10 +103,10 @@ public interface ReadableBuffer {
     }
 
     /**
-     * Reads bytes into {@code target}. The number of read bytes will be the
+     * Reads bytes into {@code target}. The number of readByte bytes will be the
      * same as the length of {@code target}.
      *
-     * @param target Receiver of read bytes.
+     * @param target Receiver of readByte bytes.
      * @throws IndexOutOfBoundsException If less than {@code target.length}
      *                                   bytes are available for reading.
      */
@@ -118,32 +118,32 @@ public interface ReadableBuffer {
      * Reads {@code length} bytes into {@code target}, beginning at
      * {@code targetOffset}.
      *
-     * @param target       Receiver of read bytes.
+     * @param target       Receiver of readByte bytes.
      * @param targetOffset Position in {@code target} at which to start adding
-     *                     read bytes.
-     * @param length       Number of bytes to read into {@code target}.
+     *                     readByte bytes.
+     * @param length       Number of bytes to readByte into {@code target}.
      * @throws IndexOutOfBoundsException If {@code targetOffset} or {@code
      *                                   length} are negative, out of bounds,
      *                                   or there are less than {@code length}
-     *                                   bytes left to read.
+     *                                   bytes left to readByte.
      */
     void readBytes(byte[] target, int targetOffset, int length);
 
     /**
-     * Increments the internal {@link #readOffset() read offset} by 1 without
+     * Increments the internal {@link #readOffset() readByte offset} by 1 without
      * getting the byte at the current offset.
      *
-     * @throws IndexOutOfBoundsException If there is no byte to skip.
+     * @throws IndexOutOfBoundsException If there is no byte to skipBytes.
      */
     default void skipByte() {
         skipBytes(1);
     }
 
     /**
-     * Increments the internal {@link #readOffset() read offset} by {@code n}.
+     * Increments the internal {@link #readOffset() readByte offset} by {@code n}.
      *
      * @throws IndexOutOfBoundsException If there are less than {@code n} bytes
-     *                                   left to skip.
+     *                                   left to skipBytes.
      */
     void skipBytes(int n);
 }

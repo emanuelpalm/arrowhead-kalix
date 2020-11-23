@@ -57,12 +57,12 @@ public class JsonBoolean implements JsonValue {
     /**
      * Reads "false" from given {@code reader}.
      *
-     * @param reader Source containing "false" at the current read offset,
+     * @param reader Source containing "false" at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON false.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
      *                                    valid JSON boolean at the current
-     *                                    read offset.
+     *                                    readByte offset.
      */
     public static JsonBoolean decodeJson(final ReadableBuffer reader) {
         return decodeJson(JsonTokenizer.tokenize(reader));

@@ -94,7 +94,7 @@ public class TrustStore {
      *                                  details that cannot be interpreted
      *                                  or supported properly.
      * @throws IOException              If the key store at the specified
-     *                                  {@code path} could not be read.
+     *                                  {@code path} could not be readByte.
      * @see <a href="https://tools.ietf.org/html/rfc5280">RFC 5280</a>
      * @see <a href="https://tools.ietf.org/html/rfc7292">RFC 7292</a>
      */
@@ -123,7 +123,7 @@ public class TrustStore {
      *                                  details that cannot be interpreted
      *                                  or supported properly.
      * @throws IOException              If the key store at the specified
-     *                                  {@code path} could not be read.
+     *                                  {@code path} could not be readByte.
      * @see <a href="https://tools.ietf.org/html/rfc5280">RFC 5280</a>
      * @see <a href="https://tools.ietf.org/html/rfc7292">RFC 7292</a>
      */

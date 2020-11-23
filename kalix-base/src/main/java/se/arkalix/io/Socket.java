@@ -2,16 +2,15 @@ package se.arkalix.io;
 
 import se.arkalix.io.buffer.Buffer;
 import se.arkalix.io.buffer.BufferView;
-import se.arkalix.io.buffer.old.ReadableBuffer;
 import se.arkalix.util.concurrent.Future;
 
 import java.util.concurrent.Flow;
 
-public interface Socket extends Flow.Publisher<ReadableBuffer> {
-    default Future<?> write(final Buffer buffer) {
-        final var view = buffer.seal();
+public interface Socket extends Flow.Publisher<BufferView> {
+    default Future<?> write(Buffer buffer) {
+        final var view = buffer.view();
         return write(view)
-            .always(ignored -> view.release());
+            .always(ignored -> view.close());
     }
 
     Future<?> write(BufferView buffer);

@@ -43,7 +43,7 @@ public interface ArService {
     AccessPolicy accessPolicy();
 
     /**
-     * Gets codecs this service can read and write.
+     * Gets codecs this service can readByte and write.
      *
      * @return Unmodifiable list of supported codecs.
      */

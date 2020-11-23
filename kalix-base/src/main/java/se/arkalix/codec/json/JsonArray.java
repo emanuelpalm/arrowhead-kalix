@@ -77,11 +77,11 @@ public class JsonArray implements JsonCollection<Integer>, Iterable<JsonValue> {
     /**
      * Reads JSON array from given {@code reader}.
      *
-     * @param reader Source containing JSON array at the current read offset,
+     * @param reader Source containing JSON array at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON array.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
-     *                                    valid JSON array at the current read
+     *                                    valid JSON array at the current readByte
      *                                    offset.
      */
     public static JsonArray decodeJson(final ReadableBuffer reader) {

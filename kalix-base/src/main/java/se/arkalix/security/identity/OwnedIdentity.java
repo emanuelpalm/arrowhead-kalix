@@ -266,7 +266,7 @@ public class OwnedIdentity extends SystemIdentity {
          *                                  or supported properly.
          * @throws IOException              If the key store at the specified
          *                                  {@code keyStorePath} could not be
-         *                                  read.
+         *                                  readByte.
          * @see <a href="https://tools.ietf.org/html/rfc5280">RFC 5280</a>
          */
         public OwnedIdentity load() throws GeneralSecurityException, IOException {

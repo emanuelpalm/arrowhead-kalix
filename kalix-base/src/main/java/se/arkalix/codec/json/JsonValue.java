@@ -76,7 +76,7 @@ public interface JsonValue {
     /**
      * Reads JSON value from given {@code reader}.
      *
-     * @param reader Reader containing JSON value at the current read offset,
+     * @param reader Reader containing JSON value at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON value.
      */

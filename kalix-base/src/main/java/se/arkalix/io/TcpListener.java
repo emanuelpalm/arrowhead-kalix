@@ -2,16 +2,28 @@ package se.arkalix.io;
 
 import se.arkalix.util.concurrent.Future;
 
-import java.util.concurrent.Flow;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
-public class TcpListener implements Listener<TcpSocket> {
-    @Override
-    public Future<?> close() {
-        return null;
+public interface TcpListener extends IpListener<TcpSocket> {
+    static Options create() {
+        return new Options();
     }
 
     @Override
-    public void subscribe(final Flow.Subscriber<? super TcpSocket> subscriber) {
+    default InetAddress localAddress() {
+        return localSocketAddress().getAddress();
+    }
 
+    default int localPort() {
+        return localSocketAddress().getPort();
+    }
+
+    InetSocketAddress localSocketAddress();
+
+    class Options {
+        public Future<TcpListener> bind() {
+            return Scheduler.global().bind(this);
+        }
     }
 }

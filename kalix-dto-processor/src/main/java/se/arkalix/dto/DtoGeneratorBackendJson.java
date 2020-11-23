@@ -114,7 +114,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
         if (hasInterface) {
             builder
                 .beginControlFlow("catch (final $T exception)", DecoderReadUnexpectedToken.class)
-                .addStatement("errorMessage = \"failed to read child object\"")
+                .addStatement("errorMessage = \"failed to readByte child object\"")
                 .addStatement("errorCause = exception")
                 .endControlFlow();
         }
@@ -389,7 +389,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
 
         if (level == 0) {
             builder
-                .beginControlFlow("if (buffer.peek().type() == $T.NULL)", JsonType.class)
+                .beginControlFlow("if (buffer.getByte().type() == $T.NULL)", JsonType.class)
                 .addStatement("buffer.skipElement()")
                 .addStatement("continue")
                 .endControlFlow();
@@ -432,7 +432,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
 
         if (level == 0) {
             builder
-                .beginControlFlow("if (buffer.peek().type() == $T.NULL)", JsonType.class)
+                .beginControlFlow("if (buffer.getByte().type() == $T.NULL)", JsonType.class)
                 .addStatement("buffer.skipElement()")
                 .addStatement("continue")
                 .endControlFlow();
@@ -503,7 +503,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
             .addStatement("errorMessage = \"expected number\"")
             .addStatement("break error")
             .endControlFlow()
-            .addStatement(assignment.expand("$T.read" + type + "(token, reader)"), JsonPrimitives.class);
+            .addStatement(assignment.expand("$T.readByte" + type + "(token, reader)"), JsonPrimitives.class);
     }
 
     private void readOptional(
@@ -543,9 +543,9 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
             builder
                 .addStatement("$T valueType$L", class_, level)
                 .beginControlFlow("switch (token.type())")
-                .addStatement("case NUMBER: valueType$L = $T.read$TNumber(token, reader); break",
+                .addStatement("case NUMBER: valueType$L = $T.readByte$TNumber(token, reader); break",
                     level, JsonPrimitives.class, class_)
-                .addStatement("case STRING: valueType$L = $T.read$T(token, reader); break",
+                .addStatement("case STRING: valueType$L = $T.readByte$T(token, reader); break",
                     level, JsonPrimitives.class, class_);
             if (level == 0) {
                 builder.addStatement("case NULL: continue");
@@ -568,7 +568,7 @@ public class DtoGeneratorBackendJson implements DtoGeneratorBackend {
                 .addStatement("errorMessage = \"expected string\"")
                 .addStatement("break error")
                 .endControlFlow()
-                .addStatement(assignment.expand("$T.read$T(token, reader)"), JsonPrimitives.class, class_);
+                .addStatement(assignment.expand("$T.readByte$T(token, reader)"), JsonPrimitives.class, class_);
         }
     }
 

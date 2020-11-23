@@ -267,11 +267,11 @@ public class JsonNumber implements JsonValue {
     /**
      * Reads JSON number from given {@code reader}.
      *
-     * @param reader Source containing JSON number at the current read offset,
+     * @param reader Source containing JSON number at the current readByte offset,
      *               ignoring any whitespace.
      * @return Decoded JSON number.
      * @throws DecoderReadUnexpectedToken If the reader does not contain a
-     *                                    valid JSON number at the current read
+     *                                    valid JSON number at the current readByte
      *                                    offset.
      */
     public static JsonNumber decodeJson(final ReadableBuffer reader) {

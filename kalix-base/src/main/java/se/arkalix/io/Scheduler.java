@@ -2,11 +2,19 @@ package se.arkalix.io;
 
 import se.arkalix.util.concurrent.Future;
 
-import java.net.InetSocketAddress;
-
+/**
+ * Low-level input/output scheduler.
+ */
 public interface Scheduler {
-    Future<TcpSocket> connectTcp(InetSocketAddress socketAddress);
-    Future<TcpListener> bindTcp(InetSocketAddress socketAddress);
-    Future<UdpSocket> connectUdp(InetSocketAddress socketAddress);
-    Future<UdpListener> bindUdp(InetSocketAddress socketAddress);
+    static Scheduler global() {
+        throw new IllegalStateException();
+    }
+
+    Future<TcpListener> bind(TcpListener.Options options);
+
+    Future<UdpListener> bind(UdpListener.Options options);
+
+    Future<TcpSocket> connect(TcpSocket.Options options);
+
+    Future<UdpSocket> connect(UdpSocket.Options options);
 }
