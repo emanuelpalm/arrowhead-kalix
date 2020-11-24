@@ -1,23 +1,61 @@
 package se.arkalix.io.buffer;
 
+import se.arkalix.io.buffer._internal.ByteArrayBuffer;
+import se.arkalix.io.buffer._internal.EmptyBufferView;
+
 /**
  * A collection of memory that can be read from.
  */
 public interface BufferView extends AutoCloseable {
     /**
-     * Gets new shallow copy of this buffer view.
-     * <p>
-     * Cloned buffer readers do not share offset pointers, which means that
-     * they can be used in parallel without risks for race conditions. Note,
-     * however, that this method is not thread-safe.
-     * <p>
-     * Every buffer, including any clones, must be {@link #close() closed}
-     * exactly once after no longer being in use.
+     * Gets a reference to an empty buffer view.
      *
-     * @return Shallow buffer view copy.
-     * @throws BufferIsClosed If this buffer view has been closed.
+     * @return Empty buffer view.
      */
-    BufferView clone();
+    static BufferView empty() {
+        return EmptyBufferView.instance();
+    }
+
+    /**
+     * Creates a new buffer view wrapping given {@code byteArray}.
+     * <p>
+     * The caller of this method must ensure that the given byte array is not
+     * modified during the lifetime of the returned buffer view. This can be
+     * guaranteed by cloning the byte array before providing it, as follows:
+     * <pre>
+     * final var view = BufferView.wrap(myByteArray.clone());
+     * </pre>
+     *
+     * @param byteArray Byte array to wrap.
+     * @return Wrapped byte array.
+     * @throws NullPointerException If {@code byteArray} is {@code null}.
+     */
+    static BufferView wrap(final byte[] byteArray) {
+        return new ByteArrayBuffer.View(byteArray, 0, byteArray.length);
+    }
+
+    /**
+     * Creates a new buffer view wrapping a region of given {@code byteArray}.
+     * <p>
+     * The caller of this method must ensure that the given byte array is not
+     * modified during the lifetime of the returned buffer view. This can be
+     * guaranteed by cloning the byte array before providing it, as follows:
+     * <pre>
+     * final var view = BufferView.wrap(myByteArray.clone(), myOffset, myLength);
+     * </pre>
+     *
+     * @param byteArray Byte array to wrap.
+     * @param offset    Offset from beginning of {@code byteArray} to wrap.
+     * @param length    Length, from {@code offset}, to include in wrapping.
+     * @return Wrapped byte array.
+     * @throws NullPointerException      If {@code byteArray} is {@code null}.
+     * @throws IndexOutOfBoundsException If {@code offset} or {@code length} is
+     *                                   less than 0, or if {@code offset +
+     *                                   length > byteArray.length}.
+     */
+    static BufferView wrap(final byte[] byteArray, final int offset, final int length) {
+        return new ByteArrayBuffer.View(byteArray, 0, byteArray.length);
+    }
 
     /**
      * Closes this buffer.
@@ -28,6 +66,23 @@ public interface BufferView extends AutoCloseable {
      */
     @Override
     void close();
+
+    /**
+     * Gets new shallow copy of this buffer view.
+     * <p>
+     * Duped buffer views have their own offset pointers, initially equal to
+     * the views they were created from. Duped buffers can be used in parallel
+     * with their originals without risks for race conditions. Note, however,
+     * that this method is itself not thread-safe. Any duping must happen while
+     * the duped buffer view is not being used by any other thread.
+     * <p>
+     * Every buffer, including any dupes, must be {@link #close() closed}
+     * exactly once after no longer being in use.
+     *
+     * @return Shallow buffer view copy.
+     * @throws BufferIsClosed If this buffer view has been closed.
+     */
+    BufferView dupe();
 
     /**
      * Gets position in buffer from which the next byte will be read.
@@ -104,7 +159,9 @@ public interface BufferView extends AutoCloseable {
      * @throws IndexOutOfBoundsException If there is no byte left to getByte.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    byte peekByte();
+    default byte peekByte() {
+        return getByte(offset());
+    }
 
     /**
      * Gets byte at the internal {@link #offset() read offset} and
@@ -182,5 +239,10 @@ public interface BufferView extends AutoCloseable {
      *                                   than {@code n} bytes left to skip.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void skipBytes(int n);
+    default void skipBytes(final int n) {
+        if (n < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        offset(offset() + n);
+    }
 }

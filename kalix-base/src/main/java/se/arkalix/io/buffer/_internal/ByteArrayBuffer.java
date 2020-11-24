@@ -6,21 +6,25 @@ import se.arkalix.io.buffer.BufferIsClosed;
 import se.arkalix.io.buffer.BufferView;
 import se.arkalix.util.annotation.Internal;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Internal
-public class NioBuffer implements Buffer {
-    private final Runnable onClose;
-    private final ByteBuffer inner;
-    private final AtomicInteger viewCount = new AtomicInteger(0);
+public class ByteArrayBuffer implements Buffer {
+    private final byte[] byteArray;
+    private final int givenLength;
+    private final int givenOffset;
 
     private boolean isClosed = false;
+    private int capacity;
+    private int offset = 0; // Relative to `givenOffset`.
 
-    public NioBuffer(final Runnable onClose, final ByteBuffer inner) {
-        this.onClose = Objects.requireNonNull(onClose, "onClose");
-        this.inner = Objects.requireNonNull(inner, "inner");
+    public ByteArrayBuffer(final byte[] byteArray, final int offset, final int length) {
+        if (offset < 0 || length < 0 || offset + length > byteArray.length) {
+            throw new IndexOutOfBoundsException();
+        }
+        this.byteArray = Objects.requireNonNull(byteArray, "byteArray");
+        givenOffset = offset;
+        givenLength = capacity = length;
     }
 
     @Override
@@ -28,7 +32,7 @@ public class NioBuffer implements Buffer {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        return inner.limit() + 1;
+        return capacity;
     }
 
     @Override
@@ -39,10 +43,10 @@ public class NioBuffer implements Buffer {
         if (capacity < 0) {
             throw new IndexOutOfBoundsException();
         }
-        if (capacity > inner.capacity()) {
+        if (capacity > givenLength) {
             throw new BufferCapacityNotIncreased();
         }
-        inner.limit(Math.max(capacity - 1, 0));
+        this.capacity = capacity;
     }
 
     @Override
@@ -50,12 +54,7 @@ public class NioBuffer implements Buffer {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        try {
-            onClose.run();
-        }
-        finally {
-            isClosed = true;
-        }
+        isClosed = true;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class NioBuffer implements Buffer {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        return inner.position();
+        return offset;
     }
 
     @Override
@@ -74,10 +73,10 @@ public class NioBuffer implements Buffer {
         if (offset < 0) {
             throw new IndexOutOfBoundsException();
         }
-        if (offset > inner.limit()) {
+        if (offset >= capacity) {
             throw new BufferCapacityNotIncreased();
         }
-        inner.position(offset);
+        this.offset = offset;
     }
 
     @Override
@@ -88,26 +87,24 @@ public class NioBuffer implements Buffer {
         if (offset < 0) {
             throw new IndexOutOfBoundsException();
         }
-        if (offset > inner.limit()) {
+        if (offset >= capacity) {
             throw new BufferCapacityNotIncreased();
         }
-        inner.put(offset, b);
+        byteArray[givenOffset + offset] = b;
     }
 
     @Override
-    public void putBytes(int offset, final byte[] source, int sourceOffset, int length) {
+    public void putBytes(final int offset, final byte[] source, final int sourceOffset, final int length) {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         if (offset < 0 || sourceOffset < 0 || length < 0 || length > source.length - sourceOffset) {
             throw new IndexOutOfBoundsException();
         }
-        if (length > inner.remaining()) {
+        if (length > space()) {
             throw new BufferCapacityNotIncreased();
         }
-        while (--length >= 0) {
-            inner.put(offset++, source[sourceOffset++]);
-        }
+        System.arraycopy(source, sourceOffset, byteArray, givenOffset + offset, length);
     }
 
     @Override
@@ -116,9 +113,7 @@ public class NioBuffer implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            inner.limit(inner.position());
-            inner.position(0);
-            return new View(viewCount, onClose, inner);
+            return new View(byteArray, givenOffset + offset, capacity);
         }
         finally {
             isClosed = true;
@@ -130,10 +125,10 @@ public class NioBuffer implements Buffer {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        if (!inner.hasRemaining()) {
+        if (space() == 0) {
             throw new BufferCapacityNotIncreased();
         }
-        inner.put(b);
+        byteArray[givenOffset + offset++] = b;
     }
 
     @Override
@@ -144,25 +139,32 @@ public class NioBuffer implements Buffer {
         if (sourceOffset < 0 || length < 0 || length > source.length - sourceOffset) {
             throw new IndexOutOfBoundsException();
         }
-        if (length > inner.remaining()) {
+        if (length > space()) {
             throw new BufferCapacityNotIncreased();
         }
-        inner.put(source, sourceOffset, length);
+        System.arraycopy(source, sourceOffset, byteArray, givenOffset + offset, length);
+        offset += length;
     }
 
-    private static class View implements BufferView {
-        private final Runnable onClose;
-        private final ByteBuffer inner;
-        private final AtomicInteger viewCount;
+    public static class View implements BufferView {
+        private final byte[] byteArray;
+        private final int length;
 
         private boolean isClosed = false;
+        private int offset;
 
-        private View(final AtomicInteger viewCount, final Runnable onClose, final ByteBuffer inner) {
-            this.viewCount = Objects.requireNonNull(viewCount, "viewCount");
-            this.onClose = Objects.requireNonNull(onClose, "onClose");
-            this.inner = Objects.requireNonNull(inner, "inner");
+        public View(final byte[] byteArray, final int offset, final int length) {
+            if (offset < 0 || length < 0 || offset + length > byteArray.length) {
+                throw new IndexOutOfBoundsException();
+            }
+            this.byteArray = Objects.requireNonNull(byteArray, "byteArray");
+            this.offset = offset;
+            this.length = length;
+        }
 
-            viewCount.incrementAndGet();
+        @Override
+        public void close() {
+            isClosed = true;
         }
 
         @Override
@@ -170,22 +172,7 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            return new View(viewCount, onClose, inner.slice());
-        }
-
-        @Override
-        public void close() {
-            if (isClosed) {
-                return;
-            }
-            try {
-                if (viewCount.decrementAndGet() == 0) {
-                    onClose.run();
-                }
-            }
-            finally {
-                isClosed = true;
-            }
+            return new View(byteArray, offset, length);
         }
 
         @Override
@@ -193,7 +180,7 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            return inner.position();
+            return offset;
         }
 
         @Override
@@ -201,10 +188,10 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            if (offset < 0 || offset > inner.limit()) {
+            if (offset < 0 || offset > byteArray.length) {
                 throw new IndexOutOfBoundsException();
             }
-            inner.position(offset);
+            this.offset = offset;
         }
 
         @Override
@@ -212,25 +199,23 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            if (offset < 0 || offset > inner.limit()) {
+            if (offset < 0 || offset > byteArray.length) {
                 throw new IndexOutOfBoundsException();
             }
-            return inner.get(offset);
+            return byteArray[offset];
         }
 
         @Override
-        public void getBytes(int offset, final byte[] target, int targetOffset, int length) {
+        public void getBytes(final int offset, final byte[] target, final int targetOffset, final int length) {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
             if (offset < 0 || targetOffset < 0 || length < 0 ||
-                length > target.length - targetOffset || length > inner.remaining())
+                length > target.length - targetOffset || length > remainder())
             {
                 throw new IndexOutOfBoundsException();
             }
-            while (--length >= 0) {
-                target[targetOffset++] = inner.get(offset++);
-            }
+            System.arraycopy(byteArray, offset, target, targetOffset, length);
         }
 
         @Override
@@ -238,10 +223,10 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            if (!inner.hasRemaining()) {
+            if (remainder() == 0) {
                 throw new IndexOutOfBoundsException();
             }
-            return inner.get();
+            return byteArray[offset];
         }
 
         @Override
@@ -249,15 +234,18 @@ public class NioBuffer implements Buffer {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            if (targetOffset < 0 || length < 0 || length > target.length - targetOffset || length > inner.remaining()) {
+            if (targetOffset < 0 || length < 0 || length > target.length - targetOffset || length > remainder()) {
                 throw new IndexOutOfBoundsException();
             }
-            inner.get(target, targetOffset, length);
+            System.arraycopy(byteArray, offset, target, targetOffset, length);
         }
 
         @Override
         public int size() {
-            return inner.limit() + 1;
+            if (isClosed) {
+                throw new BufferIsClosed();
+            }
+            return length;
         }
     }
 }

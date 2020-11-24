@@ -1,10 +1,57 @@
 package se.arkalix.io.buffer;
 
+import se.arkalix.io.buffer._internal.ByteArrayBuffer;
+
 /**
- * A collection of memory that can first be written to and then, after being
- * {@link #view() finished}, read from.
+ * A collection of memory that can first be written to and then read from.
+ * <p>
+ * All {@link Buffer Buffers} are read-only. In fact, {@link Buffer Buffers} do
+ * not have methods available for reading theirs contents. When a meaningful
+ * set of data has been written to a {@link Buffer}, it can be {@link #view()
+ * turned into} a {@link BufferView}, which can only be read.
  */
 public interface Buffer {
+    /**
+     * Creates a new buffer wrapping given {@code byteArray}.
+     * <p>
+     * The caller of this method must ensure that the given byte array is not
+     * modified during the lifetime of the returned buffer view. This can be
+     * guaranteed by cloning the byte array before providing it, as follows:
+     * <pre>
+     * final var view = Buffer.wrap(myByteArray.clone());
+     * </pre>
+     *
+     * @param byteArray Byte array to wrap.
+     * @return Wrapped byte array.
+     * @throws NullPointerException If {@code byteArray} is {@code null}.
+     */
+    static Buffer wrap(final byte[] byteArray) {
+        return new ByteArrayBuffer(byteArray, 0, byteArray.length);
+    }
+
+    /**
+     * Creates a new buffer wrapping a region of given {@code byteArray}.
+     * <p>
+     * The caller of this method must ensure that the given byte array is not
+     * modified during the lifetime of the returned buffer view. This can be
+     * guaranteed by cloning the byte array before providing it, as follows:
+     * <pre>
+     * final var view = Buffer.wrap(myByteArray.clone(), myOffset, myLength);
+     * </pre>
+     *
+     * @param byteArray Byte array to wrap.
+     * @param offset    Offset from beginning of {@code byteArray} to wrap.
+     * @param length    Length, from {@code offset}, to include in wrapping.
+     * @return Wrapped byte array.
+     * @throws NullPointerException      If {@code byteArray} is {@code null}.
+     * @throws IndexOutOfBoundsException If {@code offset} or {@code length} is
+     *                                   less than 0, or if {@code offset +
+     *                                   length > byteArray.length}.
+     */
+    static Buffer wrap(final byte[] byteArray, final int offset, final int length) {
+        return new ByteArrayBuffer(byteArray, offset, length);
+    }
+
     /**
      * Gets the total number of bytes that can be written to this buffer
      * without it having to be expanded, including any bytes already written.
@@ -125,9 +172,7 @@ public interface Buffer {
      * @throws BufferIsClosed             If this buffer is closed.
      * @throws IndexOutOfBoundsException  If {@code offset}, {@code
      *                                    sourceOffset} or {@code length} is
-     *                                    less than 0, or if {@code
-     *                                    sourceOffset} is larger than {@code
-     *                                    source.length}, or if {@code length}
+     *                                    less than 0, or if {@code length}
      *                                    is larger than {@code source.length}
      *                                    minus {@code sourceOffset}.
      */
@@ -199,10 +244,9 @@ public interface Buffer {
      * @throws BufferIsClosed             If this buffer is closed.
      * @throws IndexOutOfBoundsException  If  {@code sourceOffset} or {@code
      *                                    length} is less than 0, or if {@code
-     *                                    sourceOffset} is larger than {@code
-     *                                    source.length}, or if {@code length}
-     *                                    is larger than {@code source.length}
-     *                                    minus {@code sourceOffset}.
+     *                                    length} is larger than {@code
+     *                                    source.length} minus {@code
+     *                                    sourceOffset}.
      */
     void writeBytes(final byte[] source, final int sourceOffset, final int length);
 }
