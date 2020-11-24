@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Internal
-public class DirectByteBufferPool implements FixedSizeBufferAllocator {
+public class DirectByteBufferPool implements BufferPageAllocator {
     // TODO: Benchmark and optimize the constants in this class.
     // TODO: If possible and performant enough, use some kind of heuristic to adapt these values over time.
     private static final int CLEANUP_COUNTDOWN_INITIAL = 2048;
@@ -21,9 +21,9 @@ public class DirectByteBufferPool implements FixedSizeBufferAllocator {
     private final AtomicInteger cleanupCountdown = new AtomicInteger(CLEANUP_COUNTDOWN_INITIAL);
 
     @Override
-    public List<Buffer> allocate(int n) {
-        final var buffers = new ArrayList<Buffer>(n);
-        for (; n > 0; --n) {
+    public List<Buffer> allocateBuffers(int numberOfBuffers) {
+        final var buffers = new ArrayList<Buffer>(numberOfBuffers);
+        for (; numberOfBuffers > 0; --numberOfBuffers) {
             var byteBuffer = freeList.poll();
             if (byteBuffer == null) {
                 byteBuffer = ByteBuffer.allocateDirect(bufferCapacity());

@@ -125,31 +125,6 @@ public class NioBuffer implements Buffer {
         }
     }
 
-    @Override
-    public void writeByte(final byte b) {
-        if (isClosed) {
-            throw new BufferIsClosed();
-        }
-        if (!inner.hasRemaining()) {
-            throw new BufferCapacityNotIncreased();
-        }
-        inner.put(b);
-    }
-
-    @Override
-    public void writeBytes(final byte[] source, final int sourceOffset, final int length) {
-        if (isClosed) {
-            throw new BufferIsClosed();
-        }
-        if (sourceOffset < 0 || length < 0 || length > source.length - sourceOffset) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (length > inner.remaining()) {
-            throw new BufferCapacityNotIncreased();
-        }
-        inner.put(source, sourceOffset, length);
-    }
-
     private static class View implements BufferView {
         private final Runnable onClose;
         private final ByteBuffer inner;
@@ -231,28 +206,6 @@ public class NioBuffer implements Buffer {
             while (--length >= 0) {
                 target[targetOffset++] = inner.get(offset++);
             }
-        }
-
-        @Override
-        public byte readByte() {
-            if (isClosed) {
-                throw new BufferIsClosed();
-            }
-            if (!inner.hasRemaining()) {
-                throw new IndexOutOfBoundsException();
-            }
-            return inner.get();
-        }
-
-        @Override
-        public void readBytes(final byte[] target, final int targetOffset, final int length) {
-            if (isClosed) {
-                throw new BufferIsClosed();
-            }
-            if (targetOffset < 0 || length < 0 || length > target.length - targetOffset || length > inner.remaining()) {
-                throw new IndexOutOfBoundsException();
-            }
-            inner.get(target, targetOffset, length);
         }
 
         @Override

@@ -2,32 +2,28 @@ package se.arkalix.io.buffer._internal;
 
 import se.arkalix.io.buffer.Buffer;
 import se.arkalix.io.buffer.BufferAllocator;
+import se.arkalix.util.annotation.Internal;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
+@Internal
 public class DefaultBufferAllocator implements BufferAllocator {
-    private final FixedSizeBufferAllocator fixedSizeBufferAllocator;
+    private final BufferPageAllocator bufferPageAllocator;
 
-    public DefaultBufferAllocator(final FixedSizeBufferAllocator fixedSizeBufferAllocator) {
-        this.fixedSizeBufferAllocator = Objects.requireNonNull(fixedSizeBufferAllocator, "fixedSizeBufferAllocator");
+    public DefaultBufferAllocator(final BufferPageAllocator bufferPageAllocator) {
+        this.bufferPageAllocator = Objects.requireNonNull(bufferPageAllocator, "fixedSizeBufferAllocator");
     }
 
     @Override
-    public Buffer allocate() {
-        return new ExpandingBuffer(fixedSizeBufferAllocator);
+    public Buffer allocateDynamic() {
+        return new PageBufferDynamic(bufferPageAllocator);
     }
 
     @Override
-    public Buffer allocateWithInitialCapacity(final int initialCapacity) {
-        final var buffer = new ExpandingBuffer(fixedSizeBufferAllocator);
-        buffer.capacity(initialCapacity);
-        return buffer;
-    }
-
-    @Override
-    public Buffer allocateWithFixedCapacity(final int fixedCapacity) {
-        // TODO: Use non-expanding composite buffer with fixed size buffers to avoid not using pooled memory.
-        return new NioBuffer(() -> {}, ByteBuffer.allocateDirect(fixedCapacity));
+    public Buffer allocateFixed(final int fixedCapacity) {
+        return new PageBufferFixed(
+            bufferPageAllocator.allocateMemory(fixedCapacity),
+            bufferPageAllocator.bufferCapacity()
+        );
     }
 }

@@ -54,7 +54,7 @@ public interface BufferView extends AutoCloseable {
      *                                   length > byteArray.length}.
      */
     static BufferView wrap(final byte[] byteArray, final int offset, final int length) {
-        return new ByteArrayBuffer.View(byteArray, 0, byteArray.length);
+        return new ByteArrayBuffer.View(byteArray, offset, length);
     }
 
     /**
@@ -171,7 +171,12 @@ public interface BufferView extends AutoCloseable {
      * @throws IndexOutOfBoundsException If there is no byte left to read.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    byte readByte();
+    default byte readByte() {
+        final var offset = offset();
+        final var b = getByte(offset);
+        offset(offset + 1);
+        return b;
+    }
 
     /**
      * Reads bytes into {@code target}. The number of read bytes will be the
@@ -200,7 +205,11 @@ public interface BufferView extends AutoCloseable {
      *                                   bytes left to read.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    void readBytes(byte[] target, int targetOffset, int length);
+    default void readBytes(byte[] target, int targetOffset, int length) {
+        final var offset = offset();
+        getBytes(offset, target, targetOffset, length);
+        offset(offset + length);
+    }
 
     /**
      * Gets number of bytes remaining to be read in this buffer view.
@@ -222,14 +231,13 @@ public interface BufferView extends AutoCloseable {
     int size();
 
     /**
-     * Increments the internal {@link #offset() read offset} by 1 without
-     * getting the byte at the current offset.
+     * Increments the internal {@link #offset() read offset} by 1.
      *
      * @throws IndexOutOfBoundsException If there is no byte left to skip.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    default void skipByte() {
-        skipBytes(1);
+    default void skip() {
+        skip(1);
     }
 
     /**
@@ -239,7 +247,7 @@ public interface BufferView extends AutoCloseable {
      *                                   than {@code n} bytes left to skip.
      * @throws BufferIsClosed            If this buffer view has been closed.
      */
-    default void skipBytes(final int n) {
+    default void skip(final int n) {
         if (n < 0) {
             throw new IndexOutOfBoundsException();
         }

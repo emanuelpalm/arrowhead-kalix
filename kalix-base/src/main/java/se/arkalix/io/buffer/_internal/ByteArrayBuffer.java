@@ -120,32 +120,6 @@ public class ByteArrayBuffer implements Buffer {
         }
     }
 
-    @Override
-    public void writeByte(final byte b) {
-        if (isClosed) {
-            throw new BufferIsClosed();
-        }
-        if (space() == 0) {
-            throw new BufferCapacityNotIncreased();
-        }
-        byteArray[givenOffset + offset++] = b;
-    }
-
-    @Override
-    public void writeBytes(final byte[] source, final int sourceOffset, final int length) {
-        if (isClosed) {
-            throw new BufferIsClosed();
-        }
-        if (sourceOffset < 0 || length < 0 || length > source.length - sourceOffset) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (length > space()) {
-            throw new BufferCapacityNotIncreased();
-        }
-        System.arraycopy(source, sourceOffset, byteArray, givenOffset + offset, length);
-        offset += length;
-    }
-
     public static class View implements BufferView {
         private final byte[] byteArray;
         private final int length;
@@ -213,28 +187,6 @@ public class ByteArrayBuffer implements Buffer {
             if (offset < 0 || targetOffset < 0 || length < 0 ||
                 length > target.length - targetOffset || length > remainder())
             {
-                throw new IndexOutOfBoundsException();
-            }
-            System.arraycopy(byteArray, offset, target, targetOffset, length);
-        }
-
-        @Override
-        public byte readByte() {
-            if (isClosed) {
-                throw new BufferIsClosed();
-            }
-            if (remainder() == 0) {
-                throw new IndexOutOfBoundsException();
-            }
-            return byteArray[offset];
-        }
-
-        @Override
-        public void readBytes(final byte[] target, final int targetOffset, final int length) {
-            if (isClosed) {
-                throw new BufferIsClosed();
-            }
-            if (targetOffset < 0 || length < 0 || length > target.length - targetOffset || length > remainder()) {
                 throw new IndexOutOfBoundsException();
             }
             System.arraycopy(byteArray, offset, target, targetOffset, length);

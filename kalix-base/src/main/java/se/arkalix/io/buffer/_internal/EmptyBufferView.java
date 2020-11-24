@@ -42,16 +42,6 @@ public class EmptyBufferView implements BufferView {
     }
 
     @Override
-    public byte readByte() {
-        throw new IndexOutOfBoundsException();
-    }
-
-    @Override
-    public void readBytes(final byte[] target, final int targetOffset, final int length) {
-        throw new IndexOutOfBoundsException();
-    }
-
-    @Override
     public int size() {
         return 0;
     }

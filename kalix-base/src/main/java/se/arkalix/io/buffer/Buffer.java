@@ -214,7 +214,11 @@ public interface Buffer {
      *                                    byte.
      * @throws BufferIsClosed             If this buffer is closed.
      */
-    void writeByte(byte b);
+    default void writeByte(byte b) {
+        final var offset = offset();
+        putByte(offset, b);
+        offset(offset + 1);
+    }
 
     /**
      * Writes {@code source} to buffer at the current {@link #offset() offset}
@@ -248,5 +252,9 @@ public interface Buffer {
      *                                    source.length} minus {@code
      *                                    sourceOffset}.
      */
-    void writeBytes(final byte[] source, final int sourceOffset, final int length);
+    default void writeBytes(final byte[] source, final int sourceOffset, final int length) {
+        final var offset = offset();
+        putBytes(offset, source, sourceOffset, length);
+        offset(offset + length);
+    }
 }
