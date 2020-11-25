@@ -5,8 +5,8 @@ import se.arkalix.io.buffer._internal.ByteArrayBuffer;
 /**
  * A collection of memory that can first be written to and then read from.
  * <p>
- * All {@link Buffer Buffers} are read-only. In fact, {@link Buffer Buffers} do
- * not have methods available for reading theirs contents. When a meaningful
+ * All {@link Buffer Buffers} are write-only. In fact, {@link Buffer Buffers}
+ * do not have methods available for reading theirs contents. When a meaningful
  * set of data has been written to a {@link Buffer}, it can be {@link #view()
  * turned into} a {@link BufferView}, which can only be read.
  */
@@ -146,6 +146,7 @@ public interface Buffer {
      * @throws BufferIsClosed             If this buffer is closed.
      * @throws IndexOutOfBoundsException  If given {@code offset} is less than
      *                                    0.
+     * @throws NullPointerException       If {@code source} is {@code null}.
      */
     default void putBytes(final int offset, final byte[] source) {
         putBytes(offset, source, 0, source.length);
@@ -173,8 +174,9 @@ public interface Buffer {
      * @throws IndexOutOfBoundsException  If {@code offset}, {@code
      *                                    sourceOffset} or {@code length} is
      *                                    less than 0, or if {@code length}
-     *                                    is larger than {@code source.length}
-     *                                    minus {@code sourceOffset}.
+     *                                    is larger than {@code source.length -
+     *                                    sourceOffset}.
+     * @throws NullPointerException       If {@code source} is {@code null}.
      */
     void putBytes(int offset, byte[] source, int sourceOffset, int length);
 
@@ -229,6 +231,7 @@ public interface Buffer {
      *                                    expanded to make room for the given
      *                                    source.
      * @throws BufferIsClosed             If this buffer is closed.
+     * @throws NullPointerException       If {@code source} is {@code null}.
      */
     default void writeBytes(byte[] source) {
         writeBytes(source, 0, source.length);
@@ -249,8 +252,8 @@ public interface Buffer {
      * @throws IndexOutOfBoundsException  If  {@code sourceOffset} or {@code
      *                                    length} is less than 0, or if {@code
      *                                    length} is larger than {@code
-     *                                    source.length} minus {@code
-     *                                    sourceOffset}.
+     *                                    source.length - sourceOffset}.
+     * @throws NullPointerException       If {@code source} is {@code null}.
      */
     default void writeBytes(final byte[] source, final int sourceOffset, final int length) {
         final var offset = offset();

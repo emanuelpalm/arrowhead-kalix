@@ -9,16 +9,17 @@ import se.arkalix.util.annotation.Internal;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @Internal
 public class NioBuffer implements Buffer {
-    private final Runnable onClose;
+    private final Consumer<ByteBuffer> onClose;
     private final ByteBuffer inner;
     private final AtomicInteger viewCount = new AtomicInteger(0);
 
     private boolean isClosed = false;
 
-    public NioBuffer(final Runnable onClose, final ByteBuffer inner) {
+    public NioBuffer(final Consumer<ByteBuffer> onClose, final ByteBuffer inner) {
         this.onClose = Objects.requireNonNull(onClose, "onClose");
         this.inner = Objects.requireNonNull(inner, "inner");
     }
@@ -51,7 +52,7 @@ public class NioBuffer implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            onClose.run();
+            onClose.accept(inner);
         }
         finally {
             isClosed = true;
@@ -96,6 +97,7 @@ public class NioBuffer implements Buffer {
 
     @Override
     public void putBytes(int offset, final byte[] source, int sourceOffset, int length) {
+        Objects.requireNonNull(source, "source");
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -126,13 +128,13 @@ public class NioBuffer implements Buffer {
     }
 
     private static class View implements BufferView {
-        private final Runnable onClose;
+        private final Consumer<ByteBuffer> onClose;
         private final ByteBuffer inner;
         private final AtomicInteger viewCount;
 
         private boolean isClosed = false;
 
-        private View(final AtomicInteger viewCount, final Runnable onClose, final ByteBuffer inner) {
+        private View(final AtomicInteger viewCount, final Consumer<ByteBuffer> onClose, final ByteBuffer inner) {
             this.viewCount = Objects.requireNonNull(viewCount, "viewCount");
             this.onClose = Objects.requireNonNull(onClose, "onClose");
             this.inner = Objects.requireNonNull(inner, "inner");
@@ -155,7 +157,7 @@ public class NioBuffer implements Buffer {
             }
             try {
                 if (viewCount.decrementAndGet() == 0) {
-                    onClose.run();
+                    onClose.accept(inner);
                 }
             }
             finally {
@@ -195,6 +197,7 @@ public class NioBuffer implements Buffer {
 
         @Override
         public void getBytes(int offset, final byte[] target, int targetOffset, int length) {
+            Objects.requireNonNull(target, "target");
             if (isClosed) {
                 throw new BufferIsClosed();
             }

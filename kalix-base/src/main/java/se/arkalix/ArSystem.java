@@ -68,7 +68,7 @@ public interface ArSystem extends SystemRecordWithIdentity {
      * Determines whether or not this system is running in {@link
      * se.arkalix.security secure mode}.
      *
-     * @return {@code true} if and only if this system is configured to run
+     * @return {@code true} if and only if this system is configured to schedule
      * in {@link se.arkalix.security secure mode}.
      */
     @ThreadSafe

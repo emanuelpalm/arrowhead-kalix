@@ -6,10 +6,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public interface UdpListener extends IpListener<UdpSocket> {
-    static Options create() {
-        return new Options();
-    }
-
     @Override
     default InetAddress localAddress() {
         return localSocketAddress().getAddress();
@@ -22,8 +18,8 @@ public interface UdpListener extends IpListener<UdpSocket> {
     InetSocketAddress localSocketAddress();
 
     class Options {
-        public Future<UdpListener> bind() {
-            return Scheduler.global().bind(this);
+        public Future<UdpListener> listen() {
+            return EventLoop.main().listen(this);
         }
     }
 }

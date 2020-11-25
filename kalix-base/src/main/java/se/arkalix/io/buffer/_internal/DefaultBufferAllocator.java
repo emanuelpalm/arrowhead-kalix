@@ -8,22 +8,22 @@ import java.util.Objects;
 
 @Internal
 public class DefaultBufferAllocator implements BufferAllocator {
-    private final BufferPageAllocator bufferPageAllocator;
+    private final PageAllocator pageAllocator;
 
-    public DefaultBufferAllocator(final BufferPageAllocator bufferPageAllocator) {
-        this.bufferPageAllocator = Objects.requireNonNull(bufferPageAllocator, "fixedSizeBufferAllocator");
+    public DefaultBufferAllocator(final PageAllocator pageAllocator) {
+        this.pageAllocator = Objects.requireNonNull(pageAllocator, "pageAllocator");
     }
 
     @Override
     public Buffer allocateDynamic() {
-        return new PageBufferDynamic(bufferPageAllocator);
+        return new PageBufferDynamic(pageAllocator);
     }
 
     @Override
     public Buffer allocateFixed(final int fixedCapacity) {
         return new PageBufferFixed(
-            bufferPageAllocator.allocateMemory(fixedCapacity),
-            bufferPageAllocator.bufferCapacity()
+            pageAllocator.allocateBytes(fixedCapacity),
+            pageAllocator.pageSize()
         );
     }
 }

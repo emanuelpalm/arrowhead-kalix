@@ -42,13 +42,13 @@ public class DefaultHttpConsumer implements HttpConsumer {
         if (isSecure != system.isSecure()) {
             if (isSecure) {
                 throw new IllegalStateException("The provided system is " +
-                    "configured to run in insecure mode, while the provided " +
+                    "configured to schedule in insecure mode, while the provided " +
                     "service \"" + service.name() + "\" is not; cannot " +
                     "consume service");
             }
             else {
                 throw new IllegalStateException("The provided system is " +
-                    "configured to run in secure mode, while the provided " +
+                    "configured to schedule in secure mode, while the provided " +
                     "service \"" + service.name() + "\" is not; cannot " +
                     "consume service");
             }

@@ -13,23 +13,23 @@ import java.util.stream.Collectors;
 
 @Internal
 public class PageBufferFixed implements Buffer {
-    private final ArrayList<Buffer> children;
-    private final int childByteCapacity;
+    private final ArrayList<Buffer> pages;
+    private final int pageByteCapacity;
     private final int givenCapacity;
 
     private int byteCapacity = 0;
     private int byteOffset = 0;
     private boolean isClosed = false;
 
-    public PageBufferFixed(final Collection<Buffer> children, final int childByteCapacity) {
-        Objects.requireNonNull(children, "children");
-        if (childByteCapacity <= 0) {
+    public PageBufferFixed(final Collection<Buffer> pages, final int pageByteCapacity) {
+        Objects.requireNonNull(pages, "children");
+        if (pageByteCapacity <= 0) {
             throw new IllegalArgumentException("childByteCapacity <= 0");
         }
 
-        this.children = new ArrayList<>(children);
-        this.childByteCapacity = childByteCapacity;
-        givenCapacity = Math.multiplyExact(children.size(), childByteCapacity);
+        this.pages = new ArrayList<>(pages);
+        this.pageByteCapacity = pageByteCapacity;
+        givenCapacity = Math.multiplyExact(pages.size(), pageByteCapacity);
     }
 
     @Override
@@ -60,11 +60,8 @@ public class PageBufferFixed implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            for (var i = children.size(); i-- > 0; ) {
-                final var child = children.get(i);
-                child.drop();
-            }
-            children.clear();
+            pages.forEach(Buffer::drop);
+            pages.clear();
         }
         finally {
             isClosed = true;
@@ -105,14 +102,15 @@ public class PageBufferFixed implements Buffer {
             throw new BufferCapacityNotIncreased();
         }
 
-        final var childIndex = offset / childByteCapacity;
-        final var childByteOffset = offset - childIndex * childByteCapacity;
+        final var pageIndex = offset / pageByteCapacity;
+        final var pageByteOffset = offset - pageIndex * pageByteCapacity;
 
-        children.get(childIndex).putByte(childByteOffset, b);
+        pages.get(pageIndex).putByte(pageByteOffset, b);
     }
 
     @Override
     public void putBytes(final int offset, final byte[] source, int sourceOffset, int length) {
+        Objects.requireNonNull(source, "source");
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -123,20 +121,20 @@ public class PageBufferFixed implements Buffer {
             throw new BufferCapacityNotIncreased();
         }
 
-        var childIndex = offset / childByteCapacity;
-        final var childLast = (offset + length) / childByteCapacity;
+        var pageIndex = offset / pageByteCapacity;
+        final var pageLast = (offset + length) / pageByteCapacity;
 
-        final var childByteOffset = offset - childIndex * childByteCapacity;
-        var childByteLength = Math.min(childByteCapacity - childByteOffset, length);
+        final var pageByteOffset = offset - pageIndex * pageByteCapacity;
+        var pageByteLength = Math.min(pageByteCapacity - pageByteOffset, length);
 
-        children.get(childIndex).putBytes(childByteOffset, source, sourceOffset, childByteLength);
+        pages.get(pageIndex).putBytes(pageByteOffset, source, sourceOffset, pageByteLength);
 
-        while (++childIndex <= childLast) {
-            sourceOffset += childByteLength;
-            length -= childByteLength;
-            childByteLength = Math.min(childByteCapacity, length);
+        while (++pageIndex <= pageLast) {
+            sourceOffset += pageByteLength;
+            length -= pageByteLength;
+            pageByteLength = Math.min(pageByteCapacity, length);
 
-            children.get(childIndex).putBytes(0, source, sourceOffset, childByteLength);
+            pages.get(pageIndex).putBytes(0, source, sourceOffset, pageByteLength);
         }
     }
 
@@ -146,15 +144,14 @@ public class PageBufferFixed implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            return new PageBufferView(children.stream()
+            return new PageBufferView(pages.stream()
                 .map(Buffer::view)
                 .collect(Collectors.toUnmodifiableList()),
-                childByteCapacity, 0, byteOffset
+                pageByteCapacity, 0, byteOffset
             );
         }
         finally {
             isClosed = true;
         }
     }
-
 }

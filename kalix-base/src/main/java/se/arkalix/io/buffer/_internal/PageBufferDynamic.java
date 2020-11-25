@@ -9,17 +9,17 @@ import java.util.stream.Collectors;
 
 @Internal
 public class PageBufferDynamic implements Buffer {
-    private final ArrayList<Buffer> children = new ArrayList<>();
-    private final int childByteCapacity;
-    private final BufferPageAllocator bufferPageAllocator;
+    private final ArrayList<Buffer> pages = new ArrayList<>();
+    private final int pageByteCapacity;
+    private final PageAllocator pageAllocator;
 
     private int byteCapacity = 0;
     private int byteOffset = 0;
     private boolean isClosed = false;
 
-    public PageBufferDynamic(final BufferPageAllocator bufferPageAllocator) {
-        this.bufferPageAllocator = Objects.requireNonNull(bufferPageAllocator, "pageAllocator");
-        childByteCapacity = bufferPageAllocator.bufferCapacity();
+    public PageBufferDynamic(final PageAllocator pageAllocator) {
+        this.pageAllocator = Objects.requireNonNull(pageAllocator, "bufferPageAllocator");
+        pageByteCapacity = pageAllocator.pageSize();
     }
 
     @Override
@@ -38,23 +38,23 @@ public class PageBufferDynamic implements Buffer {
         if (capacity < 0) {
             throw new IndexOutOfBoundsException();
         }
-        var capacityDifference = capacity - children.size() * childByteCapacity;
+        var capacityDifference = capacity - pages.size() * pageByteCapacity;
         if (capacityDifference > 0) {
             try {
-                children.addAll(bufferPageAllocator.allocateMemory(capacityDifference));
+                pages.addAll(pageAllocator.allocateBytes(capacityDifference));
             }
             catch (final BufferAllocationFailed exception) {
                 throw new BufferCapacityNotIncreased(exception);
             }
         }
         else if (capacityDifference < 0) {
-            for (var i = children.size(); i-- > 0; ) {
-                final var child = children.get(i);
-                capacityDifference += child.capacity();
+            for (var i = pages.size(); i-- > 0; ) {
+                final var page = pages.get(i);
+                capacityDifference += page.capacity();
                 if (capacityDifference > 0) {
                     break;
                 }
-                child.drop();
+                page.drop();
             }
         }
         this.byteCapacity = capacity;
@@ -66,10 +66,10 @@ public class PageBufferDynamic implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            for (var i = children.size(); i-- > 0; ) {
-                final var child = children.get(i);
-                child.drop();
-                byteCapacity -= childByteCapacity;
+            for (var i = pages.size(); i-- > 0; ) {
+                final var page = pages.get(i);
+                page.drop();
+                byteCapacity -= pageByteCapacity;
             }
         }
         finally {
@@ -111,14 +111,15 @@ public class PageBufferDynamic implements Buffer {
             capacity(offset + 1);
         }
 
-        final var childIndex = offset / childByteCapacity;
-        final var childByteOffset = offset - childIndex * childByteCapacity;
+        final var pageIndex = offset / pageByteCapacity;
+        final var pageByteOffset = offset - pageIndex * pageByteCapacity;
 
-        children.get(childIndex).putByte(childByteOffset, b);
+        pages.get(pageIndex).putByte(pageByteOffset, b);
     }
 
     @Override
     public void putBytes(final int offset, final byte[] source, int sourceOffset, int length) {
+        Objects.requireNonNull(source, "source");
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -129,20 +130,20 @@ public class PageBufferDynamic implements Buffer {
             capacity(offset + length);
         }
 
-        var childIndex = offset / childByteCapacity;
-        final var childLast = (offset + length) / childByteCapacity;
+        var pageIndex = offset / pageByteCapacity;
+        final var pageLast = (offset + length) / pageByteCapacity;
 
-        final var childByteOffset = offset - childIndex * childByteCapacity;
-        var childByteLength = Math.min(childByteCapacity - childByteOffset, length);
+        final var pageByteOffset = offset - pageIndex * pageByteCapacity;
+        var pageByteLength = Math.min(pageByteCapacity - pageByteOffset, length);
 
-        children.get(childIndex).putBytes(childByteOffset, source, sourceOffset, childByteLength);
+        pages.get(pageIndex).putBytes(pageByteOffset, source, sourceOffset, pageByteLength);
 
-        while (++childIndex <= childLast) {
-            sourceOffset += childByteLength;
-            length -= childByteLength;
-            childByteLength = Math.min(childByteCapacity, length);
+        while (++pageIndex <= pageLast) {
+            sourceOffset += pageByteLength;
+            length -= pageByteLength;
+            pageByteLength = Math.min(pageByteCapacity, length);
 
-            children.get(childIndex).putBytes(0, source, sourceOffset, childByteLength);
+            pages.get(pageIndex).putBytes(0, source, sourceOffset, pageByteLength);
         }
     }
 
@@ -152,10 +153,10 @@ public class PageBufferDynamic implements Buffer {
             throw new BufferIsClosed();
         }
         try {
-            return new PageBufferView(children.stream()
+            return new PageBufferView(pages.stream()
                 .map(Buffer::view)
                 .collect(Collectors.toUnmodifiableList()),
-                childByteCapacity, 0, byteOffset
+                pageByteCapacity, 0, byteOffset
             );
         }
         finally {

@@ -17,9 +17,9 @@
  * evaluation scenarios, but could also be useful in context where security is
  * not a requirement.
  * <p>
- * Whether or not systems are to run securely or not is typically decided on a
+ * Whether or not systems are to schedule securely or not is typically decided on a
  * per-cloud basis, meaning that either all systems part of the same local
- * cloud run in secure mode, or none of them do. There is nothing, however,
+ * cloud schedule in secure mode, or none of them do. There is nothing, however,
  * preventing a single device from running a secure system that is part of a
  * local cloud from also running an insecure version of the same system.
  *

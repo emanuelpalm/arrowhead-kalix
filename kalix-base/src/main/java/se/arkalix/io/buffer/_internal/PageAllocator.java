@@ -8,21 +8,22 @@ import java.util.Collections;
 import java.util.List;
 
 @Internal
-public interface BufferPageAllocator {
+public interface PageAllocator {
     @ThreadSafe
-    List<Buffer> allocateBuffers(int numberOfBuffers);
+    List<Buffer> allocatePages(int numberOfPages);
 
-    default List<Buffer> allocateMemory(final int numberOfBytes) {
+    @ThreadSafe
+    default List<Buffer> allocateBytes(final int numberOfBytes) {
         if (numberOfBytes < 0) {
             throw new IndexOutOfBoundsException();
         }
         if (numberOfBytes == 0) {
             return Collections.emptyList();
         }
-        final var numberOfBuffers = (numberOfBytes - 1) / bufferCapacity() + 1;
-        return allocateBuffers(numberOfBuffers);
+        final var numberOfBuffers = (numberOfBytes - 1) / pageSize() + 1;
+        return allocatePages(numberOfBuffers);
     }
 
     @ThreadSafe
-    int bufferCapacity();
+    int pageSize();
 }

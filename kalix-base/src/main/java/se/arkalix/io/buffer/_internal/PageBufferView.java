@@ -5,6 +5,7 @@ import se.arkalix.io.buffer.BufferView;
 import se.arkalix.util.annotation.Internal;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Internal
@@ -89,6 +90,7 @@ public class PageBufferView implements BufferView {
 
     @Override
     public void getBytes(final int offset, final byte[] target, int targetOffset, int length) {
+        Objects.requireNonNull(target, "target");
         if (isClosed) {
             throw new BufferIsClosed();
         }

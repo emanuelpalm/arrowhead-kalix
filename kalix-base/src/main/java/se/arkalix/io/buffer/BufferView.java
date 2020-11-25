@@ -109,10 +109,10 @@ public interface BufferView extends AutoCloseable {
      *
      * @param offset Position of byte to read.
      * @return Read byte.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #remainder() readable bytes}.
-     * @throws BufferIsClosed            If this buffer view has been closed.
      */
     byte getByte(int offset);
 
@@ -123,11 +123,12 @@ public interface BufferView extends AutoCloseable {
      *
      * @param offset Position of byte to read.
      * @param target Receiver of read bytes.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #remainder() readable bytes} minus
      *                                   the length of {@code target}.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws NullPointerException      If {@code target} is {@code null}.
      */
     default void getBytes(final int offset, final byte[] target) {
         getBytes(offset, target, 0, target.length);
@@ -142,12 +143,13 @@ public interface BufferView extends AutoCloseable {
      * @param targetOffset Offset from beginning of {@code target} at which the
      *                     received bytes will be written.
      * @param length       The number of bytes to read into {@code target}.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If {@code  offset}, {@code
      *                                   targetOffset} or {@code length} are
      *                                   negative, out of bounds, or there are
      *                                   less than {@code length} bytes left to
      *                                   read.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws NullPointerException      If {@code target} is {@code null}.
      */
     void getBytes(int offset, byte[] target, int targetOffset, int length);
 
@@ -183,9 +185,10 @@ public interface BufferView extends AutoCloseable {
      * same as the length of {@code target}.
      *
      * @param target Receiver of read bytes.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If less than {@code target.length}
      *                                   bytes are available for reading.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws NullPointerException      If {@code target} is {@code null}.
      */
     default void readBytes(byte[] target) {
         readBytes(target, 0, target.length);
@@ -199,11 +202,12 @@ public interface BufferView extends AutoCloseable {
      * @param targetOffset Position in {@code target} at which to start adding
      *                     read bytes.
      * @param length       Number of bytes to read into {@code target}.
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If {@code targetOffset} or {@code
      *                                   length} are negative, out of bounds,
      *                                   or there are less than {@code length}
      *                                   bytes left to read.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws NullPointerException      If {@code target} is {@code null}.
      */
     default void readBytes(byte[] target, int targetOffset, int length) {
         final var offset = offset();
@@ -225,7 +229,7 @@ public interface BufferView extends AutoCloseable {
      * Gets the total number of bytes that can be read from this buffer view,
      * including any bytes already read.
      *
-     * @return Buffer capacity, in bytes.
+     * @return Buffer size, in bytes.
      * @throws BufferIsClosed If this buffer view has been closed.
      */
     int size();
@@ -233,8 +237,8 @@ public interface BufferView extends AutoCloseable {
     /**
      * Increments the internal {@link #offset() read offset} by 1.
      *
-     * @throws IndexOutOfBoundsException If there is no byte left to skip.
      * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws IndexOutOfBoundsException If there is no byte left to skip.
      */
     default void skip() {
         skip(1);
@@ -243,9 +247,9 @@ public interface BufferView extends AutoCloseable {
     /**
      * Increments the internal {@link #offset() read offset} by {@code n}.
      *
+     * @throws BufferIsClosed            If this buffer view has been closed.
      * @throws IndexOutOfBoundsException If n is less than 0 or there are less
      *                                   than {@code n} bytes left to skip.
-     * @throws BufferIsClosed            If this buffer view has been closed.
      */
     default void skip(final int n) {
         if (n < 0) {

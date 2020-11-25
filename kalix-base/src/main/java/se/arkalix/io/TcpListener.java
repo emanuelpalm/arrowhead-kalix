@@ -6,10 +6,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public interface TcpListener extends IpListener<TcpSocket> {
-    static Options create() {
-        return new Options();
-    }
-
     @Override
     default InetAddress localAddress() {
         return localSocketAddress().getAddress();
@@ -22,8 +18,8 @@ public interface TcpListener extends IpListener<TcpSocket> {
     InetSocketAddress localSocketAddress();
 
     class Options {
-        public Future<TcpListener> bind() {
-            return Scheduler.global().bind(this);
+        public Future<TcpListener> listen() {
+            return EventLoop.main().listen(this);
         }
     }
 }

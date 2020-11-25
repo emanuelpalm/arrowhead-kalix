@@ -95,6 +95,7 @@ public class ByteArrayBuffer implements Buffer {
 
     @Override
     public void putBytes(final int offset, final byte[] source, final int sourceOffset, final int length) {
+        Objects.requireNonNull(source, "source");
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -181,6 +182,7 @@ public class ByteArrayBuffer implements Buffer {
 
         @Override
         public void getBytes(final int offset, final byte[] target, final int targetOffset, final int length) {
+            Objects.requireNonNull(target, "target");
             if (isClosed) {
                 throw new BufferIsClosed();
             }

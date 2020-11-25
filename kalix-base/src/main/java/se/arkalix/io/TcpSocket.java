@@ -6,10 +6,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public interface TcpSocket extends IpSocket {
-    static Options create() {
-        return new Options();
-    }
-
     @Override
     default InetAddress localAddress() {
         return localSocketAddress().getAddress();
@@ -33,8 +29,8 @@ public interface TcpSocket extends IpSocket {
     InetSocketAddress remoteSocketAddress();
 
     class Options {
-        public Future<TcpSocket> bind() {
-            return Scheduler.global().connect(this);
+        public Future<TcpSocket> connect() {
+            return EventLoop.main().connect(this);
         }
     }
 }
