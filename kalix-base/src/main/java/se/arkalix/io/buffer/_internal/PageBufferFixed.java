@@ -3,7 +3,7 @@ package se.arkalix.io.buffer._internal;
 import se.arkalix.io.buffer.Buffer;
 import se.arkalix.io.buffer.BufferCapacityNotIncreased;
 import se.arkalix.io.buffer.BufferIsClosed;
-import se.arkalix.io.buffer.BufferView;
+import se.arkalix.io.buffer.BufferReader;
 import se.arkalix.util.annotation.Internal;
 
 import java.util.ArrayList;
@@ -55,12 +55,12 @@ public class PageBufferFixed implements Buffer {
     }
 
     @Override
-    public void drop() {
+    public void close() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
-            pages.forEach(Buffer::drop);
+            pages.forEach(Buffer::close);
             pages.clear();
         }
         finally {
@@ -139,13 +139,13 @@ public class PageBufferFixed implements Buffer {
     }
 
     @Override
-    public BufferView view() {
+    public BufferReader read() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
-            return new PageBufferView(pages.stream()
-                .map(Buffer::view)
+            return new PageBufferReader(pages.stream()
+                .map(Buffer::read)
                 .collect(Collectors.toUnmodifiableList()),
                 pageByteCapacity, 0, byteOffset
             );

@@ -1,23 +1,23 @@
 package se.arkalix.io.buffer._internal;
 
-import se.arkalix.io.buffer.BufferView;
+import se.arkalix.io.buffer.BufferReader;
 import se.arkalix.util.annotation.Internal;
 
 @Internal
-public class EmptyBufferView implements BufferView {
-    private static final EmptyBufferView instance = new EmptyBufferView();
+public class EmptyBufferReader implements BufferReader {
+    private static final EmptyBufferReader instance = new EmptyBufferReader();
 
-    public static EmptyBufferView instance() {
+    public static EmptyBufferReader instance() {
         return instance;
     }
 
-    private EmptyBufferView() {}
+    private EmptyBufferReader() {}
 
     @Override
     public void close() {}
 
     @Override
-    public BufferView dupe() {
+    public BufferReader dupe() {
         return this;
     }
 

@@ -3,7 +3,7 @@ package se.arkalix.io.buffer._internal;
 import se.arkalix.io.buffer.Buffer;
 import se.arkalix.io.buffer.BufferCapacityNotIncreased;
 import se.arkalix.io.buffer.BufferIsClosed;
-import se.arkalix.io.buffer.BufferView;
+import se.arkalix.io.buffer.BufferReader;
 import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
@@ -47,7 +47,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void drop() {
+    public void close() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -113,28 +113,28 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public BufferView view() {
+    public BufferReader read() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
             inner.limit(inner.position());
             inner.position(0);
-            return new View(viewCount, onClose, inner);
+            return new Reader(viewCount, onClose, inner);
         }
         finally {
             isClosed = true;
         }
     }
 
-    private static class View implements BufferView {
+    private static class Reader implements BufferReader {
         private final Consumer<ByteBuffer> onClose;
         private final ByteBuffer inner;
         private final AtomicInteger viewCount;
 
         private boolean isClosed = false;
 
-        private View(final AtomicInteger viewCount, final Consumer<ByteBuffer> onClose, final ByteBuffer inner) {
+        private Reader(final AtomicInteger viewCount, final Consumer<ByteBuffer> onClose, final ByteBuffer inner) {
             this.viewCount = Objects.requireNonNull(viewCount, "viewCount");
             this.onClose = Objects.requireNonNull(onClose, "onClose");
             this.inner = Objects.requireNonNull(inner, "inner");
@@ -143,11 +143,11 @@ public class NioBuffer implements Buffer {
         }
 
         @Override
-        public BufferView dupe() {
+        public BufferReader dupe() {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            return new View(viewCount, onClose, inner.slice());
+            return new Reader(viewCount, onClose, inner.slice());
         }
 
         @Override

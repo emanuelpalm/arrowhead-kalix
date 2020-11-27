@@ -3,7 +3,7 @@ package se.arkalix.io.buffer._internal;
 import se.arkalix.io.buffer.Buffer;
 import se.arkalix.io.buffer.BufferCapacityNotIncreased;
 import se.arkalix.io.buffer.BufferIsClosed;
-import se.arkalix.io.buffer.BufferView;
+import se.arkalix.io.buffer.BufferReader;
 import se.arkalix.util.annotation.Internal;
 
 import java.util.Objects;
@@ -50,7 +50,7 @@ public class ByteArrayBuffer implements Buffer {
     }
 
     @Override
-    public void drop() {
+    public void close() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -109,26 +109,26 @@ public class ByteArrayBuffer implements Buffer {
     }
 
     @Override
-    public BufferView view() {
+    public BufferReader read() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
-            return new View(byteArray, givenOffset + offset, capacity);
+            return new Reader(byteArray, givenOffset + offset, capacity);
         }
         finally {
             isClosed = true;
         }
     }
 
-    public static class View implements BufferView {
+    public static class Reader implements BufferReader {
         private final byte[] byteArray;
         private final int length;
 
         private boolean isClosed = false;
         private int offset;
 
-        public View(final byte[] byteArray, final int offset, final int length) {
+        public Reader(final byte[] byteArray, final int offset, final int length) {
             if (offset < 0 || length < 0 || offset + length > byteArray.length) {
                 throw new IndexOutOfBoundsException();
             }
@@ -143,11 +143,11 @@ public class ByteArrayBuffer implements Buffer {
         }
 
         @Override
-        public BufferView dupe() {
+        public BufferReader dupe() {
             if (isClosed) {
                 throw new BufferIsClosed();
             }
-            return new View(byteArray, offset, length);
+            return new Reader(byteArray, offset, length);
         }
 
         @Override

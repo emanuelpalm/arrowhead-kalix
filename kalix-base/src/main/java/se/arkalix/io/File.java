@@ -1,19 +1,38 @@
 package se.arkalix.io;
 
+import se.arkalix.io.buffer.BufferReader;
+import se.arkalix.io.buffer.BufferWriter;
 import se.arkalix.util.concurrent.Future;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public interface File {
+public interface File extends AutoCloseable {
+    Path path();
+
+    Future<Reader> read();
+
+    Future<Writer> write();
+
+    @Override
+    void close();
+
+    interface Reader extends BufferReader {
+        Future<?> flush();
+    }
+
+    interface Writer extends BufferWriter {
+        Future<?> flush();
+    }
+
     class Options {
         private Path path;
         private boolean isAppending;
         private boolean isCreatedIfMissing;
-        private boolean isCreatedOrFail;
+        private boolean isCreatedOrFails;
+        private boolean isDirectOrFails;
         private boolean isReadable;
-        private boolean isSparse;
+        private boolean isSparseIfSupported;
         private boolean isTemporary;
         private boolean isTruncated;
         private boolean isWritable;
@@ -27,75 +46,84 @@ public interface File {
             return this;
         }
 
+        public Options append() {
+            isAppending = true;
+            return this;
+        }
+
+        public Options createIfMissing() {
+            isCreatedIfMissing = true;
+            return this;
+        }
+
+        public Options createOrFail() {
+            isCreatedOrFails = true;
+            return this;
+        }
+
+        public Options directOrFail() {
+            isDirectOrFails = true;
+            return this;
+        }
+
         public boolean isAppending() {
             return isAppending;
         }
 
-        public Options isAppending(final boolean isAppending) {
-            this.isAppending = isAppending;
-            return this;
+        public boolean isCreatedOrFails() {
+            return isCreatedOrFails;
         }
 
         public boolean isCreatedIfMissing() {
             return isCreatedIfMissing;
         }
 
-        public Options isCreatedIfMissing(final boolean isCreatedIfMissing) {
-            this.isCreatedIfMissing = isCreatedIfMissing;
-            return this;
-        }
-
-        public boolean isCreatedOrFail() {
-            return isCreatedOrFail;
-        }
-
-        public Options isCreatedOrFail(final boolean isCreatedOrFail) {
-            this.isCreatedOrFail = isCreatedOrFail;
-            return this;
+        public boolean isDirectOrFails() {
+            return isDirectOrFails;
         }
 
         public boolean isReadable() {
             return isReadable;
         }
 
-        public Options isReadable(final boolean isReadable) {
-            this.isReadable = isReadable;
-            return this;
-        }
-
-        public boolean isSparse() {
-            return isSparse;
-        }
-
-        public Options isSparse(final boolean isSparse) {
-            this.isSparse = isSparse;
-            return this;
+        public boolean isSparseIfSupported() {
+            return isSparseIfSupported;
         }
 
         public boolean isTemporary() {
             return isTemporary;
         }
 
-        public Options isTemporary(final boolean isTemporary) {
-            this.isTemporary = isTemporary;
-            return this;
-        }
-
         public boolean isTruncated() {
             return isTruncated;
-        }
-
-        public Options isTruncated(final boolean isTruncated) {
-            this.isTruncated = isTruncated;
-            return this;
         }
 
         public boolean isWritable() {
             return isWritable;
         }
 
-        public Options isWritable(final boolean isWritable) {
-            this.isWritable = isWritable;
+        public Options readable() {
+            this.isReadable = true;
+            return this;
+        }
+
+        public Options sparseIfSupported() {
+            isSparseIfSupported = true;
+            return this;
+        }
+
+        public Options temporary() {
+            isTemporary = true;
+            return this;
+        }
+
+        public Options truncate() {
+            isTruncated = true;
+            return this;
+        }
+
+        public Options writable() {
+            isWritable = true;
             return this;
         }
 

@@ -54,21 +54,21 @@ public class PageBufferDynamic implements Buffer {
                 if (capacityDifference > 0) {
                     break;
                 }
-                page.drop();
+                page.close();
             }
         }
         this.byteCapacity = capacity;
     }
 
     @Override
-    public void drop() {
+    public void close() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
             for (var i = pages.size(); i-- > 0; ) {
                 final var page = pages.get(i);
-                page.drop();
+                page.close();
                 byteCapacity -= pageByteCapacity;
             }
         }
@@ -148,13 +148,13 @@ public class PageBufferDynamic implements Buffer {
     }
 
     @Override
-    public BufferView view() {
+    public BufferReader read() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         try {
-            return new PageBufferView(pages.stream()
-                .map(Buffer::view)
+            return new PageBufferReader(pages.stream()
+                .map(Buffer::read)
                 .collect(Collectors.toUnmodifiableList()),
                 pageByteCapacity, 0, byteOffset
             );

@@ -1,47 +1,47 @@
 package se.arkalix.io.buffer;
 
 import se.arkalix.io.buffer._internal.ByteArrayBuffer;
-import se.arkalix.io.buffer._internal.EmptyBufferView;
+import se.arkalix.io.buffer._internal.EmptyBufferReader;
 
 /**
- * A collection of memory that can be read from.
+ * An arbitrary collection of memory that can be read from.
  */
-public interface BufferView extends AutoCloseable {
+public interface BufferReader extends AutoCloseable {
     /**
-     * Gets a reference to an empty buffer view.
+     * Gets a reference to an empty buffer reader.
      *
-     * @return Empty buffer view.
+     * @return Empty buffer reader.
      */
-    static BufferView empty() {
-        return EmptyBufferView.instance();
+    static BufferReader empty() {
+        return EmptyBufferReader.instance();
     }
 
     /**
-     * Creates a new buffer view wrapping given {@code byteArray}.
+     * Creates a new buffer reader wrapping given {@code byteArray}.
      * <p>
      * The caller of this method must ensure that the given byte array is not
-     * modified during the lifetime of the returned buffer view. This can be
+     * modified during the lifetime of the returned buffer reader. This can be
      * guaranteed by cloning the byte array before providing it, as follows:
      * <pre>
-     * final var view = BufferView.wrap(myByteArray.clone());
+     * final var reader = BufferView.wrap(myByteArray.clone());
      * </pre>
      *
      * @param byteArray Byte array to wrap.
      * @return Wrapped byte array.
      * @throws NullPointerException If {@code byteArray} is {@code null}.
      */
-    static BufferView wrap(final byte[] byteArray) {
-        return new ByteArrayBuffer.View(byteArray, 0, byteArray.length);
+    static BufferReader wrap(final byte[] byteArray) {
+        return new ByteArrayBuffer.Reader(byteArray, 0, byteArray.length);
     }
 
     /**
-     * Creates a new buffer view wrapping a region of given {@code byteArray}.
+     * Creates a new buffer reader wrapping a region of given {@code byteArray}.
      * <p>
      * The caller of this method must ensure that the given byte array is not
-     * modified during the lifetime of the returned buffer view. This can be
+     * modified during the lifetime of the returned buffer reader. This can be
      * guaranteed by cloning the byte array before providing it, as follows:
      * <pre>
-     * final var view = BufferView.wrap(myByteArray.clone(), myOffset, myLength);
+     * final var reader = BufferView.wrap(myByteArray.clone(), myOffset, myLength);
      * </pre>
      *
      * @param byteArray Byte array to wrap.
@@ -53,8 +53,8 @@ public interface BufferView extends AutoCloseable {
      *                                   less than 0, or if {@code offset +
      *                                   length > byteArray.length}.
      */
-    static BufferView wrap(final byte[] byteArray, final int offset, final int length) {
-        return new ByteArrayBuffer.View(byteArray, offset, length);
+    static BufferReader wrap(final byte[] byteArray, final int offset, final int length) {
+        return new ByteArrayBuffer.Reader(byteArray, offset, length);
     }
 
     /**
@@ -68,27 +68,27 @@ public interface BufferView extends AutoCloseable {
     void close();
 
     /**
-     * Gets new shallow copy of this buffer view.
+     * Gets new shallow copy of this buffer reader.
      * <p>
      * Duped buffer views have their own offset pointers, initially equal to
      * the views they were created from. Duped buffers can be used in parallel
      * with their originals without risks for race conditions. Note, however,
      * that this method is itself not thread-safe. Any duping must happen while
-     * the duped buffer view is not being used by any other thread.
+     * the duped buffer reader is not being used by any other thread.
      * <p>
      * Every buffer, including any dupes, must be {@link #close() closed}
      * exactly once after no longer being in use.
      *
-     * @return Shallow buffer view copy.
-     * @throws BufferIsClosed If this buffer view has been closed.
+     * @return Shallow buffer reader copy.
+     * @throws BufferIsClosed If this buffer reader has been closed.
      */
-    BufferView dupe();
+    BufferReader dupe();
 
     /**
      * Gets position in buffer from which the next byte will be read.
      *
      * @return Index of next byte to read.
-     * @throws BufferIsClosed If this buffer view has been closed.
+     * @throws BufferIsClosed If this buffer reader has been closed.
      */
     int offset();
 
@@ -99,7 +99,7 @@ public interface BufferView extends AutoCloseable {
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #remainder() remaining readable bytes}.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      */
     void offset(int offset);
 
@@ -109,7 +109,7 @@ public interface BufferView extends AutoCloseable {
      *
      * @param offset Position of byte to read.
      * @return Read byte.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #remainder() readable bytes}.
@@ -123,7 +123,7 @@ public interface BufferView extends AutoCloseable {
      *
      * @param offset Position of byte to read.
      * @param target Receiver of read bytes.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If given {@code offset} is less than 0
      *                                   or larger than the number of {@link
      *                                   #remainder() readable bytes} minus
@@ -143,7 +143,7 @@ public interface BufferView extends AutoCloseable {
      * @param targetOffset Offset from beginning of {@code target} at which the
      *                     received bytes will be written.
      * @param length       The number of bytes to read into {@code target}.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If {@code  offset}, {@code
      *                                   targetOffset} or {@code length} are
      *                                   negative, out of bounds, or there are
@@ -159,7 +159,7 @@ public interface BufferView extends AutoCloseable {
      *
      * @return Byte at the internal {@link #offset() read offset}.
      * @throws IndexOutOfBoundsException If there is no byte left to getByte.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      */
     default byte peekByte() {
         return getByte(offset());
@@ -171,7 +171,7 @@ public interface BufferView extends AutoCloseable {
      *
      * @return Byte at the internal {@link #offset() read offset}.
      * @throws IndexOutOfBoundsException If there is no byte left to read.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      */
     default byte readByte() {
         final var offset = offset();
@@ -185,7 +185,7 @@ public interface BufferView extends AutoCloseable {
      * same as the length of {@code target}.
      *
      * @param target Receiver of read bytes.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If less than {@code target.length}
      *                                   bytes are available for reading.
      * @throws NullPointerException      If {@code target} is {@code null}.
@@ -202,7 +202,7 @@ public interface BufferView extends AutoCloseable {
      * @param targetOffset Position in {@code target} at which to start adding
      *                     read bytes.
      * @param length       Number of bytes to read into {@code target}.
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If {@code targetOffset} or {@code
      *                                   length} are negative, out of bounds,
      *                                   or there are less than {@code length}
@@ -216,28 +216,28 @@ public interface BufferView extends AutoCloseable {
     }
 
     /**
-     * Gets number of bytes remaining to be read in this buffer view.
+     * Gets number of bytes remaining to be read in this buffer reader.
      *
      * @return Number of bytes currently left to read.
-     * @throws BufferIsClosed If this buffer view has been closed.
+     * @throws BufferIsClosed If this buffer reader has been closed.
      */
     default int remainder() {
         return size() - offset();
     }
 
     /**
-     * Gets the total number of bytes that can be read from this buffer view,
+     * Gets the total number of bytes that can be read from this buffer reader,
      * including any bytes already read.
      *
      * @return Buffer size, in bytes.
-     * @throws BufferIsClosed If this buffer view has been closed.
+     * @throws BufferIsClosed If this buffer reader has been closed.
      */
     int size();
 
     /**
      * Increments the internal {@link #offset() read offset} by 1.
      *
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If there is no byte left to skip.
      */
     default void skip() {
@@ -247,7 +247,7 @@ public interface BufferView extends AutoCloseable {
     /**
      * Increments the internal {@link #offset() read offset} by {@code n}.
      *
-     * @throws BufferIsClosed            If this buffer view has been closed.
+     * @throws BufferIsClosed            If this buffer reader has been closed.
      * @throws IndexOutOfBoundsException If n is less than 0 or there are less
      *                                   than {@code n} bytes left to skip.
      */

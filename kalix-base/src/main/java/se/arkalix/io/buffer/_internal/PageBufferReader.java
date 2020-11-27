@@ -1,7 +1,7 @@
 package se.arkalix.io.buffer._internal;
 
 import se.arkalix.io.buffer.BufferIsClosed;
-import se.arkalix.io.buffer.BufferView;
+import se.arkalix.io.buffer.BufferReader;
 import se.arkalix.util.annotation.Internal;
 
 import java.util.List;
@@ -9,16 +9,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Internal
-public class PageBufferView implements BufferView {
-    private final List<BufferView> children;
+public class PageBufferReader implements BufferReader {
+    private final List<BufferReader> children;
     private final int childBufferSize;
     private final int byteSize;
 
     private boolean isClosed;
     private int byteOffset;
 
-    public PageBufferView(
-        final List<BufferView> children,
+    public PageBufferReader(
+        final List<BufferReader> children,
         final int childBufferSize,
         final int byteOffset,
         final int byteSize
@@ -36,7 +36,7 @@ public class PageBufferView implements BufferView {
             return;
         }
         try {
-            children.forEach(BufferView::close);
+            children.forEach(BufferReader::close);
         }
         finally {
             isClosed = true;
@@ -44,12 +44,12 @@ public class PageBufferView implements BufferView {
     }
 
     @Override
-    public BufferView dupe() {
+    public BufferReader dupe() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        return new PageBufferView(children.stream()
-            .map(BufferView::dupe)
+        return new PageBufferReader(children.stream()
+            .map(BufferReader::dupe)
             .collect(Collectors.toUnmodifiableList()),
             childBufferSize, byteOffset, byteSize);
     }
