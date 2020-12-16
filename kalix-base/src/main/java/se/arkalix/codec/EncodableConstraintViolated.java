@@ -1,6 +1,6 @@
 package se.arkalix.codec;
 
-import se.arkalix.io.buffer.old.WritableBuffer;
+import se.arkalix.io._buf.old.WritableBuffer;
 
 import java.util.Objects;
 

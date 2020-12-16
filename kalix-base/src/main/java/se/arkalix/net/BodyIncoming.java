@@ -1,6 +1,6 @@
 package se.arkalix.net;
 
-import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
 import se.arkalix.util.concurrent.Future;
 
 import java.nio.file.Path;

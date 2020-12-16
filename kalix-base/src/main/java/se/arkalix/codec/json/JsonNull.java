@@ -2,8 +2,8 @@ package se.arkalix.codec.json;
 
 import se.arkalix.codec.DecoderReadUnexpectedToken;
 import se.arkalix.codec.CodecType;
-import se.arkalix.io.buffer.old.ReadableBuffer;
-import se.arkalix.io.buffer.old.WritableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
+import se.arkalix.io._buf.old.WritableBuffer;
 import se.arkalix.codec.json._internal.JsonPrimitives;
 import se.arkalix.codec.json._internal.JsonTokenBuffer;
 import se.arkalix.codec.json._internal.JsonTokenizer;

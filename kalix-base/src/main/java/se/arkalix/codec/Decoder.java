@@ -1,6 +1,6 @@
 package se.arkalix.codec;
 
-import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
 
 /**
  * A function used to decode binary data into a concrete class instance.

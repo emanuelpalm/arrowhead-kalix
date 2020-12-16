@@ -2,7 +2,7 @@ package se.arkalix.codec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
 
 import java.util.Objects;
 

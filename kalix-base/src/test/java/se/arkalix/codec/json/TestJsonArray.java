@@ -3,8 +3,8 @@ package se.arkalix.codec.json;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import se.arkalix.io.buffer.old.ReadableBufferOfByteArray;
-import se.arkalix.io.buffer.old.WritableBufferOfByteArray;
+import se.arkalix.io._buf.old.ReadableBufferOfByteArray;
+import se.arkalix.io._buf.old.WritableBufferOfByteArray;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;

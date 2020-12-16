@@ -2,7 +2,7 @@ package se.arkalix.codec.json._internal;
 
 import se.arkalix.codec.CodecType;
 import se.arkalix.codec.DecoderReadUnexpectedToken;
-import se.arkalix.io.buffer.old.ReadableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
 import se.arkalix.codec.json.JsonType;
 import se.arkalix.util.annotation.Internal;
 

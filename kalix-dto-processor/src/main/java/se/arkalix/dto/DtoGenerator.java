@@ -4,8 +4,8 @@ import com.squareup.javapoet.*;
 import se.arkalix.codec.CodecType;
 import se.arkalix.codec.CodecUnsupported;
 import se.arkalix.codec.MultiEncodable;
-import se.arkalix.io.buffer.old.ReadableBuffer;
-import se.arkalix.io.buffer.old.WritableBuffer;
+import se.arkalix.io._buf.old.ReadableBuffer;
+import se.arkalix.io._buf.old.WritableBuffer;
 import se.arkalix.dto.types.*;
 
 import javax.annotation.processing.Filer;
