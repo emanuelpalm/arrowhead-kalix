@@ -15,7 +15,15 @@ public interface Read {
      * @return Number of bytes read.
      * @throws NullPointerException If {@code source} is {@code null}.
      */
-    int read(Write target);
+    default int read(Write target) {
+        return read(target, Integer.MAX_VALUE);
+    }
+
+    int read(Write target, int limit);
+
+    int read(WriteAt target, int offset);
+
+    int read(WriteAt target, int offset, int length);
 
     /**
      * Reads as many bytes as possible from this reader to {@code target}.
@@ -55,7 +63,7 @@ public interface Read {
     /**
      * Repeatedly calls {@link #read(Write)} until {@code target} is full.
      * <p>
-     * The capacity of {@code target} is determined before any bytes are
+     * The limit of {@code target} is determined before any bytes are
      * written to it, which means that it will have more available space when
      * this method returns if it expands dynamically.
      * <p>

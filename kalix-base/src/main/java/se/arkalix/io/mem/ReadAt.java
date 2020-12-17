@@ -76,7 +76,7 @@ public interface ReadAt extends Limit {
      * Repeatedly calls {@link #readAt(Write, int)} until {@code target} is
      * full, as if the cursor of this writer was positioned at {@code offset}.
      * <p>
-     * The capacity of {@code target} is determined before any bytes are
+     * The limit of {@code target} is determined before any bytes are
      * written to it, which means that it will have more available space when
      * this method returns if it expands dynamically.
      * <p>
@@ -94,7 +94,7 @@ public interface ReadAt extends Limit {
         if (target == null) {
             throw new NullPointerException("target");
         }
-        if (offset < 0 || offset > limit()) {
+        if (offset < 0 || offset >= limit()) {
             throw new IndexOutOfBoundsException();
         }
         var bytesToWrite = target.limit() - target.offset();

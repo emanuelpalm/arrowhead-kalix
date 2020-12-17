@@ -85,7 +85,7 @@ public interface WriteAt extends Limit {
         if (source == null) {
             throw new NullPointerException("source");
         }
-        if (offset < 0 || offset > limit()) {
+        if (offset < 0 || offset >= limit()) {
             throw new IndexOutOfBoundsException();
         }
         var bytesToWrite = source.limit() - source.offset();

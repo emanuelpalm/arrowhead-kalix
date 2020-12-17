@@ -39,11 +39,10 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
         this.isExpanding = isExpanding;
 
         for (final var page : pages) {
-            byteLimit += page.limit() + 1;
+            byteLimit += page.limit();
         }
         if (!pages.isEmpty()) {
             pageCurrent = pages.get(0);
-            byteLimit -= 1;
         }
     }
 

@@ -176,7 +176,7 @@ public class DnsNames {
 
     /**
      * Verifies and splits given DNS {@code name} into no more than
-     * {@code limit} parts. Each part will contain exactly one DNS name label,
+     * {@code capacity} parts. Each part will contain exactly one DNS name label,
      * except for the last, which will contain all remaining labels.
      * <p>
      * Even though not standards compliant, this method allows DNS labels to
