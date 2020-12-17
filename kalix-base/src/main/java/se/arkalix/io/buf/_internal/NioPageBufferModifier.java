@@ -1,6 +1,6 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.Buffer;
+import se.arkalix.io.buf.Buffer0;
 import se.arkalix.io.buf.BufferIsClosed;
 import se.arkalix.io.mem.Limit;
 import se.arkalix.io.mem.Offset;
@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Offset, Write {
     private final boolean isExpanding;
 
-    private NioPagePool pagePool;
+    private ByteBufferPool pagePool;
     private ArrayList<ByteBuffer> pages;
 
     private boolean isClosed = false;
@@ -30,7 +30,7 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
 
 
     protected NioPageBufferModifier(
-        final NioPagePool pagePool,
+        final ByteBufferPool pagePool,
         final ArrayList<ByteBuffer> pages,
         final boolean isExpanding
     ) {
@@ -60,7 +60,7 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
         }
     }
 
-    protected <T> T closeAnd(final BiFunction<NioPagePool, ArrayList<ByteBuffer>, T> action) {
+    protected <T> T closeAnd(final BiFunction<ByteBufferPool, ArrayList<ByteBuffer>, T> action) {
         ensureIsOpen();
 
         isClosed = true;
@@ -73,7 +73,7 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
         }
     }
 
-    public Buffer copy() {
+    public Buffer0 copy() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -139,7 +139,7 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
         pageCurrent.position(offset - byteOffset);
     }
 
-    protected NioPagePool pagePoolUnsafe() {
+    protected ByteBufferPool pagePoolUnsafe() {
         return pagePool;
     }
 
@@ -155,11 +155,11 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
 
         final int byteOffsetOriginal = byteOffset;
 
-        if (source instanceof NioPageBufferReader) {
+        if (source instanceof NioPageBufferReader0) {
             writeUnsafe((NioPageBufferModifier) source);
         }
-        else if (source instanceof ByteArrayBufferReader) {
-            writeUnsafe((ByteArrayBufferReader) source);
+        else if (source instanceof ByteArrayBufferReader0) {
+            writeUnsafe((ByteArrayBufferReader0) source);
         }
         else {
             writeUnsafe(source);
@@ -239,7 +239,7 @@ public abstract class NioPageBufferModifier implements AutoCloseable, Limit, Off
         }
     }
 
-    private void writeUnsafe(final ByteArrayBufferReader source) {
+    private void writeUnsafe(final ByteArrayBufferReader0 source) {
         int bytesRead;
 
         while (true) {

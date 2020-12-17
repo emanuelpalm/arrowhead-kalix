@@ -10,7 +10,7 @@ import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 @Internal
-public class ByteArrayBufferWriter implements BufferWriter {
+public class ByteArrayBufferWriter0 implements BufferWriter0 {
     private final byte[] array;
     private final int lo, hi;
     private final int limit;
@@ -18,14 +18,14 @@ public class ByteArrayBufferWriter implements BufferWriter {
     private boolean isClosed = false;
     private int offset = 0;
 
-    public static ByteArrayBufferWriter of(final byte[] array, final int offset, final int length) {
+    public static ByteArrayBufferWriter0 of(final byte[] array, final int offset, final int length) {
         if (offset < 0 || length < 0 || array.length < offset + length) {
             throw new IndexOutOfBoundsException();
         }
-        return new ByteArrayBufferWriter(array, offset, offset + length);
+        return new ByteArrayBufferWriter0(array, offset, offset + length);
     }
 
-    ByteArrayBufferWriter(final byte[] array, final int lo, final int hi) {
+    ByteArrayBufferWriter0(final byte[] array, final int lo, final int hi) {
         this.array = array;
         this.lo = lo;
         this.hi = hi;
@@ -38,20 +38,20 @@ public class ByteArrayBufferWriter implements BufferWriter {
     }
 
     @Override
-    public BufferReader closeAndRead() {
+    public BufferReader0 closeAndRead() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         isClosed = true;
-        return new ByteArrayBufferReader(array, lo, hi);
+        return new ByteArrayBufferReader0(array, lo, hi);
     }
 
     @Override
-    public Buffer copy() {
+    public Buffer0 copy() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        return ByteArrayBuffer.of(Arrays.copyOfRange(array, lo, hi), 0, limit);
+        return ByteArrayBuffer0.of(Arrays.copyOfRange(array, lo, hi), 0, limit);
     }
 
     @Override

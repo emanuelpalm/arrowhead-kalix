@@ -1,6 +1,6 @@
 package se.arkalix.io.mem;
 
-import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferReader0;
 
 /**
  * An arbitrary collection of memory that can be written to in sequence.
@@ -40,7 +40,7 @@ public interface Write {
      * @throws NullPointerException      If {@code source} is {@code null}.
      */
     default int write(final byte[] source, final int sourceOffset, final int length) {
-        return write(BufferReader.wrap(source, sourceOffset, length));
+        return write(BufferReader0.wrap(source, sourceOffset, length));
     }
 
     /**
@@ -104,7 +104,7 @@ public interface Write {
      *                                   be written.
      */
     default void writeAll(final byte[] source, final int sourceOffset, final int length) {
-        writeAll(BufferReader.wrap(source, sourceOffset, length));
+        writeAll(BufferReader0.wrap(source, sourceOffset, length));
     }
 
     default boolean writeByte(final byte b) {

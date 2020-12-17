@@ -1,9 +1,9 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.Buffer;
+import se.arkalix.io.buf.Buffer0;
 import se.arkalix.io.buf.BufferException;
 import se.arkalix.io.buf.BufferIsClosed;
-import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferReader0;
 import se.arkalix.io.mem.ReadExactFailed;
 import se.arkalix.io.mem.Write;
 import se.arkalix.util.annotation.Internal;
@@ -13,7 +13,7 @@ import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 @Internal
-public class ByteArrayBufferReader implements BufferReader {
+public class ByteArrayBufferReader0 implements BufferReader0 {
     private final byte[] array;
     private final int lo, hi;
     private final int limit;
@@ -21,14 +21,14 @@ public class ByteArrayBufferReader implements BufferReader {
     private boolean isClosed = false;
     private int offset = 0;
 
-    public static ByteArrayBufferReader of(final byte[] array, final int offset, final int length) {
+    public static ByteArrayBufferReader0 of(final byte[] array, final int offset, final int length) {
         if (offset < 0 || length < 0 || array.length < offset + length) {
             throw new IndexOutOfBoundsException();
         }
-        return new ByteArrayBufferReader(array, offset, offset + length);
+        return new ByteArrayBufferReader0(array, offset, offset + length);
     }
 
-    ByteArrayBufferReader(final byte[] array, final int lo, final int hi) {
+    ByteArrayBufferReader0(final byte[] array, final int lo, final int hi) {
         this.array = array;
         this.lo = lo;
         this.hi = hi;
@@ -41,16 +41,16 @@ public class ByteArrayBufferReader implements BufferReader {
     }
 
     @Override
-    public Buffer copy() {
+    public Buffer0 copy() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
-        return ByteArrayBuffer.of(Arrays.copyOfRange(array, lo, hi), 0, limit);
+        return ByteArrayBuffer0.of(Arrays.copyOfRange(array, lo, hi), 0, limit);
     }
 
     @Override
-    public BufferReader dupe() {
-        return new ByteArrayBufferReader(array, lo, hi);
+    public BufferReader0 dupe() {
+        return new ByteArrayBufferReader0(array, lo, hi);
     }
 
     @Override

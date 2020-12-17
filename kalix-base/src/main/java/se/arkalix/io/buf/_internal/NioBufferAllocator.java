@@ -10,17 +10,17 @@ import java.util.Objects;
 
 @Internal
 public class NioBufferAllocator implements BufferAllocator {
-    private final NioPagePool pagePool;
+    private final ByteBufferPool pagePool;
 
     public static NioBufferAllocator createDirectAllocator() {
-        return new NioBufferAllocator(new NioPagePoolDirect());
+        return new NioBufferAllocator(new ByteBufferPoolDirect());
     }
 
     public static NioBufferAllocator createHeapAllocator() {
-        return new NioBufferAllocator(new NioPagePoolHeap());
+        return new NioBufferAllocator(new ByteBufferPoolHeap());
     }
 
-    private NioBufferAllocator(final NioPagePool pagePool) {
+    private NioBufferAllocator(final ByteBufferPool pagePool) {
         this.pagePool = Objects.requireNonNull(pagePool, "pagePool");
     }
 

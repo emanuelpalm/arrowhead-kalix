@@ -1,6 +1,6 @@
 package se.arkalix.io.mem;
 
-import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.io.buf.BufferWriter0;
 
 import java.util.Optional;
 
@@ -15,15 +15,7 @@ public interface Read {
      * @return Number of bytes read.
      * @throws NullPointerException If {@code source} is {@code null}.
      */
-    default int read(Write target) {
-        return read(target, Integer.MAX_VALUE);
-    }
-
-    int read(Write target, int limit);
-
-    int read(WriteAt target, int offset);
-
-    int read(WriteAt target, int offset, int length);
+    int read(Write target);
 
     /**
      * Reads as many bytes as possible from this reader to {@code target}.
@@ -50,7 +42,7 @@ public interface Read {
      * @throws NullPointerException      If {@code source} is {@code null}.
      */
     default int read(final byte[] target, final int targetOffset, final int length) {
-        return read(BufferWriter.wrap(target, targetOffset, length));
+        return read(BufferWriter0.wrap(target, targetOffset, length));
     }
 
     default Optional<Byte> readByte() {
@@ -122,6 +114,6 @@ public interface Read {
      *                              {@code target}.
      */
     default void readExact(final byte[] target, final int targetOffset, final int length) {
-        readExact(BufferWriter.wrap(target, targetOffset, length));
+        readExact(BufferWriter0.wrap(target, targetOffset, length));
     }
 }

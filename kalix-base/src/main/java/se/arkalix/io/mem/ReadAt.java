@@ -1,6 +1,6 @@
 package se.arkalix.io.mem;
 
-import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.io.buf.BufferWriter0;
 
 import java.util.Optional;
 
@@ -62,7 +62,7 @@ public interface ReadAt extends Limit {
      * @throws NullPointerException      If {@code target} is {@code null}.
      */
     default int readAt(final byte[] target, final int targetOffset, final int length, final int offset) {
-        return readAt(BufferWriter.wrap(target, targetOffset, length), offset);
+        return readAt(BufferWriter0.wrap(target, targetOffset, length), offset);
     }
 
     default Optional<Byte> readByteAt(final int offset) {
@@ -152,6 +152,6 @@ public interface ReadAt extends Limit {
      *                                   fill up {@code target}.
      */
     default void readExactAt(final byte[] target, final int targetOffset, final int length, final int offset) {
-        readAt(BufferWriter.wrap(target, targetOffset, length), offset);
+        readAt(BufferWriter0.wrap(target, targetOffset, length), offset);
     }
 }

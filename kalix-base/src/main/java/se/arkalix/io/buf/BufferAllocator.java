@@ -11,7 +11,7 @@ public interface BufferAllocator {
      *
      * @param capacity Desired buffer capacity.
      * @return Free {@link Buffer}.
-     * @throws BufferNotAllocated If allocation fails.
+     * @throws BufferAllocationFailed If allocation fails.
      */
     Buffer allocate(int capacity);
 
@@ -20,7 +20,7 @@ public interface BufferAllocator {
      * whatever contents it is provided.
      *
      * @return Free {@link Buffer}.
-     * @throws BufferNotAllocated If allocation fails.
+     * @throws BufferAllocationFailed If allocation fails.
      */
     default Buffer allocateDynamic() {
         return allocateDynamic(0);
@@ -33,7 +33,7 @@ public interface BufferAllocator {
      *
      * @param initialCapacity Initial dynamic buffer capacity.
      * @return Free {@link Buffer}.
-     * @throws BufferNotAllocated If allocation fails.
+     * @throws BufferAllocationFailed If allocation fails.
      */
     Buffer allocateDynamic(int initialCapacity);
 }

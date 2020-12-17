@@ -1,15 +1,15 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.Buffer;
-import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.Buffer0;
+import se.arkalix.io.buf.BufferReader0;
 import se.arkalix.io.mem.Write;
 import se.arkalix.util.annotation.Internal;
 
 @Internal
-public class EmptyBufferReader implements BufferReader {
-    private static final EmptyBufferReader instance = new EmptyBufferReader();
+public class EmptyBufferReader0 implements BufferReader0 {
+    private static final EmptyBufferReader0 instance = new EmptyBufferReader0();
 
-    public static EmptyBufferReader instance() {
+    public static EmptyBufferReader0 instance() {
         return instance;
     }
 
@@ -19,12 +19,12 @@ public class EmptyBufferReader implements BufferReader {
     }
 
     @Override
-    public Buffer copy() {
-        return ByteArrayBuffer.of(new byte[0]);
+    public Buffer0 copy() {
+        return ByteArrayBuffer0.of(new byte[0]);
     }
 
     @Override
-    public BufferReader dupe() {
+    public BufferReader0 dupe() {
         return this;
     }
 

@@ -1,6 +1,6 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferReader0;
 import se.arkalix.io.mem.Write;
 import se.arkalix.util.annotation.Internal;
 
@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Internal
-public class NioPageBufferReader extends NioPageBufferModifier implements BufferReader {
+public class NioPageBufferReader0 extends NioPageBufferModifier implements BufferReader0 {
     private final AtomicLong referenceCount;
 
-    public NioPageBufferReader(final NioPagePool pagePool, final ArrayList<ByteBuffer> pages) {
+    public NioPageBufferReader0(final ByteBufferPool pagePool, final ArrayList<ByteBuffer> pages) {
         super(pagePool, pages, false);
         referenceCount = new AtomicLong(1);
     }
 
-    private NioPageBufferReader(
-        final NioPagePool pagePool,
+    private NioPageBufferReader0(
+        final ByteBufferPool pagePool,
         final ArrayList<ByteBuffer> pages,
         final AtomicLong referenceCount
     ) {
@@ -36,10 +36,10 @@ public class NioPageBufferReader extends NioPageBufferModifier implements Buffer
     }
 
     @Override
-    public BufferReader dupe() {
+    public BufferReader0 dupe() {
         ensureIsOpen();
 
-        return new NioPageBufferReader(pagePoolUnsafe(), duplicatePagesUnsafe(), referenceCount);
+        return new NioPageBufferReader0(pagePoolUnsafe(), duplicatePagesUnsafe(), referenceCount);
     }
 
     @Override

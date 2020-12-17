@@ -6,10 +6,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @Internal
-public class NioPagePoolHeap extends NioPagePool {
+public class ByteBufferPoolDirect extends ByteBufferPool {
     @Override
     protected ByteBuffer createBufferOfSize(final int sizeInBytes) {
-        final var byteBuffer = ByteBuffer.allocate(sizeInBytes);
+        final var byteBuffer = ByteBuffer.allocateDirect(sizeInBytes);
         byteBuffer.order(ByteOrder.nativeOrder());
         return byteBuffer;
     }

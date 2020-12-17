@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 @Internal
-public abstract class NioPagePool {
+public abstract class ByteBufferPool {
     // TODO: Benchmark and optimize the constants in this class.
     // TODO: If possible and performant enough, use some kind of heuristic to adapt these values over time.
 

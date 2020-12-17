@@ -1,25 +1,82 @@
 package se.arkalix.io.buf;
 
-import se.arkalix.io.buf._internal.ByteArrayBufferWriter;
-import se.arkalix.io.mem.Writer;
+import java.nio.ByteOrder;
 
-public interface BufferWriter extends AutoCloseable, Writer {
-    static BufferWriter wrap(final byte[] bytes) {
-        return wrap(bytes, 0, bytes.length);
+public interface BufferWriter extends AutoCloseable {
+    int length();
+
+    int offset();
+
+    void offset(int offset);
+
+    default void write(final byte[] source) {
+        write(source, 0, source.length);
     }
 
-    static BufferWriter wrap(final byte[] bytes, final int offset, final int length) {
-        return ByteArrayBufferWriter.of(bytes, offset, length);
+    default void write(final Buffer source) {
+        write(source, 0, source.length());
+    }
+
+    default void write(final byte[] source, final int sourceOffset, final int length) {
+        write(Buffer.wrap(source), sourceOffset, length);
+    }
+
+    void write(final Buffer source, final int sourceOffset, final int length);
+
+    void writeFloat(final float value);
+
+    void writeDouble(final double value);
+
+    void writeByte(final byte value);
+
+    void writeShort(final short value);
+
+    default void writeShortBe(short value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Short.reverseBytes(value);
+        }
+        writeShort(value);
+    }
+
+    default void writeShortLe(short value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Short.reverseBytes(value);
+        }
+        writeShort(value);
+    }
+
+    void writeInt(final int value);
+
+    default void writeIntBe(int value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Integer.reverseBytes(value);
+        }
+        writeInt(value);
+    }
+
+    default void writeIntLe(int value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Integer.reverseBytes(value);
+        }
+        writeInt(value);
+    }
+
+    void writeLong(final long value);
+
+    default void writeLongBe(long value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Long.reverseBytes(value);
+        }
+        writeLong(value);
+    }
+
+    default void writeLongLe(long value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Long.reverseBytes(value);
+        }
+        writeLong(value);
     }
 
     @Override
     void close();
-
-    BufferReader closeAndRead();
-
-    Buffer copy();
-
-    default int space() {
-        return limit() - offset();
-    }
 }

@@ -1,30 +1,30 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.Buffer;
+import se.arkalix.io.buf.Buffer0;
 import se.arkalix.io.buf.BufferIsClosed;
-import se.arkalix.io.buf.BufferReader;
-import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.io.buf.BufferReader0;
+import se.arkalix.io.buf.BufferWriter0;
 import se.arkalix.util.annotation.Internal;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 @Internal
-public class ByteArrayBuffer implements Buffer {
+public class ByteArrayBuffer0 implements Buffer0 {
     private final byte[] array;
     private final int lo, hi;
 
     private boolean isClosed = false;
 
-    public static ByteArrayBuffer of(final byte[] array) {
-        return new ByteArrayBuffer(array, 0, array.length);
+    public static ByteArrayBuffer0 of(final byte[] array) {
+        return new ByteArrayBuffer0(array, 0, array.length);
     }
 
-    public static ByteArrayBuffer of(final byte[] array, final int offset, final int length) {
-        return new ByteArrayBuffer(array, offset, length);
+    public static ByteArrayBuffer0 of(final byte[] array, final int offset, final int length) {
+        return new ByteArrayBuffer0(array, offset, length);
     }
 
-    private ByteArrayBuffer(final byte[] array, final int offset, final int length) {
+    private ByteArrayBuffer0(final byte[] array, final int offset, final int length) {
         if (array == null) {
             throw new NullPointerException("array");
         }
@@ -43,7 +43,7 @@ public class ByteArrayBuffer implements Buffer {
     }
 
     @Override
-    public BufferReader closeAndRead() {
+    public BufferReader0 closeAndRead() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -52,16 +52,16 @@ public class ByteArrayBuffer implements Buffer {
     }
 
     @Override
-    public BufferWriter closeAndWrite() {
+    public BufferWriter0 closeAndWrite() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
         isClosed = true;
-        return new ByteArrayBufferWriter(array, lo, hi);
+        return new ByteArrayBufferWriter0(array, lo, hi);
     }
 
     @Override
-    public Buffer copy() {
+    public Buffer0 copy() {
         if (isClosed) {
             throw new BufferIsClosed();
         }

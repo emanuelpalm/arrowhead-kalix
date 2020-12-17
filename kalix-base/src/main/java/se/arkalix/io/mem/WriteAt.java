@@ -1,6 +1,6 @@
 package se.arkalix.io.mem;
 
-import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferReader0;
 
 /**
  * An arbitrary collection of memory that can be written to out of sequence.
@@ -60,7 +60,7 @@ public interface WriteAt extends Limit {
      * @throws NullPointerException      If {@code source} is {@code null}.
      */
     default int writeAt(final byte[] source, final int sourceOffset, final int length, final int offset) {
-        return writeAt(BufferReader.wrap(source, sourceOffset, length), offset);
+        return writeAt(BufferReader0.wrap(source, sourceOffset, length), offset);
     }
 
     /**
@@ -145,7 +145,7 @@ public interface WriteAt extends Limit {
      *                                   be written.
      */
     default void writeAllAt(final byte[] source, final int sourceOffset, final int length, final int offset) {
-        writeAllAt(BufferReader.wrap(source, sourceOffset, length), offset);
+        writeAllAt(BufferReader0.wrap(source, sourceOffset, length), offset);
     }
 
     default boolean writeByteAt(final byte b, final int offset) {
