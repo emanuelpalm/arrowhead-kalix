@@ -1,6 +1,7 @@
 package se.arkalix.io.buf._internal;
 
 import se.arkalix.io.buf.Buffer;
+import se.arkalix.io.buf.BufferAccessor;
 import se.arkalix.io.buf.BufferIsClosed;
 
 import java.nio.ByteBuffer;
@@ -44,6 +45,22 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
+    public int offset() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.position();
+    }
+
+    @Override
+    public void offset(final int offset) {
+        if (offset < 0 || offset > byteBuffer.limit()) {
+            throw new IndexOutOfBoundsException();
+        }
+        byteBuffer.position(offset);
+    }
+
+    @Override
     public void getAt(final int offset, final byte[] destination, final int destinationOffset, final int length) {
         if (destination == null) {
             throw new NullPointerException("destination");
@@ -51,11 +68,20 @@ public class NioBuffer implements Buffer {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
-        if (offset < 0 || offset > byteBuffer.limit()) {
-            throw new IndexOutOfBoundsException();
-        }
-        byteBuffer.position(offset);
+        offset(offset);
+
         byteBuffer.get(destination, destinationOffset, length);
+    }
+
+    @Override
+    public void getAt(final int offset, final Buffer destination, final int destinationOffset, final int length) {
+        if (destination == null) {
+            throw new NullPointerException("destination");
+        }
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        destination.setAt(destinationOffset, this, offset, length);
     }
 
     @Override
@@ -107,32 +133,87 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putAt(final int offset, final byte[] source, final int sourceOffset, final int length) {
+    public void read(final byte[] destination, final int destinationOffset, final int length) {
+        byteBuffer.get(destination, destinationOffset, length);
+    }
+
+    @Override
+    public void read(final Buffer destination, final int destinationOffset, final int length) {
+        final var offset = byteBuffer.position();
+        getAt(offset, destination, destinationOffset, length);
+        byteBuffer.position(offset + length);
+    }
+
+    @Override
+    public float readFloat() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.getFloat();
+    }
+
+    @Override
+    public double readDouble() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.getDouble();
+    }
+
+    @Override
+    public byte readByte() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.get();
+    }
+
+    @Override
+    public short readShort() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.getShort();
+    }
+
+    @Override
+    public int readInt() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.getInt();
+    }
+
+    @Override
+    public long readLong() {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        return byteBuffer.getLong();
+    }
+
+    @Override
+    public void setAt(final int offset, final byte[] source, final int sourceOffset, final int length) {
         if (source == null) {
             throw new NullPointerException("source");
         }
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
-        if (offset < 0 || offset > byteBuffer.limit()) {
-            throw new IndexOutOfBoundsException();
-        }
-        byteBuffer.position(offset);
+        offset(offset);
+
         byteBuffer.put(source, sourceOffset, length);
     }
 
     @Override
-    public void putAt(final int offset, final Buffer source, final int sourceOffset, int length) {
+    public void setAt(final int offset, final BufferAccessor source, final int sourceOffset, int length) {
         if (source == null) {
             throw new NullPointerException("source");
         }
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
-        if (offset < 0 || offset > byteBuffer.limit()) {
-            throw new IndexOutOfBoundsException();
-        }
-        byteBuffer.position(offset);
+        offset(offset);
 
         if (source instanceof NioBuffer) {
             final var sourceByteBuffer = ((NioBuffer) source).byteBuffer;
@@ -157,7 +238,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putFloatAt(final int position, final float value) {
+    public void setFloatAt(final int position, final float value) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
@@ -165,7 +246,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putDoubleAt(final int position, final double value) {
+    public void setDoubleAt(final int position, final double value) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
@@ -173,7 +254,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putByteAt(final int position, final byte source) {
+    public void setByteAt(final int position, final byte source) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
@@ -181,7 +262,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putShortAt(final int position, final short source) {
+    public void SetShortAt(final int position, final short source) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
@@ -189,7 +270,7 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putIntAt(final int position, final int source) {
+    public void setIntAt(final int position, final int source) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
@@ -197,11 +278,74 @@ public class NioBuffer implements Buffer {
     }
 
     @Override
-    public void putLongAt(final int position, final long source) {
+    public void setLongAt(final int position, final long source) {
         if (byteBuffer == null) {
             throw new BufferIsClosed();
         }
         byteBuffer.putLong(position, source);
+    }
+
+    @Override
+    public void write(final byte[] source, final int sourceOffset, final int length) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.put(source, sourceOffset, length);
+    }
+
+    @Override
+    public void write(final BufferAccessor source, final int sourceOffset, final int length) {
+        final var offset = byteBuffer.position();
+        setAt(offset, source, sourceOffset, length);
+        byteBuffer.position(offset + length);
+    }
+
+    @Override
+    public void writeFloat(final float value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.putFloat(value);
+    }
+
+    @Override
+    public void writeDouble(final double value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.putDouble(value);
+    }
+
+    @Override
+    public void writeByte(final byte value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.put(value);
+    }
+
+    @Override
+    public void writeShort(final short value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.putShort(value);
+    }
+
+    @Override
+    public void writeInt(final int value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.putInt(value);
+    }
+
+    @Override
+    public void writeLong(final long value) {
+        if (byteBuffer == null) {
+            throw new BufferIsClosed();
+        }
+        byteBuffer.putLong(value);
     }
 
     @Override

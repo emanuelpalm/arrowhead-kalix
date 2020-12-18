@@ -13,15 +13,13 @@ public interface BufferWriter extends AutoCloseable {
         write(source, 0, source.length);
     }
 
-    default void write(final Buffer source) {
+    default void write(final BufferAccessor source) {
         write(source, 0, source.length());
     }
 
-    default void write(final byte[] source, final int sourceOffset, final int length) {
-        write(Buffer.wrap(source), sourceOffset, length);
-    }
+    void write(final byte[] source, final int sourceOffset, final int length);
 
-    void write(final Buffer source, final int sourceOffset, final int length);
+    void write(final BufferAccessor source, final int sourceOffset, final int length);
 
     void writeFloat(final float value);
 

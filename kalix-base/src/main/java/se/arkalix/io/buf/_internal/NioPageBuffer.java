@@ -127,19 +127,19 @@ public class NioPageBuffer implements Buffer {
     }
 
     @Override
-    public void putFloatAt(final int offset, final float value) {
-        buf.putFloatAt(0, value);
+    public void setFloatAt(final int offset, final float value) {
+        buf.setFloatAt(0, value);
         putAt(offset, buf, 0, Float.BYTES);
     }
 
     @Override
-    public void putDoubleAt(final int offset, final double value) {
-        buf.putDoubleAt(0, value);
+    public void setDoubleAt(final int offset, final double value) {
+        buf.setDoubleAt(0, value);
         putAt(offset, buf, 0, Double.BYTES);
     }
 
     @Override
-    public void putByteAt(final int offset, final byte value) {
+    public void setByteAt(final int offset, final byte value) {
         if (isClosed) {
             throw new BufferIsClosed();
         }
@@ -148,20 +148,20 @@ public class NioPageBuffer implements Buffer {
     }
 
     @Override
-    public void putShortAt(final int offset, final short value) {
-        buf.putShortAt(0, value);
+    public void SetShortAt(final int offset, final short value) {
+        buf.SetShortAt(0, value);
         putAt(offset, buf, 0, Short.BYTES);
     }
 
     @Override
-    public void putIntAt(final int offset, final int value) {
-        buf.putIntAt(0, value);
+    public void setIntAt(final int offset, final int value) {
+        buf.setIntAt(0, value);
         putAt(offset, buf, 0, Integer.BYTES);
     }
 
     @Override
-    public void putLongAt(final int offset, final long value) {
-        buf.putLongAt(0, value);
+    public void setLongAt(final int offset, final long value) {
+        buf.setLongAt(0, value);
         putAt(offset, buf, 0, Long.BYTES);
     }
 

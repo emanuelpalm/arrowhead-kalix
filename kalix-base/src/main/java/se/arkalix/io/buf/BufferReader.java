@@ -17,9 +17,7 @@ public interface BufferReader extends AutoCloseable {
         read(destination, 0, destination.length());
     }
 
-    default void read(final byte[] destination, final int destinationOffset, final int length) {
-        read(Buffer.wrap(destination), destinationOffset, length);
-    }
+    void read(final byte[] destination, final int destinationOffset, final int length);
 
     void read(final Buffer destination, final int destinationOffset, final int length);
 

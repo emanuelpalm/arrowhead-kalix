@@ -63,7 +63,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (sourceOffset + length > this.length || length > this.length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putAt(offset, source, sourceOffset, length);
+        buffer.setAt(offset, source, sourceOffset, length);
         offset += length;
     }
 
@@ -74,7 +74,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (sourceOffset + length > this.length || length > this.length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putAt(offset, source, sourceOffset, length);
+        buffer.setAt(offset, source, sourceOffset, length);
         offset += length;
     }
 
@@ -85,7 +85,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Float.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putFloatAt(offset, value);
+        buffer.setFloatAt(offset, value);
         offset += Float.BYTES;
     }
 
@@ -96,7 +96,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Double.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putDoubleAt(offset, value);
+        buffer.setDoubleAt(offset, value);
         offset += Double.BYTES;
     }
 
@@ -107,7 +107,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Byte.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putByteAt(offset, value);
+        buffer.setByteAt(offset, value);
         offset += Byte.BYTES;
     }
 
@@ -118,7 +118,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Short.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putShortAt(offset, value);
+        buffer.SetShortAt(offset, value);
         offset += Short.BYTES;
     }
 
@@ -129,7 +129,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Integer.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putIntAt(offset, value);
+        buffer.setIntAt(offset, value);
         offset += Integer.BYTES;
     }
 
@@ -140,7 +140,7 @@ public class DefaultBufferWriter implements BufferWriter {
         if (Long.BYTES > length - offset) {
             throw new IndexOutOfBoundsException();
         }
-        buffer.putLongAt(offset, value);
+        buffer.setLongAt(offset, value);
         offset += Long.BYTES;
     }
 
