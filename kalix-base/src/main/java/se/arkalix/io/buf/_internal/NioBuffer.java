@@ -1,355 +1,319 @@
 package se.arkalix.io.buf._internal;
 
 import se.arkalix.io.buf.Buffer;
-import se.arkalix.io.buf.BufferAccessor;
-import se.arkalix.io.buf.BufferIsClosed;
+import se.arkalix.io.buf.BufferWriter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Objects;
 
 public class NioBuffer implements Buffer {
-    private ByteBuffer byteBuffer;
+    private int readOffset = 0;
+    private int writeOffset = 0;
 
-    public static NioBuffer allocate(final int capacity) {
-        final var byteBuffer = ByteBuffer.allocate(capacity);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        return new NioBuffer(byteBuffer);
-    }
+    @Override
+    public void offsets(final int readOffset, final int writeOffset) {
 
-    public static NioBuffer allocateDirect(final int capacity) {
-        final var byteBuffer = ByteBuffer.allocateDirect(capacity);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        return new NioBuffer(byteBuffer);
-    }
-
-    public static NioBuffer wrap(final byte[] byteArray, final int offset, final int length) {
-        if (byteArray == null) {
-            throw new NullPointerException("byteArray");
-        }
-        final var byteBuffer = ByteBuffer.wrap(byteArray, offset, length);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        return new NioBuffer(byteBuffer);
-    }
-
-    private NioBuffer(final ByteBuffer byteBuffer) {
-        this.byteBuffer = Objects.requireNonNull(byteBuffer, "byteBuffer");
     }
 
     @Override
-    public int length() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.limit();
+    public void clear() {
+        readOffset = 0;
+        writeOffset = 0;
+    }
+
+    private void throwIfGivenReadOffsetIsOutOfBounds(final int readOffset) {
+
+    }
+
+    private void throwIfGivenReadRangeIsOutOfBounds(final int readOffset, final int length) {
+
+    }
+
+    private void throwIfLessThanGivenNumberOfBytesCanBeRead(final int bytesToRead) {
+
+    }
+
+    private void throwIfWriteOffsetIsOutOfBounds(final int writeOffset) {
+
     }
 
     @Override
-    public int offset() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.position();
+    public int writableBytes() {
+        return 0;
     }
 
     @Override
-    public void offset(final int offset) {
-        if (offset < 0 || offset > byteBuffer.limit()) {
-            throw new IndexOutOfBoundsException();
-        }
-        byteBuffer.position(offset);
+    public int writeOffset() {
+        return writeOffset;
+    }
+
+    @Override
+    public void writeOffset(final int writeOffset) {
+        throwIfWriteOffsetIsOutOfBounds(writeOffset);
+        this.writeOffset = writeOffset;
+    }
+
+    @Override
+    public int writeEnd() {
+        return 0;
+    }
+
+    @Override
+    public void writeEnd(final int capacity) {
+
+    }
+
+    @Override
+    public int writeEndMax() {
+        return 0;
+    }
+
+    @Override
+    public int readableBytes() {
+        return 0;
+    }
+
+    @Override
+    public int readOffset() {
+        return readOffset;
+    }
+
+    @Override
+    public void readOffset(final int readOffset) {
+        throwIfGivenReadOffsetIsOutOfBounds(readOffset);
+        this.readOffset = readOffset;
+    }
+
+    @Override
+    public int readEnd() {
+        return 0;
     }
 
     @Override
     public void getAt(final int offset, final byte[] destination, final int destinationOffset, final int length) {
-        if (destination == null) {
-            throw new NullPointerException("destination");
-        }
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        offset(offset);
-
-        byteBuffer.get(destination, destinationOffset, length);
+        throwIfGivenReadRangeIsOutOfBounds(offset, length);
     }
 
     @Override
-    public void getAt(final int offset, final Buffer destination, final int destinationOffset, final int length) {
-        if (destination == null) {
-            throw new NullPointerException("destination");
-        }
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        destination.setAt(destinationOffset, this, offset, length);
+    public void getAt(final int offset, final BufferWriter destination, final int length) {
+        getAt(offset, destination, destination.writeOffset(), length);
+        destination.writeOffset(destination.writeOffset() + length);
     }
 
     @Override
-    public float getFloatAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getFloat(position);
+    public void getAt(final int offset, final BufferWriter destination, final int destinationOffset, final int length) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, length);
     }
 
     @Override
-    public double getDoubleAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getDouble(position);
+    public void getAt(final int offset, final ByteBuffer destination) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, destination.remaining());
     }
 
     @Override
-    public byte getByteAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.get(position);
+    public byte getS8At(final int offset) {
+        throwIfGivenReadOffsetIsOutOfBounds(offset);
+        return getS8AtUnchecked(offset);
+    }
+
+    private byte getS8AtUnchecked(final int offset) {
+        return 0;
     }
 
     @Override
-    public short getShortAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getShort(position);
+    public short getS16At(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 2);
+        return 0;
     }
 
     @Override
-    public int getIntAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getInt(position);
+    public int getS32At(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 4);
+        return 0;
     }
 
     @Override
-    public long getLongAt(final int position) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getLong(position);
+    public long getS64At(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 8);
+        return 0;
+    }
+
+    private int getU8AtUnchecked(final int offset) {
+        return Byte.toUnsignedInt(getS8AtUnchecked(offset));
+    }
+
+    @Override
+    public int getU24At(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 3);
+        return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+            ? getU24LeAtUnchecked(offset)
+            : getU24BeAtUnchecked(offset);
+    }
+
+    private int getU24AtUnchecked(final int offset) {
+        return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+            ? getU24LeAtUnchecked(offset)
+            : getU24BeAtUnchecked(offset);
+    }
+
+    @Override
+    public int getU24BeAt(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 3);
+        return getU24BeAtUnchecked(offset);
+    }
+
+    private int getU24BeAtUnchecked(final int offset) {
+        return (getU8AtUnchecked(offset) & 0xff) << 16 |
+            (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
+            getU8AtUnchecked(offset + 2) & 0xff;
+    }
+
+    @Override
+    public int getU24LeAt(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 3);
+        return getU24LeAtUnchecked(offset);
+    }
+
+    private int getU24LeAtUnchecked(final int offset) {
+        return getU8AtUnchecked(offset) & 0xff |
+            (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
+            (getU8AtUnchecked(offset + 2) & 0xff) << 16;
+    }
+
+    @Override
+    public long getU48At(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 6);
+        return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+            ? getU48LeAtUnchecked(offset)
+            : getU48BeAtUnchecked(offset);
+    }
+
+    private long getU48AtUnchecked(final int offset) {
+        return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+            ? getU48LeAtUnchecked(offset)
+            : getU48BeAtUnchecked(offset);
+    }
+
+    @Override
+    public long getU48BeAt(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 6);
+        return getU48BeAtUnchecked(offset);
+    }
+
+    private long getU48BeAtUnchecked(final int offset) {
+        return (long) (getU8AtUnchecked(offset) & 0xff) << 40 |
+            (long) (getU8AtUnchecked(offset + 1) & 0xff) << 32 |
+            (long) (getU8AtUnchecked(offset + 2) & 0xff) << 24 |
+            (long) (getU8AtUnchecked(offset + 3) & 0xff) << 16 |
+            (long) (getU8AtUnchecked(offset + 4) & 0xff) << 8 |
+            (long) (getU8AtUnchecked(offset + 5) & 0xff);
+    }
+
+    @Override
+    public long getU48LeAt(final int offset) {
+        throwIfGivenReadRangeIsOutOfBounds(offset, 6);
+        return getU48LeAtUnchecked(offset);
+    }
+
+    private long getU48LeAtUnchecked(final int offset) {
+        return (long) (getU8AtUnchecked(offset) & 0xff) |
+            (long) (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
+            (long) (getU8AtUnchecked(offset + 2) & 0xff) << 16 |
+            (long) (getU8AtUnchecked(offset + 3) & 0xff) << 24 |
+            (long) (getU8AtUnchecked(offset + 4) & 0xff) << 32 |
+            (long) (getU8AtUnchecked(offset + 5) & 0xff) << 40;
     }
 
     @Override
     public void read(final byte[] destination, final int destinationOffset, final int length) {
-        byteBuffer.get(destination, destinationOffset, length);
+
     }
 
     @Override
-    public void read(final Buffer destination, final int destinationOffset, final int length) {
-        final var offset = byteBuffer.position();
-        getAt(offset, destination, destinationOffset, length);
-        byteBuffer.position(offset + length);
+    public void read(final BufferWriter destination, final int length) {
+        read(destination, destination.writeOffset(), length);
+        destination.writeOffset(destination.writeOffset() + length);
     }
 
     @Override
-    public float readFloat() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getFloat();
+    public void read(final BufferWriter destination, final int destinationOffset, final int length) {
+
     }
 
     @Override
-    public double readDouble() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getDouble();
+    public void read(final ByteBuffer destination) {
+
     }
 
     @Override
-    public byte readByte() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.get();
+    public byte readS8() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(1);
+        return 0;
     }
 
     @Override
-    public short readShort() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getShort();
+    public short readS16() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(2);
+        return 0;
     }
 
     @Override
-    public int readInt() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getInt();
+    public int readS32() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(4);
+        return 0;
     }
 
     @Override
-    public long readLong() {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        return byteBuffer.getLong();
+    public long readS64() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(8);
+        return 0;
     }
 
     @Override
-    public void setAt(final int offset, final byte[] source, final int sourceOffset, final int length) {
-        if (source == null) {
-            throw new NullPointerException("source");
-        }
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        offset(offset);
-
-        byteBuffer.put(source, sourceOffset, length);
+    public int readU24() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(3);
+        final var value = getU24AtUnchecked(readOffset);
+        readOffset += 3;
+        return value;
     }
 
     @Override
-    public void setAt(final int offset, final BufferAccessor source, final int sourceOffset, int length) {
-        if (source == null) {
-            throw new NullPointerException("source");
-        }
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        offset(offset);
-
-        if (source instanceof NioBuffer) {
-            final var sourceByteBuffer = ((NioBuffer) source).byteBuffer;
-            sourceByteBuffer.position(sourceOffset);
-            sourceByteBuffer.limit(sourceOffset + length);
-
-            byteBuffer.put(sourceByteBuffer);
-            return;
-        }
-
-        // Use intermediate buffer as a last resort.
-        final var byteArray = new byte[2048];
-
-        while (length > byteArray.length) {
-            source.getAt(0, byteArray, 0, byteArray.length);
-            byteBuffer.put(byteArray);
-            length -= byteArray.length;
-        }
-
-        source.getAt(0, byteArray, 0, length);
-        byteBuffer.put(byteArray, 0, length);
+    public int readU24Be() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(3);
+        final var value = getU24BeAtUnchecked(readOffset);
+        readOffset += 3;
+        return value;
     }
 
     @Override
-    public void setFloatAt(final int position, final float value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putFloat(position, value);
+    public int readU24Le() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(3);
+        final var value = getU24LeAtUnchecked(readOffset);
+        readOffset += 3;
+        return value;
     }
 
     @Override
-    public void setDoubleAt(final int position, final double value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putDouble(position, value);
+    public long readU48() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(6);
+        final var value = getU48At(readOffset);
+        readOffset += 6;
+        return value;
     }
 
     @Override
-    public void setByteAt(final int position, final byte source) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.put(position, source);
+    public long readU48Be() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(6);
+        final var value = getU48BeAt(readOffset);
+        readOffset += 6;
+        return value;
     }
 
     @Override
-    public void SetShortAt(final int position, final short source) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putShort(position, source);
-    }
-
-    @Override
-    public void setIntAt(final int position, final int source) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putInt(position, source);
-    }
-
-    @Override
-    public void setLongAt(final int position, final long source) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putLong(position, source);
-    }
-
-    @Override
-    public void write(final byte[] source, final int sourceOffset, final int length) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.put(source, sourceOffset, length);
-    }
-
-    @Override
-    public void write(final BufferAccessor source, final int sourceOffset, final int length) {
-        final var offset = byteBuffer.position();
-        setAt(offset, source, sourceOffset, length);
-        byteBuffer.position(offset + length);
-    }
-
-    @Override
-    public void writeFloat(final float value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putFloat(value);
-    }
-
-    @Override
-    public void writeDouble(final double value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putDouble(value);
-    }
-
-    @Override
-    public void writeByte(final byte value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.put(value);
-    }
-
-    @Override
-    public void writeShort(final short value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putShort(value);
-    }
-
-    @Override
-    public void writeInt(final int value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putInt(value);
-    }
-
-    @Override
-    public void writeLong(final long value) {
-        if (byteBuffer == null) {
-            throw new BufferIsClosed();
-        }
-        byteBuffer.putLong(value);
-    }
-
-    @Override
-    public void close() {
-        byteBuffer = null;
+    public long readU48Le() {
+        throwIfLessThanGivenNumberOfBytesCanBeRead(6);
+        final var value = getU48LeAt(readOffset);
+        readOffset += 6;
+        return value;
     }
 }
