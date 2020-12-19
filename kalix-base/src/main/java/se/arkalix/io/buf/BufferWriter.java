@@ -3,10 +3,14 @@ package se.arkalix.io.buf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public interface BufferWriter {
+public interface BufferWriter extends AutoCloseable {
     int writableBytes();
 
-    void writableBytes(int writableBytes);
+    default void writableBytes(int writableBytes) {
+        writableBytesFrom(writeOffset(), writableBytes);
+    }
+
+    void writableBytesFrom(int writeOffset, int writableBytes);
 
     default int writableBytesMax() {
         return writeEndMax() - writeOffset();
@@ -20,7 +24,7 @@ public interface BufferWriter {
 
     int writeOffset();
 
-    void writeOffset(int readOffset);
+    void writeOffset(int writeOffset);
 
     default void setAt(final int offset, final byte[] source) {
         setAt(offset, source, 0, source.length);
@@ -28,20 +32,23 @@ public interface BufferWriter {
 
     void setAt(int offset, byte[] source, int sourceOffset, int length);
 
-    default void setAt(final int offset, final BufferWriter source) {
-        setAt(offset, source, source.writableBytes());
+    default void setAt(final int offset, final BufferReader source) {
+        setAt(offset, source, source.readableBytes());
     }
 
-    void setAt(int offset, BufferWriter source, int length);
+    default void setAt(int offset, BufferReader source, int length) {
+        setAt(offset, source, source.readOffset(), length);
+        source.readOffset(source.readOffset() + length);
+    }
 
-    void setAt(int offset, BufferWriter source, int sourceOffset, int length);
+    void setAt(int offset, BufferReader source, int sourceOffset, int length);
 
     void setAt(int offset, ByteBuffer source);
 
-    void fillAt(int offset, byte value, int length);
+    void setAt(int offset, byte value, int length);
 
-    default void zeroAt(final int offset, final int length) {
-        fillAt(offset, (byte) 0, length);
+    default void setZeroAt(final int offset, final int length) {
+        setAt(offset, (byte) 0, length);
     }
 
     default void setF32At(final int offset, final float value) {
@@ -165,4 +172,154 @@ public interface BufferWriter {
     default void setU48LeAt(final int offset, final long value) {
         setS48LeAt(offset, value);
     }
+
+    default void write(final byte[] source) {
+        write(source, 0, source.length);
+    }
+
+    void write(byte[] source, int sourceOffset, int length);
+
+    default void write(final BufferReader source) {
+        write(source, source.readableBytes());
+    }
+
+    default void write(BufferReader source, int length) {
+        write(source, source.readOffset(), length);
+        source.readOffset(source.readOffset() + length);
+    }
+
+    void write(BufferReader source, int sourceOffset, int length);
+
+    void write(ByteBuffer source);
+
+    void write(byte value, int length);
+
+    default void writeZero(final int length) {
+        write((byte) 0, length);
+    }
+
+    default void writeF32(final float value) {
+        writeS32(Float.floatToIntBits(value));
+    }
+
+    default void writeF64(final double value) {
+        writeS64(Double.doubleToLongBits(value));
+    }
+
+    void writeS8(byte value);
+
+    void writeS16(short value);
+
+    default void writeS16Be(short value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Short.reverseBytes(value);
+        }
+        writeS16(value);
+    }
+
+    default void writeS16Le(short value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Short.reverseBytes(value);
+        }
+        writeS16(value);
+    }
+
+    void writeS24(final int value);
+
+    void writeS24Be(final int value);
+
+    void writeS24Le(final int value);
+
+    void writeS32(final int value);
+
+    default void writeS32Be(int value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Integer.reverseBytes(value);
+        }
+        writeS32(value);
+    }
+
+    default void writeS32Le(int value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Integer.reverseBytes(value);
+        }
+        writeS32(value);
+    }
+
+    void writeS48(final long value);
+
+    void writeS48Be(final long value);
+
+    void writeS48Le(final long value);
+
+    void writeS64(final long value);
+
+    default void writeS64Be(long value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            value = Long.reverseBytes(value);
+        }
+        writeS64(value);
+    }
+
+    default void writeS64Le(long value) {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            value = Long.reverseBytes(value);
+        }
+        writeS64(value);
+    }
+
+    default void writeU8(final int value) {
+        writeS8((byte) value);
+    }
+
+    default void writeU16(final int value) {
+        writeS16((short) value);
+    }
+
+    default void writeU16Be(final int value) {
+        writeS16Be((short) value);
+    }
+
+    default void writeU16Le(final int value) {
+        writeS16Le((short) value);
+    }
+
+    default void writeU24(final int value) {
+        writeS24(value);
+    }
+
+    default void writeU24Be(final int value) {
+        writeS24Be(value);
+    }
+
+    default void writeU24Le(final int value) {
+        writeS24Le(value);
+    }
+
+    default void writeU32(final long value) {
+        writeS32((int) value);
+    }
+
+    default void writeU32Be(final long value) {
+        writeS32Be((int) value);
+    }
+
+    default void writeU32Le(final long value) {
+        writeS32Le((int) value);
+    }
+
+    default void writeU48(final long value) {
+        writeS48(value);
+    }
+
+    default void writeU48Be(final long value) {
+        writeS48Be(value);
+    }
+
+    default void writeU48Le(final long value) {
+        writeS48Le(value);
+    }
+
+    @Override
+    void close();
 }

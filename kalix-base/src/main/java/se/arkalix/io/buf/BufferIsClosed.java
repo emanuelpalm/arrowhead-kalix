@@ -1,4 +1,4 @@
-package se.arkalix.io.buf0;
+package se.arkalix.io.buf;
 
 import se.arkalix.io.IoException;
 

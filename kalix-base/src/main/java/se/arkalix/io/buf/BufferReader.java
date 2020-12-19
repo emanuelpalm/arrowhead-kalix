@@ -3,8 +3,10 @@ package se.arkalix.io.buf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public interface BufferReader {
+public interface BufferReader extends AutoCloseable, Comparable<BufferReader> {
     int readableBytes();
+
+    int readableBytesFrom(int readOffset);
 
     int readOffset();
 
@@ -22,7 +24,10 @@ public interface BufferReader {
         getAt(offset, destination, destination.writableBytes());
     }
 
-    void getAt(int offset, BufferWriter destination, int length);
+    default void getAt(int offset, BufferWriter destination, int length) {
+        getAt(offset, destination, destination.writeOffset(), length);
+        destination.writeOffset(destination.writeOffset() + length);
+    }
 
     void getAt(int offset, BufferWriter destination, int destinationOffset, int length);
 
@@ -190,7 +195,10 @@ public interface BufferReader {
         read(destination, destination.writableBytes());
     }
 
-    void read(final BufferWriter destination, final int length);
+    default void read(final BufferWriter destination, final int length) {
+        read(destination, destination.writeOffset(), length);
+        destination.writeOffset(destination.writeOffset() + length);
+    }
 
     void read(BufferWriter destination, int destinationOffset, int length);
 
@@ -349,4 +357,7 @@ public interface BufferReader {
     long readU48Le();
 
     void skip(int bytesToSkip);
+
+    @Override
+    void close();
 }

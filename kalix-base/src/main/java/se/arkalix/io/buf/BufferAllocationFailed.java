@@ -1,3 +1,3 @@
-package se.arkalix.io.buf0;
+package se.arkalix.io.buf;
 
 public class BufferAllocationFailed extends BufferException {}
