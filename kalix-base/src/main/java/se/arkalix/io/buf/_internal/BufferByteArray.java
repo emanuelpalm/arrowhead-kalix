@@ -27,7 +27,7 @@ public class BufferByteArray extends BufferBase {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
 
     }
 
