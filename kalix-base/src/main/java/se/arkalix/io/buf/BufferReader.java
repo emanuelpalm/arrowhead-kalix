@@ -3,7 +3,7 @@ package se.arkalix.io.buf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public interface BufferReader extends AutoCloseable, Comparable<BufferReader> {
+public interface BufferReader extends AutoCloseable {
     int readableBytes();
 
     int readableBytesFrom(int readOffset);

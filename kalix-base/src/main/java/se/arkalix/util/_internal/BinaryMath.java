@@ -7,6 +7,35 @@ public class BinaryMath {
     private BinaryMath() {}
 
     /**
+     * Rounds up {@code value} to the next power of two.
+     * <p>
+     * If {@code value} is negative, zero, or its next power of two is beyond
+     * the limit of what a signed 32-bit integer can express, {@code
+     * defaultValue} is returned.
+     * <p>
+     * The original implementation of this function was produced by Sean Eron
+     * Anderson (seander@cs.stanford.edu), and can be found on his
+     * <a href="https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2">website</a>.
+     *
+     * @param value        The integer to round up to its next power of two.
+     * @param defaultValue The value to return if rounding fails.
+     * @return Rounded up integer or default value.
+     */
+    public static int roundUpToNextPowerOfTwoOrUseDefault(int value, final int defaultValue) {
+        value--;
+        value |= value >> 1;
+        value |= value >> 2;
+        value |= value >> 4;
+        value |= value >> 8;
+        value |= value >> 16;
+        value++;
+        if (value <= 0) {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    /**
      * Determines if the range specified by {@code offset} and {@code length}
      * does not reside within the bounds between 0 and {@code capacity}, or if
      * any of {@code offset} or {@code length} is below 0.

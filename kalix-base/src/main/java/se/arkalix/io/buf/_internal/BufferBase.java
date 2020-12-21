@@ -39,6 +39,13 @@ public abstract class BufferBase implements Buffer {
         this.writeOffset = writeOffset;
     }
 
+    protected void truncateOffsetsTo(final int writeEnd) {
+        if (writeEnd < writeOffset) {
+            readOffset = Math.min(readOffset, writeEnd);
+            writeOffset = writeEnd;
+        }
+    }
+
     @Override
     public void clear() {
         readOffset = 0;
@@ -59,6 +66,11 @@ public abstract class BufferBase implements Buffer {
 
     @Override
     public int readableBytes() {
+        return writeOffset - readOffset;
+    }
+
+    @Override
+    public int readableBytesFrom(final int readOffset) {
         return writeOffset - readOffset;
     }
 
@@ -140,7 +152,7 @@ public abstract class BufferBase implements Buffer {
         return getS32AtUnchecked(offset);
     }
 
-    protected abstract short getS32AtUnchecked(int offset);
+    protected abstract int getS32AtUnchecked(int offset);
 
     @Override
     public long getS64At(final int offset) {
@@ -149,7 +161,7 @@ public abstract class BufferBase implements Buffer {
         return getS64AtUnchecked(offset);
     }
 
-    protected abstract short getS64AtUnchecked(int offset);
+    protected abstract long getS64AtUnchecked(int offset);
 
     private int getU8AtUnchecked(final int offset) {
         return Byte.toUnsignedInt(getS8AtUnchecked(offset));
@@ -696,43 +708,43 @@ public abstract class BufferBase implements Buffer {
 
     protected abstract void onClose();
 
-    private void checkIfOpen() {
+    protected void checkIfOpen() {
         if (isClosed) {
             throw new BufferIsClosed();
         }
     }
 
-    private static void checkOffsets(final int readOffset, final int writeOffset, final int writeEnd) {
+    protected static void checkOffsets(final int readOffset, final int writeOffset, final int writeEnd) {
         if (readOffset < 0 || readOffset > writeOffset || writeOffset > writeEnd) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private void checkReadRange(final int readOffset, final int length) {
+    protected void checkReadRange(final int readOffset, final int length) {
         if (BinaryMath.isRangeOutOfBounds(readOffset, length, writeOffset)) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private static void checkReadRange(final int readOffset, final int length, final int readEnd) {
+    protected static void checkReadRange(final int readOffset, final int length, final int readEnd) {
         if (BinaryMath.isRangeOutOfBounds(readOffset, length, readEnd)) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private void checkReadLength(final int bytesToRead) {
+    protected void checkReadLength(final int bytesToRead) {
         if (readOffset > writeOffset - bytesToRead) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private static void checkWriteRange(final int writeOffset, final int length, final int writeEnd) {
+    protected static void checkWriteRange(final int writeOffset, final int length, final int writeEnd) {
         if (BinaryMath.isRangeOutOfBounds(writeOffset, length, writeEnd)) {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private void ensureWriteRange(final int writeOffset, final int length) {
+    protected void ensureWriteRange(final int writeOffset, final int length) {
         final var rangeEnd = writeOffset + length;
         if (rangeEnd < writeEnd()) {
             return;
@@ -743,7 +755,7 @@ public abstract class BufferBase implements Buffer {
         writeEnd(rangeEnd);
     }
 
-    private void ensureWriteLength(final int byteToWrite) {
+    protected void ensureWriteLength(final int byteToWrite) {
         ensureWriteRange(writeOffset, byteToWrite);
     }
 }
