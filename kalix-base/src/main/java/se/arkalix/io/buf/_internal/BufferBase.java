@@ -29,7 +29,7 @@ public abstract class BufferBase implements Buffer {
     @Override
     public Buffer slice(final int offset, final int length) {
         checkIfOpen();
-        throw new UnsupportedOperationException("not implemented"); // TODO: Implement.
+        return Buffer.super.slice(offset, length);
     }
 
     @Override

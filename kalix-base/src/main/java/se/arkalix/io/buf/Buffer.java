@@ -1,6 +1,10 @@
 package se.arkalix.io.buf;
 
+import se.arkalix.io.buf._internal.BufferSlice;
+
 public interface Buffer extends BufferReader, BufferWriter {
+    void clear();
+
     default Buffer copy() {
         return copy(readOffset(), readableBytes());
     }
@@ -9,17 +13,21 @@ public interface Buffer extends BufferReader, BufferWriter {
 
     Buffer dupe();
 
+    void offsets(int readOffset, int writeOffset);
+
     default Buffer slice() {
         return slice(readOffset(), readableBytes());
     }
 
-    Buffer slice(int offset, int length);
+    default Buffer slice(int offset, int length) {
+        return BufferSlice.of(this, offset, length);
+    }
 
-    void offsets(int readOffset, int writeOffset);
+    default BufferReader reader() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-    void clear();
-
-    BufferReader reader();
-
-    BufferWriter writer();
+    default BufferWriter writer() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

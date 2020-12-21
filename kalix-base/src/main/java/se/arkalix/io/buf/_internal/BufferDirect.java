@@ -48,10 +48,10 @@ public class BufferDirect extends BufferBase {
             truncateOffsetsTo(writeEnd);
             return;
         }
-        byteBuffer = reallocate(byteBuffer, writeEnd);
+        byteBuffer = onExpand(byteBuffer, writeEnd);
     }
 
-    protected ByteBuffer reallocate(final ByteBuffer oldByteBuffer, final int newCapacity) {
+    protected ByteBuffer onExpand(final ByteBuffer oldByteBuffer, final int newCapacity) {
         return ByteBuffer.allocateDirect(newCapacity)
             .position(0)
             .limit(writeOffset())

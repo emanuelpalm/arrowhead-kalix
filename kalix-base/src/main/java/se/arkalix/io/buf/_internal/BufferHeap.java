@@ -42,10 +42,10 @@ public class BufferHeap extends BufferBase {
             this.writeEnd = writeEnd;
             return;
         }
-        byteArray = reallocate(byteArray, writeEnd);
+        byteArray = onExpand(byteArray, writeEnd);
     }
 
-    protected byte[] reallocate(final byte[] oldByteArray, final int newCapacity) {
+    protected byte[] onExpand(final byte[] oldByteArray, final int newCapacity) {
         final var newByteArray = new byte[newCapacity];
         System.arraycopy(oldByteArray, 0, newByteArray, 0, writeOffset());
         return newByteArray;
