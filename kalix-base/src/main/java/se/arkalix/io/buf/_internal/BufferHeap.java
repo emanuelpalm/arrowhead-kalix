@@ -1,29 +1,58 @@
 package se.arkalix.io.buf._internal;
 
+import se.arkalix.io.buf.Buffer;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+@Internal
 public class BufferHeap extends BufferBase {
     private final int maximumCapacity;
 
     private byte[] byteArray;
     private int writeEnd;
 
-    BufferHeap(final byte[] byteArray, final int maximumCapacity) {
+    public BufferHeap(final byte[] byteArray, final int maximumCapacity) {
         if (byteArray == null) {
             throw new NullPointerException("byteArray");
         }
-        if (maximumCapacity < 0) {
+        if (byteArray.length > maximumCapacity) {
             throw new IndexOutOfBoundsException();
         }
         this.byteArray = byteArray;
         this.maximumCapacity = maximumCapacity;
 
         writeEnd = byteArray.length;
+    }
+
+    private BufferHeap(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
+        this.byteArray = byteArray;
+        this.writeEnd = writeEnd;
+        this.maximumCapacity = maximumCapacity;
+    }
+
+    @Override
+    protected Buffer copyUnchecked(final int readOffset, final int length) {
+        final var writeOffset = readOffset + length;
+        final var copy = new BufferHeap(
+            Arrays.copyOfRange(byteArray, readOffset, writeOffset),
+            writeOffset,
+            maximumCapacity
+        );
+        copy.offsets(readOffset, writeOffset);
+        return copy;
+    }
+
+    @Override
+    protected Buffer dupeUnchecked(final int readOffset, final int length) {
+        final var writeOffset = readOffset + length;
+        final var dupe = new BufferHeap(byteArray, writeOffset, byteArray.length);
+        dupe.offsets(readOffset, writeOffset);
+        return dupe;
     }
 
     @Override

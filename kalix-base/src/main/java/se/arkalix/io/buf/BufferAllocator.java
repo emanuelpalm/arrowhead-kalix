@@ -19,7 +19,6 @@ public interface BufferAllocator {
      *                                   maximumCapacity} is below 0, or if
      *                                   {@code initialCapacity} is larger than
      *                                   {@code maximumCapacity}.
-     * @throws BufferAllocationFailed    If allocation fails.
      */
     Buffer allocate(int initialCapacity, int maximumCapacity);
 }

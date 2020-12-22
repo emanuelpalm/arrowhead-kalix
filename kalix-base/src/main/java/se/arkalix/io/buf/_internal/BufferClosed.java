@@ -1,413 +1,380 @@
 package se.arkalix.io.buf._internal;
 
 import se.arkalix.io.buf.Buffer;
+import se.arkalix.io.buf.BufferIsClosed;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
 
-public class BufferSlice implements Buffer {
-    private final int innerBaseOffset;
-    private final int writeEndMax;
+@Internal
+public class BufferClosed implements Buffer {
+    private static final BufferClosed instance = new BufferClosed();
 
-    private Buffer inner;
-    private int readOffset = 0;
-    private int writeOffset = 0;
-    private int writeEnd;
-
-    public static BufferSlice of(final Buffer buffer, final int offset, final int length) {
-        return new BufferSlice(buffer, offset, length);
+    public static BufferClosed instance() {
+        return instance;
     }
 
-    private BufferSlice(final Buffer buffer, final int offset, final int length) {
-        if (buffer == null) {
-            throw new NullPointerException("buffer");
-        }
-        if (offset < 0 || offset > length || length > buffer.writeEnd()) {
-            throw new IndexOutOfBoundsException();
-        }
-        inner = buffer;
-        innerBaseOffset = offset;
-        writeEndMax = length;
-        writeEnd = length;
+    private BufferClosed() {}
+
+    @Override
+    public void clear() {
+        // Does nothing.
     }
 
     @Override
     public Buffer copy(final int offset, final int length) {
-        if (offset < 0 || offset > length || offset + length > writeEnd) {
-            throw new IndexOutOfBoundsException();
-        }
-        return of(inner.copy(intoInnerOffset(offset), length), offset, length);
-    }
-
-    private int fromInnerOffset(final int offset) {
-        return offset - this.innerBaseOffset;
-    }
-
-    private int intoInnerOffset(final int offset) {
-        return offset + this.innerBaseOffset;
+        throw new BufferIsClosed();
     }
 
     @Override
-    public Buffer dupe() {
-        return of(inner.dupe(), innerBaseOffset, writeEnd);
-    }
-
-    @Override
-    public Buffer slice(final int offset, final int length) {
-        if (offset < 0 || offset > length || offset + length > writeEnd) {
-            throw new IndexOutOfBoundsException();
-        }
-        return inner.slice(intoInnerOffset(offset), length);
+    public Buffer dupe(final int offset, final int length) {
+        throw new BufferIsClosed();
     }
 
     @Override
     public void offsets(final int readOffset, final int writeOffset) {
-        inner.offsets(intoInnerOffset(readOffset), intoInnerOffset(writeOffset));
-    }
-
-    @Override
-    public void clear() {
-        inner.clear();
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readableBytes() {
-        return inner.readableBytes();
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readableBytesFrom(final int readOffset) {
-        return inner.readableBytesFrom(intoInnerOffset(readOffset));
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readOffset() {
-        return fromInnerOffset(inner.readOffset());
+        throw new BufferIsClosed();
     }
 
     @Override
     public void readOffset(final int readOffset) {
-        inner.readOffset(intoInnerOffset(readOffset));
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readEnd() {
-        return fromInnerOffset(inner.readEnd());
+        throw new BufferIsClosed();
     }
 
     @Override
     public void getAt(final int offset, final byte[] destination, final int destinationOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void getAt(final int offset, final BufferWriter destination, final int destinationOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void getAt(final int offset, final ByteBuffer destination) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public byte getS8At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public short getS16At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int getS32At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long getS64At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int getU24At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int getU24BeAt(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int getU24LeAt(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long getU48At(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long getU48BeAt(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long getU48LeAt(final int offset) {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public void read(final byte[] destination, final int destinationOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void read(final BufferWriter destination, final int destinationOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void read(final ByteBuffer destination) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public byte readS8() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public short readS16() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readS32() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long readS64() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readU24() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readU24Be() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int readU24Le() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long readU48() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long readU48Be() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public long readU48Le() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public void skip(final int bytesToSkip) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public int writableBytes() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writableBytesFrom(final int writeOffset, final int writableBytes) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public int writeEnd() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeEnd(final int writeEnd) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public int writeEndMax() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public int writeOffset() {
-        return 0;
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeOffset(final int writeOffset) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setAt(final int offset, final byte[] source, final int sourceOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setAt(final int offset, final BufferReader source, final int sourceOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setAt(final int offset, final ByteBuffer source) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setAt(final int offset, final byte value, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS8At(final int offset, final byte value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS16At(final int offset, final short value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS24At(final int offset, final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS24BeAt(final int offset, final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS24LeAt(final int offset, final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS32At(final int offset, final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS48At(final int offset, final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS48BeAt(final int offset, final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS48LeAt(final int offset, final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void setS64At(final int offset, final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void write(final byte[] source, final int sourceOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void write(final BufferReader source, final int sourceOffset, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void write(final ByteBuffer source) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void write(final byte value, final int length) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS8(final byte value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS16(final short value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS24(final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS24Be(final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS24Le(final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS32(final int value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS48(final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS48Be(final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS48Le(final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void writeS64(final long value) {
-
+        throw new BufferIsClosed();
     }
 
     @Override
     public void close() {
-
+        // Does nothing.
     }
 }

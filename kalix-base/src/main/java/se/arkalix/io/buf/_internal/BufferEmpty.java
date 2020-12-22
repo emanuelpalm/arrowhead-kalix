@@ -1,10 +1,13 @@
 package se.arkalix.io.buf._internal;
 
+import se.arkalix.io.buf.Buffer;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
 
+@Internal
 public class BufferEmpty extends BufferBase {
     private static final BufferEmpty instance = new BufferEmpty();
 
@@ -29,6 +32,16 @@ public class BufferEmpty extends BufferBase {
     @Override
     public int writeEndMax() {
         return 0;
+    }
+
+    @Override
+    protected Buffer copyUnchecked(final int offset, final int length) {
+        return this;
+    }
+
+    @Override
+    protected Buffer dupeUnchecked(final int offset, final int length) {
+        return this;
     }
 
     @Override

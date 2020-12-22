@@ -1,35 +1,62 @@
 package se.arkalix.io.buf._internal;
 
+import se.arkalix.io.buf.Buffer;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public class BufferDirect extends BufferBase {
+@Internal
+public class BufferNio extends BufferBase {
     private final int maximumCapacity;
 
     private ByteBuffer byteBuffer;
 
-    BufferDirect(final ByteBuffer byteBuffer, final int maximumCapacity) {
+    public BufferNio(final ByteBuffer byteBuffer, final int maximumCapacity) {
         if (byteBuffer == null) {
             throw new NullPointerException("byteBuffer");
-        }
-        if (!byteBuffer.isDirect()) {
-            throw new IllegalArgumentException("byteBuffer.isDirect() == false");
         }
         if (byteBuffer.isReadOnly()) {
             throw new IllegalArgumentException("byteBuffer.isReadOnly() == true");
         }
-        if (maximumCapacity < 0) {
+        if (byteBuffer.capacity() > maximumCapacity) {
             throw new IndexOutOfBoundsException();
         }
         this.byteBuffer = byteBuffer;
         this.maximumCapacity = maximumCapacity;
 
-        offsets(0, byteBuffer.position());
+        byteBuffer.clear();
         byteBuffer.order(ByteOrder.nativeOrder());
+    }
+
+    @Override
+    protected Buffer copyUnchecked(final int readOffset, final int length) {
+        final var writeOffset = readOffset + length;
+        final var byteBufferCopy = ByteBuffer.allocateDirect(byteBuffer.capacity() - readOffset)
+            .put(byteBuffer.asReadOnlyBuffer()
+                .position(readOffset)
+                .limit(writeOffset))
+            .position(0)
+            .limit(length);
+
+        final var copy = new BufferNio(byteBufferCopy, maximumCapacity);
+        copy.offsets(readOffset, writeOffset);
+        return copy;
+    }
+
+    @Override
+    protected Buffer dupeUnchecked(final int readOffset, final int length) {
+        final var writeOffset = readOffset + length;
+        final var byteBufferDupe = byteBuffer.duplicate()
+            .position(readOffset)
+            .limit(writeOffset);
+
+        final var dupe = new BufferNio(byteBufferDupe, byteBuffer.capacity());
+        dupe.offsets(readOffset, writeOffset);
+        return dupe;
     }
 
     @Override
@@ -156,6 +183,7 @@ public class BufferDirect extends BufferBase {
         if (byteBuffer.hasArray()) {
             final var offset0 = byteBuffer.arrayOffset() + offset;
             Arrays.fill(byteBuffer.array(), offset0, offset0 + length, value);
+            return;
         }
 
         final var duplicate = byteBuffer.duplicate()

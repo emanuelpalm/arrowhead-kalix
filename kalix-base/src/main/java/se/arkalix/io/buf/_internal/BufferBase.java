@@ -5,32 +5,34 @@ import se.arkalix.io.buf.BufferIsClosed;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
 import se.arkalix.util._internal.BinaryMath;
+import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+@Internal
 public abstract class BufferBase implements Buffer {
-    private int readOffset = 0;
-    private int writeOffset = 0;
+    private int readOffset;
+    private int writeOffset;
     private boolean isClosed = false;
 
     @Override
     public Buffer copy(final int offset, final int length) {
         checkIfOpen();
-        throw new UnsupportedOperationException("not implemented"); // TODO: Implement.
+        checkCopyRange(offset, length);
+        return copyUnchecked(offset, length);
     }
 
-    @Override
-    public Buffer dupe() {
-        checkIfOpen();
-        throw new UnsupportedOperationException("not implemented"); // TODO: Implement.
-    }
+    protected abstract Buffer copyUnchecked(final int offset, final int length);
 
     @Override
-    public Buffer slice(final int offset, final int length) {
+    public final Buffer dupe(final int offset, final int length) {
         checkIfOpen();
-        return Buffer.super.slice(offset, length);
+        checkCopyRange(offset, length);
+        return dupeUnchecked(offset, length);
     }
+
+    protected abstract Buffer dupeUnchecked(final int offset, final int length);
 
     @Override
     public void offsets(final int readOffset, final int writeOffset) {
@@ -55,13 +57,13 @@ public abstract class BufferBase implements Buffer {
     @Override
     public BufferReader reader() {
         checkIfOpen();
-        throw new UnsupportedOperationException("not implemented"); // TODO: Implement.
+        return Buffer.super.reader();
     }
 
     @Override
     public BufferWriter writer() {
         checkIfOpen();
-        throw new UnsupportedOperationException("not implemented"); // TODO: Implement.
+        return Buffer.super.writer();
     }
 
     @Override
@@ -720,6 +722,12 @@ public abstract class BufferBase implements Buffer {
         }
     }
 
+    protected void checkCopyRange(final int copyOffset, final int length) {
+        if (BinaryMath.isRangeOutOfBounds(copyOffset, length, writeEnd())) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
     protected void checkReadRange(final int readOffset, final int length) {
         if (BinaryMath.isRangeOutOfBounds(readOffset, length, writeOffset)) {
             throw new IndexOutOfBoundsException();
@@ -746,7 +754,7 @@ public abstract class BufferBase implements Buffer {
 
     protected void ensureWriteRange(final int writeOffset, final int length) {
         final var rangeEnd = writeOffset + length;
-        if (rangeEnd < writeEnd()) {
+        if (rangeEnd <= writeEnd()) {
             return;
         }
         if (rangeEnd > writeEndMax()) {

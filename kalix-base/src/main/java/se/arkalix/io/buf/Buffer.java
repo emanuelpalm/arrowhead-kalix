@@ -1,8 +1,35 @@
 package se.arkalix.io.buf;
 
-import se.arkalix.io.buf._internal.BufferSlice;
+import se.arkalix.io.buf._internal.BufferNio;
+import se.arkalix.io.buf._internal.BufferHeap;
+import se.arkalix.io.buf._internal.DefaultBufferReader;
+import se.arkalix.io.buf._internal.DefaultBufferWriter;
+
+import java.nio.ByteBuffer;
 
 public interface Buffer extends BufferReader, BufferWriter {
+    static Buffer allocateDirect(final int initialCapacity, final int maximumCapacity) {
+        if (initialCapacity < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        return new BufferNio(ByteBuffer.allocateDirect(initialCapacity), maximumCapacity);
+    }
+
+    static Buffer allocateHeap(final int initialCapacity, final int maximumCapacity) {
+        if (initialCapacity < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        return new BufferHeap(new byte[initialCapacity], maximumCapacity);
+    }
+
+    static Buffer wrap(final ByteBuffer byteBuffer) {
+        return new BufferNio(byteBuffer, byteBuffer.capacity());
+    }
+
+    static Buffer wrap(final byte[] byteArray) {
+        return new BufferHeap(byteArray, byteArray.length);
+    }
+
     void clear();
 
     default Buffer copy() {
@@ -11,23 +38,19 @@ public interface Buffer extends BufferReader, BufferWriter {
 
     Buffer copy(int offset, int length);
 
-    Buffer dupe();
+    default Buffer dupe() {
+        return dupe(readOffset(), readableBytes());
+    }
+
+    Buffer dupe(int offset, int length);
 
     void offsets(int readOffset, int writeOffset);
 
-    default Buffer slice() {
-        return slice(readOffset(), readableBytes());
-    }
-
-    default Buffer slice(int offset, int length) {
-        return BufferSlice.of(this, offset, length);
-    }
-
     default BufferReader reader() {
-        throw new UnsupportedOperationException("Not implemented");
+        return new DefaultBufferReader(this);
     }
 
     default BufferWriter writer() {
-        throw new UnsupportedOperationException("Not implemented");
+        return new DefaultBufferWriter(this);
     }
 }
