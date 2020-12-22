@@ -3,6 +3,7 @@ package se.arkalix.io.buf._internal;
 import se.arkalix.io.buf.Buffer;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util._internal.BinaryMath;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ public class BufferPaged extends BufferBase {
 
     private PageCache pageCache;
     private ArrayList<Page> pages = new ArrayList<>();
-    private PageCursor readCursor = null;
-    private PageCursor writeCursor = null;
+    private PageSet readSet = null;
+    private PageSet writeSet = null;
 
     public BufferPaged(final int maximumCapacity, final PageCache pageCache) {
         if (maximumCapacity < 0) {
@@ -45,8 +46,8 @@ public class BufferPaged extends BufferBase {
         }
         else if (currentCapacity == 0) {
             currentCapacity = pageCache.allocate(pages, writeEnd);
-            readCursor = new PageCursor();
-            writeCursor = new PageCursor();
+            readSet = new PageSet(pages);
+            writeSet = new PageSet(pages);
         }
         else {
             currentCapacity = pageCache.allocate(pages, currentCapacity - writeEnd);
@@ -70,121 +71,195 @@ public class BufferPaged extends BufferBase {
     }
 
     @Override
-    protected void getAtUnchecked(int offset, final byte[] destination, int destinationOffset, int length) {
-        while (length > 0) {
-            readCursor.moveToPageAt(offset);
+    protected void getAtUnchecked(final int offset, final byte[] destination, int destinationOffset, int length) {
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), length);
+            pageByteBuffer.get(destination, destinationOffset, remainder);
 
-            final var pageRemainder = readCursor.bytesRemainingInCurrentPage();
-            final var pageLength = Math.min(pageRemainder, length);
+            destinationOffset += remainder;
+            length -= remainder;
 
-            readCursor.page.buffer.duplicate()
-                .position(readCursor.innerOffset)
-                .get(destination, destinationOffset, pageLength);
+            if (length <= 0) {
+                break;
+            }
 
-            offset += pageLength;
-            destinationOffset += pageLength;
-            length -= pageLength;
+            pageByteBuffer = readSet.nextPageByteBuffer();
         }
     }
 
     @Override
-    protected void getAtUnchecked(int offset, final BufferWriter destination, int destinationOffset, int length) {
-        while (length > 0) {
-            readCursor.moveToPageAt(offset);
+    protected void getAtUnchecked(final int offset, final BufferWriter destination, int destinationOffset, int length) {
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), length);
+            destination.setAt(destinationOffset, pageByteBuffer.limit(pageByteBuffer.position() + remainder));
 
-            final var pageRemainder = readCursor.bytesRemainingInCurrentPage();
-            final var pageLength = Math.min(pageRemainder, length);
+            destinationOffset += remainder;
+            length -= remainder;
 
-            destination.setAt(destinationOffset, readCursor.page.buffer.duplicate()
-                .position(readCursor.innerOffset)
-                .limit(readCursor.innerOffset + pageLength));
+            if (length <= 0) {
+                break;
+            }
 
-            offset += pageLength;
-            destinationOffset += pageLength;
-            length -= pageLength;
+            pageByteBuffer = readSet.nextPageByteBuffer();
         }
     }
 
     @Override
-    protected void getAtUnchecked(int offset, final ByteBuffer destination) {
-        while (destination.remaining() > 0) {
-            readCursor.moveToPageAt(offset);
+    protected void getAtUnchecked(final int offset, final ByteBuffer destination) {
+        final var destinationDuplicate = destination.duplicate();
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), destination.remaining());
+            destinationDuplicate
+                .limit(destinationDuplicate.position() + remainder)
+                .put(pageByteBuffer.limit(pageByteBuffer.position() + remainder));
 
-            final var pageRemainder = readCursor.bytesRemainingInCurrentPage();
-            final var pageLength = Math.min(pageRemainder, destination.remaining());
+            if (!destinationDuplicate.hasRemaining()) {
+                break;
+            }
 
-            destination.put(readCursor.page.buffer.duplicate()
-                .position(readCursor.innerOffset)
-                .limit(readCursor.innerOffset + pageLength));
-
-            offset += pageLength;
+            pageByteBuffer = readSet.nextPageByteBuffer();
         }
     }
 
     @Override
     protected byte getS8AtUnchecked(final int offset) {
-        readCursor.moveToPageAt(offset);
-        return readCursor.page.buffer.get(readCursor.innerOffset++);
+        return readSet.getPageByteBufferPositionedAt(offset)
+            .get();
     }
 
     @Override
     protected short getS16AtUnchecked(final int offset) {
-        return 0;
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+
+        if (pageByteBuffer.remaining() >= 2) {
+            return pageByteBuffer.getShort();
+        }
+
+        final var byteArray = new byte[2];
+
+        pageByteBuffer.get(byteArray, 0, 1);
+        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer.get(byteArray, 1, 1);
+
+        return BinaryMath.getS16NeAt(byteArray, 0);
     }
 
     @Override
     protected int getS32AtUnchecked(final int offset) {
-        return 0;
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+        var pageBytesRemaining = pageByteBuffer.remaining();
+
+        if (pageBytesRemaining >= 4) {
+            return pageByteBuffer.getInt();
+        }
+
+        final var byteArray = new byte[4];
+
+        pageByteBuffer.get(byteArray, 0, pageBytesRemaining);
+        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer.get(byteArray, pageBytesRemaining, 4 - pageBytesRemaining);
+
+        return BinaryMath.getS32NeAt(byteArray, 0);
     }
 
     @Override
     protected long getS64AtUnchecked(final int offset) {
-        return 0;
+        var pageByteBuffer = readSet.getPageByteBufferPositionedAt(offset);
+        var pageBytesRemaining = pageByteBuffer.remaining();
+
+        if (pageBytesRemaining >= 8) {
+            return pageByteBuffer.getLong();
+        }
+
+        final var byteArray = new byte[8];
+
+        pageByteBuffer.get(byteArray, 0, pageBytesRemaining);
+
+        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer.get(byteArray, pageBytesRemaining, 8 - pageBytesRemaining);
+
+        return BinaryMath.getS64NeAt(byteArray, 0);
     }
 
     @Override
-    protected void setAtUnchecked(final int offset, final byte[] source, final int sourceOffset, final int length) {
+    protected void setAtUnchecked(final int offset, final byte[] source, int sourceOffset, int length) {
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), length);
+            pageByteBuffer.put(source, sourceOffset, remainder);
 
+            sourceOffset += remainder;
+            length -= remainder;
+
+            if (length <= 0) {
+                break;
+            }
+
+            pageByteBuffer = writeSet.nextPageByteBuffer();
+        }
     }
 
     @Override
-    protected void setAtUnchecked(
-        final int offset,
-        final BufferReader source,
-        final int sourceOffset,
-        final int length
-    ) {
+    protected void setAtUnchecked(final int offset, final BufferReader source, int sourceOffset, int length) {
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), length);
+            source.getAt(sourceOffset, pageByteBuffer.limit(pageByteBuffer.position() + remainder));
 
+            sourceOffset += remainder;
+            length -= remainder;
+
+            if (length <= 0) {
+                break;
+            }
+
+            pageByteBuffer = writeSet.nextPageByteBuffer();
+        }
     }
 
     @Override
     protected void setAtUnchecked(final int offset, final ByteBuffer source) {
+        final var sourceDuplicate = source.duplicate();
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            final var remainder = Math.min(pageByteBuffer.remaining(), source.remaining());
+            pageByteBuffer.limit(pageByteBuffer.position() + remainder)
+                .put(sourceDuplicate.limit(sourceDuplicate.position() + remainder));
 
+            if (!sourceDuplicate.hasRemaining()) {
+                break;
+            }
+
+            pageByteBuffer = writeSet.nextPageByteBuffer();
+        }
     }
 
     @Override
     protected void setAtUnchecked(final int offset, final byte value, final int length) {
-
+        throw new UnsupportedOperationException("not implemented"); // TODO.
     }
 
     @Override
     protected void setS8AtUnchecked(final int offset, final byte value) {
-
+        writeSet.getPageByteBufferPositionedAt(offset).put(value);
     }
 
     @Override
     protected void setS16AtUnchecked(final int offset, final short value) {
-
+        throw new UnsupportedOperationException("not implemented"); // TODO.
     }
 
     @Override
     protected void setS32AtUnchecked(final int offset, final int value) {
-
+        throw new UnsupportedOperationException("not implemented"); // TODO.
     }
 
     @Override
     protected void setS64AtUnchecked(final int offset, final long value) {
-
+        throw new UnsupportedOperationException("not implemented"); // TODO.
     }
 
     @Override
@@ -193,49 +268,12 @@ public class BufferPaged extends BufferBase {
             pageCache.free(pages);
         }
         finally {
+            pages = null;
             pageCache = null;
-        }
-    }
-
-    public class PageCursor {
-        private Page page;
-        private int pageIndex;
-        private int innerOffset;
-        private int outerStartOffset;
-        private int outerStopOffset;
-
-        public PageCursor() {
-            page = pages.get(0);
-            pageIndex = 0;
-            innerOffset = 0;
-            outerStartOffset = 0;
-            outerStopOffset = page.size();
-        }
-
-        public void moveToPageAt(final int offset) {
-            if (offset >= outerStopOffset) {
-                do {
-                    pageIndex += 1;
-                    page = pages.get(pageIndex);
-                    outerStartOffset = outerStopOffset;
-                    outerStopOffset += page.size();
-                }
-                while (offset >= outerStopOffset);
-            }
-            else if (offset < outerStartOffset) {
-                do {
-                    pageIndex -= 1;
-                    page = pages.get(pageIndex);
-                    outerStopOffset = outerStartOffset;
-                    outerStartOffset -= page.size();
-                }
-                while (offset < outerStartOffset);
-            }
-            innerOffset = outerStartOffset - offset;
-        }
-
-        public int bytesRemainingInCurrentPage() {
-            return page.size() - innerOffset;
+            readSet.close();
+            readSet = null;
+            writeSet.close();
+            writeSet = null;
         }
     }
 }

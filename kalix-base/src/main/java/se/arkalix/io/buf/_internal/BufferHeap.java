@@ -3,6 +3,7 @@ package se.arkalix.io.buf._internal;
 import se.arkalix.io.buf.Buffer;
 import se.arkalix.io.buf.BufferReader;
 import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.util._internal.BinaryMath;
 import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
@@ -135,7 +136,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected short getS16BeAtUnchecked(final int offset) {
-        return (short) (byteArray[offset] << 8 | byteArray[offset + 1] & 0xFF);
+        return BinaryMath.getS16BeAt(byteArray, offset);
     }
 
     @Override
@@ -146,7 +147,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected short getS16LeAtUnchecked(final int offset) {
-        return (short) (byteArray[offset] & 0xff | byteArray[offset + 1] << 8);
+        return BinaryMath.getS16LeAt(byteArray, offset);
     }
 
     @Override
@@ -164,10 +165,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected int getS32BeAtUnchecked(final int offset) {
-        return (byteArray[offset] & 0xff) << 24 |
-            (byteArray[offset + 1] & 0xff) << 16 |
-            (byteArray[offset + 2] & 0xff) << 8 |
-            byteArray[offset + 3] & 0xff;
+        return BinaryMath.getS32BeAt(byteArray, offset);
     }
 
     @Override
@@ -178,10 +176,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected int getS32LeAtUnchecked(final int offset) {
-        return byteArray[offset] & 0xff |
-            (byteArray[offset + 1] & 0xff) << 8 |
-            (byteArray[offset + 2] & 0xff) << 16 |
-            (byteArray[offset + 3] & 0xff) << 24;
+        return BinaryMath.getS32LeAt(byteArray, offset);
     }
 
     @Override
@@ -199,14 +194,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected long getS64BeAtUnchecked(final int offset) {
-        return ((long) byteArray[offset] & 0xff) << 56 |
-            ((long) byteArray[offset + 1] & 0xff) << 48 |
-            ((long) byteArray[offset + 2] & 0xff) << 40 |
-            ((long) byteArray[offset + 3] & 0xff) << 32 |
-            ((long) byteArray[offset + 4] & 0xff) << 24 |
-            ((long) byteArray[offset + 5] & 0xff) << 16 |
-            ((long) byteArray[offset + 6] & 0xff) << 8 |
-            (long) byteArray[offset + 7] & 0xff;
+        return BinaryMath.getS64BeAt(byteArray, offset);
     }
 
     @Override
@@ -217,14 +205,7 @@ public class BufferHeap extends BufferBase {
     }
 
     protected long getS64LeAtUnchecked(final int offset) {
-        return (long) byteArray[offset] & 0xff |
-            ((long) byteArray[offset + 1] & 0xff) << 8 |
-            ((long) byteArray[offset + 2] & 0xff) << 16 |
-            ((long) byteArray[offset + 3] & 0xff) << 24 |
-            ((long) byteArray[offset + 4] & 0xff) << 32 |
-            ((long) byteArray[offset + 5] & 0xff) << 40 |
-            ((long) byteArray[offset + 6] & 0xff) << 48 |
-            ((long) byteArray[offset + 7] & 0xff) << 56;
+        return BinaryMath.getS64LeAt(byteArray, offset);
     }
 
     @Override
@@ -259,119 +240,58 @@ public class BufferHeap extends BufferBase {
 
     @Override
     protected void setS16AtUnchecked(final int offset, final short value) {
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-            setS16LeAtUnchecked(offset, value);
-        }
-        else {
-            setS16BeAtUnchecked(offset, value);
-        }
+        BinaryMath.setS16NeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS16BeAt(final int offset, final short value) {
         checkIfOpen();
         ensureWriteRange(offset, 2);
-        setS16BeAtUnchecked(offset, value);
-    }
-
-    protected void setS16BeAtUnchecked(final int offset, final short value) {
-        byteArray[offset] = (byte) (value >>> 8);
-        byteArray[offset + 1] = (byte) value;
+        BinaryMath.setS16BeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS16LeAt(final int offset, final short value) {
         checkIfOpen();
         ensureWriteRange(offset, 2);
-        setS16LeAtUnchecked(offset, value);
-    }
-
-    protected void setS16LeAtUnchecked(final int offset, final short value) {
-        byteArray[offset] = (byte) value;
-        byteArray[offset + 1] = (byte) (value >>> 8);
+        BinaryMath.setS16LeAt(byteArray, offset, value);
     }
 
     @Override
     protected void setS32AtUnchecked(final int offset, final int value) {
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-            setS32LeAtUnchecked(offset, value);
-        }
-        else {
-            setS32BeAtUnchecked(offset, value);
-        }
+        BinaryMath.setS32NeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS32BeAt(final int offset, final int value) {
         checkIfOpen();
         ensureWriteRange(offset, 4);
-        setS32BeAtUnchecked(offset, value);
-    }
-
-    protected void setS32BeAtUnchecked(final int offset, final int value) {
-        byteArray[offset] = (byte) (value >>> 24);
-        byteArray[offset + 1] = (byte) (value >>> 16);
-        byteArray[offset + 2] = (byte) (value >>> 8);
-        byteArray[offset + 3] = (byte) value;
+        BinaryMath.setS32BeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS32LeAt(final int offset, final int value) {
         checkIfOpen();
         ensureWriteRange(offset, 4);
-        setS32LeAtUnchecked(offset, value);
-    }
-
-    protected void setS32LeAtUnchecked(final int offset, final int value) {
-        byteArray[offset] = (byte) value;
-        byteArray[offset + 1] = (byte) (value >>> 8);
-        byteArray[offset + 2] = (byte) (value >>> 16);
-        byteArray[offset + 3] = (byte) (value >>> 24);
+        BinaryMath.setS32LeAt(byteArray, offset, value);
     }
 
     @Override
     protected void setS64AtUnchecked(final int offset, final long value) {
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-            setS64LeAtUnchecked(offset, value);
-        }
-        else {
-            setS64BeAtUnchecked(offset, value);
-        }
+        BinaryMath.setS64NeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS64BeAt(final int offset, final long value) {
         checkIfOpen();
         ensureWriteRange(offset, 8);
-        setS64BeAtUnchecked(offset, value);
-    }
-
-    protected void setS64BeAtUnchecked(final int offset, final long value) {
-        byteArray[offset] = (byte) (value >>> 56);
-        byteArray[offset + 1] = (byte) (value >>> 48);
-        byteArray[offset + 2] = (byte) (value >>> 40);
-        byteArray[offset + 3] = (byte) (value >>> 32);
-        byteArray[offset + 4] = (byte) (value >>> 24);
-        byteArray[offset + 5] = (byte) (value >>> 16);
-        byteArray[offset + 6] = (byte) (value >>> 8);
-        byteArray[offset + 7] = (byte) value;
+        BinaryMath.setS64BeAt(byteArray, offset, value);
     }
 
     @Override
     public void setS64LeAt(final int offset, final long value) {
         checkIfOpen();
         ensureWriteRange(offset, 8);
-        setS64LeAtUnchecked(offset, value);
-    }
-
-    protected void setS64LeAtUnchecked(final int offset, final long value) {
-        byteArray[offset] = (byte) value;
-        byteArray[offset + 1] = (byte) (value >>> 8);
-        byteArray[offset + 2] = (byte) (value >>> 16);
-        byteArray[offset + 3] = (byte) (value >>> 24);
-        byteArray[offset + 4] = (byte) (value >>> 32);
-        byteArray[offset + 5] = (byte) (value >>> 40);
-        byteArray[offset + 6] = (byte) (value >>> 48);
-        byteArray[offset + 7] = (byte) (value >>> 56);
+        BinaryMath.setS64LeAt(byteArray, offset, value);
     }
 }
