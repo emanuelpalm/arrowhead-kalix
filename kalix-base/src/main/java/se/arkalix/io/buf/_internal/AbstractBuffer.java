@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @Internal
-public abstract class BufferBase implements Buffer {
+public abstract class AbstractBuffer implements Buffer {
     private int readOffset;
     private int writeOffset;
     private boolean isClosed = false;

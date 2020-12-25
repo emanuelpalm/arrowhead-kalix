@@ -34,19 +34,15 @@ public class PageSet implements AutoCloseable {
             }
             while (offset < pageStartOffset);
         }
-        return page.byteBuffer
-            .position(page.startOffset + (pageStartOffset - offset))
-            .limit(page.stopOffset);
+        return page.asByteBufferPositionedAt(pageStartOffset - offset);
     }
 
-    public ByteBuffer nextPageByteBuffer() {
+    public ByteBuffer getNextPageByteBuffer() {
         pageIndex += 1;
         page = pages.get(pageIndex);
         pageStartOffset = pageStopOffset;
         pageStopOffset += page.size();
-        return page.byteBuffer
-            .position(page.startOffset)
-            .limit(page.stopOffset);
+        return page.asByteBufferPositionedAt(0);
     }
 
     @Override

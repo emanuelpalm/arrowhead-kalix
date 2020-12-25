@@ -11,13 +11,13 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 @Internal
-public class BufferHeap extends BufferBase {
+public class ByteArrayBuffer extends AbstractBuffer {
     private final int maximumCapacity;
 
     private byte[] byteArray;
     private int writeEnd;
 
-    public BufferHeap(final byte[] byteArray, final int maximumCapacity) {
+    public ByteArrayBuffer(final byte[] byteArray, final int maximumCapacity) {
         if (byteArray == null) {
             throw new NullPointerException("byteArray");
         }
@@ -30,7 +30,7 @@ public class BufferHeap extends BufferBase {
         writeEnd = byteArray.length;
     }
 
-    private BufferHeap(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
+    private ByteArrayBuffer(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
         this.byteArray = byteArray;
         this.writeEnd = writeEnd;
         this.maximumCapacity = maximumCapacity;
@@ -39,7 +39,7 @@ public class BufferHeap extends BufferBase {
     @Override
     protected Buffer copyUnchecked(final int readOffset, final int length) {
         final var writeOffset = readOffset + length;
-        final var copy = new BufferHeap(
+        final var copy = new ByteArrayBuffer(
             Arrays.copyOfRange(byteArray, readOffset, writeOffset),
             writeOffset,
             maximumCapacity
@@ -51,7 +51,7 @@ public class BufferHeap extends BufferBase {
     @Override
     protected Buffer dupeUnchecked(final int readOffset, final int length) {
         final var writeOffset = readOffset + length;
-        final var dupe = new BufferHeap(byteArray, writeOffset, byteArray.length);
+        final var dupe = new ByteArrayBuffer(byteArray, writeOffset, byteArray.length);
         dupe.offsets(readOffset, writeOffset);
         return dupe;
     }

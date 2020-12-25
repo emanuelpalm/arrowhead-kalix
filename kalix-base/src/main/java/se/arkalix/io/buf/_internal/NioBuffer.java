@@ -10,12 +10,12 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 @Internal
-public class BufferNio extends BufferBase {
+public class NioBuffer extends AbstractBuffer {
     private final int maximumCapacity;
 
     private ByteBuffer byteBuffer;
 
-    public BufferNio(final ByteBuffer byteBuffer, final int maximumCapacity) {
+    public NioBuffer(final ByteBuffer byteBuffer, final int maximumCapacity) {
         if (byteBuffer == null) {
             throw new NullPointerException("byteBuffer");
         }
@@ -42,7 +42,7 @@ public class BufferNio extends BufferBase {
             .position(0)
             .limit(length);
 
-        final var copy = new BufferNio(byteBufferCopy, maximumCapacity);
+        final var copy = new NioBuffer(byteBufferCopy, maximumCapacity);
         copy.offsets(readOffset, writeOffset);
         return copy;
     }
@@ -54,7 +54,7 @@ public class BufferNio extends BufferBase {
             .position(readOffset)
             .limit(writeOffset);
 
-        final var dupe = new BufferNio(byteBufferDupe, byteBuffer.capacity());
+        final var dupe = new NioBuffer(byteBufferDupe, byteBuffer.capacity());
         dupe.offsets(readOffset, writeOffset);
         return dupe;
     }

@@ -9,14 +9,14 @@ import se.arkalix.util.annotation.Internal;
 import java.nio.ByteBuffer;
 
 @Internal
-public class BufferClosed implements Buffer {
-    private static final BufferClosed instance = new BufferClosed();
+public class ClosedBuffer implements Buffer {
+    private static final ClosedBuffer instance = new ClosedBuffer();
 
-    public static BufferClosed instance() {
+    public static ClosedBuffer instance() {
         return instance;
     }
 
-    private BufferClosed() {}
+    private ClosedBuffer() {}
 
     @Override
     public void clear() {

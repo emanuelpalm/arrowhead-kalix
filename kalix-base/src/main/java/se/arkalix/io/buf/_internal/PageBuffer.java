@@ -7,8 +7,9 @@ import se.arkalix.util._internal.BinaryMath;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class BufferPaged extends BufferBase {
+public class PageBuffer extends AbstractBuffer {
     private final int maximumCapacity;
 
     private int currentCapacity = 0;
@@ -19,7 +20,7 @@ public class BufferPaged extends BufferBase {
     private PageSet readSet = null;
     private PageSet writeSet = null;
 
-    public BufferPaged(final int maximumCapacity, final PageCache pageCache) {
+    public PageBuffer(final int maximumCapacity, final PageCache pageCache) {
         if (maximumCapacity < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -84,7 +85,7 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = readSet.nextPageByteBuffer();
+            pageByteBuffer = readSet.getNextPageByteBuffer();
         }
     }
 
@@ -102,7 +103,7 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = readSet.nextPageByteBuffer();
+            pageByteBuffer = readSet.getNextPageByteBuffer();
         }
     }
 
@@ -120,7 +121,7 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = readSet.nextPageByteBuffer();
+            pageByteBuffer = readSet.getNextPageByteBuffer();
         }
     }
 
@@ -141,7 +142,8 @@ public class BufferPaged extends BufferBase {
         final var byteArray = new byte[2];
 
         pageByteBuffer.get(byteArray, 0, 1);
-        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer = readSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 1;
         pageByteBuffer.get(byteArray, 1, 1);
 
         return BinaryMath.getS16NeAt(byteArray, 0);
@@ -159,7 +161,8 @@ public class BufferPaged extends BufferBase {
         final var byteArray = new byte[4];
 
         pageByteBuffer.get(byteArray, 0, pageBytesRemaining);
-        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer = readSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 4 - pageBytesRemaining;
         pageByteBuffer.get(byteArray, pageBytesRemaining, 4 - pageBytesRemaining);
 
         return BinaryMath.getS32NeAt(byteArray, 0);
@@ -177,8 +180,8 @@ public class BufferPaged extends BufferBase {
         final var byteArray = new byte[8];
 
         pageByteBuffer.get(byteArray, 0, pageBytesRemaining);
-
-        pageByteBuffer = readSet.nextPageByteBuffer();
+        pageByteBuffer = readSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 8 - pageBytesRemaining;
         pageByteBuffer.get(byteArray, pageBytesRemaining, 8 - pageBytesRemaining);
 
         return BinaryMath.getS64NeAt(byteArray, 0);
@@ -198,7 +201,7 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = writeSet.nextPageByteBuffer();
+            pageByteBuffer = writeSet.getNextPageByteBuffer();
         }
     }
 
@@ -216,7 +219,7 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = writeSet.nextPageByteBuffer();
+            pageByteBuffer = writeSet.getNextPageByteBuffer();
         }
     }
 
@@ -233,33 +236,97 @@ public class BufferPaged extends BufferBase {
                 break;
             }
 
-            pageByteBuffer = writeSet.nextPageByteBuffer();
+            pageByteBuffer = writeSet.getNextPageByteBuffer();
         }
     }
 
     @Override
-    protected void setAtUnchecked(final int offset, final byte value, final int length) {
-        throw new UnsupportedOperationException("not implemented"); // TODO.
+    protected void setAtUnchecked(int offset, final byte value, int length) {
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        while (true) {
+            var remainder = Math.min(pageByteBuffer.remaining(), length);
+
+            if (pageByteBuffer.hasArray()) {
+                final var offset0 = pageByteBuffer.arrayOffset() + offset;
+                Arrays.fill(pageByteBuffer.array(), offset0, offset0 + remainder, value);
+                length -= remainder;
+            }
+            else {
+                while (remainder > 0) {
+                    pageByteBuffer.put(value);
+                    remainder -= 1;
+                    length -= 1;
+                }
+            }
+
+            if (length <= 0) {
+                break;
+            }
+
+            pageByteBuffer = writeSet.getNextPageByteBuffer();
+        }
     }
 
     @Override
     protected void setS8AtUnchecked(final int offset, final byte value) {
-        writeSet.getPageByteBufferPositionedAt(offset).put(value);
+        writeSet.getPageByteBufferPositionedAt(offset)
+            .put(value);
     }
 
     @Override
     protected void setS16AtUnchecked(final int offset, final short value) {
-        throw new UnsupportedOperationException("not implemented"); // TODO.
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+
+        if (pageByteBuffer.remaining() >= 2) {
+            pageByteBuffer.putShort(value);
+            return;
+        }
+
+        final var byteArray = new byte[2];
+        BinaryMath.setS16NeAt(byteArray, 0, value);
+
+        pageByteBuffer.put(byteArray[0]);
+        pageByteBuffer = writeSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 1;
+        pageByteBuffer.put(byteArray[1]);
     }
 
     @Override
     protected void setS32AtUnchecked(final int offset, final int value) {
-        throw new UnsupportedOperationException("not implemented"); // TODO.
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        var pageBytesRemaining = pageByteBuffer.remaining();
+
+        if (pageBytesRemaining >= 4) {
+            pageByteBuffer.putInt(value);
+            return;
+        }
+
+        final var byteArray = new byte[4];
+        BinaryMath.setS32NeAt(byteArray, 0, value);
+
+        pageByteBuffer.put(byteArray, 0, pageBytesRemaining);
+        pageByteBuffer = writeSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 4 - pageBytesRemaining;
+        pageByteBuffer.put(byteArray, pageBytesRemaining, 4 - pageBytesRemaining);
     }
 
     @Override
     protected void setS64AtUnchecked(final int offset, final long value) {
-        throw new UnsupportedOperationException("not implemented"); // TODO.
+        var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
+        var pageBytesRemaining = pageByteBuffer.remaining();
+
+        if (pageBytesRemaining >= 8) {
+            pageByteBuffer.putLong(value);
+            return;
+        }
+
+        final var byteArray = new byte[8];
+        BinaryMath.setS64NeAt(byteArray, 0, value);
+
+        pageByteBuffer.put(byteArray, 0, pageBytesRemaining);
+        pageByteBuffer = writeSet.getNextPageByteBuffer();
+        assert pageByteBuffer.remaining() >= 8 - pageBytesRemaining;
+        pageByteBuffer.put(byteArray, pageBytesRemaining, 8 - pageBytesRemaining);
     }
 
     @Override

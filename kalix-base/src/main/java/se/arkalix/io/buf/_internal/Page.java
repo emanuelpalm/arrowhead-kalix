@@ -3,9 +3,9 @@ package se.arkalix.io.buf._internal;
 import java.nio.ByteBuffer;
 
 public class Page {
-    final ByteBuffer byteBuffer;
-    final int startOffset;
-    final int stopOffset;
+    private final ByteBuffer byteBuffer;
+    private final int startOffset;
+    private final int stopOffset;
 
     public Page(final ByteBuffer byteBuffer, final int startOffset, final int stopOffset) {
         if (byteBuffer == null) {
@@ -21,5 +21,11 @@ public class Page {
 
     public int size() {
         return stopOffset - startOffset;
+    }
+
+    public ByteBuffer asByteBufferPositionedAt(final int offset) {
+        return byteBuffer
+            .position(startOffset + offset)
+            .limit(stopOffset);
     }
 }
