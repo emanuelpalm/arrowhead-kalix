@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @Internal
-public abstract class AbstractBuffer implements Buffer {
+public abstract class BufferChecked implements Buffer {
     private int readOffset;
     private int writeOffset;
     private boolean isClosed = false;
@@ -165,10 +165,6 @@ public abstract class AbstractBuffer implements Buffer {
 
     protected abstract long getS64AtUnchecked(int offset);
 
-    private int getU8AtUnchecked(final int offset) {
-        return Byte.toUnsignedInt(getS8AtUnchecked(offset));
-    }
-
     @Override
     public int getU24At(final int offset) {
         checkIfOpen();
@@ -192,9 +188,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private int getU24BeAtUnchecked(final int offset) {
-        return (getU8AtUnchecked(offset) & 0xff) << 16 |
-            (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
-            getU8AtUnchecked(offset + 2) & 0xff;
+        final var byteArray = new byte[3];
+        getAtUnchecked(offset, byteArray, 0, 3);
+        return BinaryMath.getS24BeAt(byteArray, 0);
     }
 
     @Override
@@ -205,9 +201,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private int getU24LeAtUnchecked(final int offset) {
-        return getU8AtUnchecked(offset) & 0xff |
-            (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
-            (getU8AtUnchecked(offset + 2) & 0xff) << 16;
+        final var byteArray = new byte[3];
+        getAtUnchecked(offset, byteArray, 0, 3);
+        return BinaryMath.getS24LeAt(byteArray, 0);
     }
 
     @Override
@@ -231,12 +227,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private long getU48BeAtUnchecked(final int offset) {
-        return (long) (getU8AtUnchecked(offset) & 0xff) << 40 |
-            (long) (getU8AtUnchecked(offset + 1) & 0xff) << 32 |
-            (long) (getU8AtUnchecked(offset + 2) & 0xff) << 24 |
-            (long) (getU8AtUnchecked(offset + 3) & 0xff) << 16 |
-            (long) (getU8AtUnchecked(offset + 4) & 0xff) << 8 |
-            (long) (getU8AtUnchecked(offset + 5) & 0xff);
+        final var byteArray = new byte[6];
+        getAtUnchecked(offset, byteArray, 0, 6);
+        return BinaryMath.getS48BeAt(byteArray, 0);
     }
 
     @Override
@@ -247,12 +240,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private long getU48LeAtUnchecked(final int offset) {
-        return (long) (getU8AtUnchecked(offset) & 0xff) |
-            (long) (getU8AtUnchecked(offset + 1) & 0xff) << 8 |
-            (long) (getU8AtUnchecked(offset + 2) & 0xff) << 16 |
-            (long) (getU8AtUnchecked(offset + 3) & 0xff) << 24 |
-            (long) (getU8AtUnchecked(offset + 4) & 0xff) << 32 |
-            (long) (getU8AtUnchecked(offset + 5) & 0xff) << 40;
+        final var byteArray = new byte[6];
+        getAtUnchecked(offset, byteArray, 0, 6);
+        return BinaryMath.getS48LeAt(byteArray, 0);
     }
 
     @Override
@@ -446,13 +436,13 @@ public abstract class AbstractBuffer implements Buffer {
     protected abstract void setAtUnchecked(int offset, ByteBuffer source);
 
     @Override
-    public void setAt(final int offset, final byte value, final int length) {
+    public void fillAt(final int offset, final byte value, final int length) {
         checkIfOpen();
         ensureWriteRange(offset, length);
-        setAtUnchecked(offset, value, length);
+        fillAtUnchecked(offset, value, length);
     }
 
-    protected abstract void setAtUnchecked(int offset, byte value, int length);
+    protected abstract void fillAtUnchecked(int offset, byte value, int length);
 
     @Override
     public void setS8At(final int offset, final byte value) {
@@ -496,9 +486,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private void setS24BeAtUnchecked(final int offset, final int value) {
-        setS8AtUnchecked(offset, (byte) (value >>> 16));
-        setS8AtUnchecked(offset + 1, (byte) (value >>> 8));
-        setS8AtUnchecked(offset + 2, (byte) value);
+        final var byteArray = new byte[3];
+        BinaryMath.setS24BeAt(byteArray, 0, value);
+        setAtUnchecked(offset, byteArray, 0, 3);
     }
 
     @Override
@@ -509,9 +499,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     private void setS24LeAtUnchecked(final int offset, final int value) {
-        setS8AtUnchecked(offset, (byte) value);
-        setS8AtUnchecked(offset + 1, (byte) (value >>> 8));
-        setS8AtUnchecked(offset + 2, (byte) (value >>> 16));
+        final var byteArray = new byte[3];
+        BinaryMath.setS24LeAt(byteArray, 0, value);
+        setAtUnchecked(offset, byteArray, 0, 3);
     }
 
     @Override
@@ -547,12 +537,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     protected void setS48BeAtUnchecked(final int offset, final long value) {
-        setS8AtUnchecked(offset, (byte) (value >>> 40));
-        setS8AtUnchecked(offset + 1, (byte) (value >>> 32));
-        setS8AtUnchecked(offset + 2, (byte) (value >>> 24));
-        setS8AtUnchecked(offset + 3, (byte) (value >>> 16));
-        setS8AtUnchecked(offset + 4, (byte) (value >>> 8));
-        setS8AtUnchecked(offset + 5, (byte) value);
+        final var byteArray = new byte[6];
+        BinaryMath.setS48BeAt(byteArray, 0, value);
+        setAtUnchecked(offset, byteArray, 0, 6);
     }
 
     @Override
@@ -563,12 +550,9 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     protected void setS48LeAtUnchecked(final int offset, final long value) {
-        setS8AtUnchecked(offset, (byte) value);
-        setS8AtUnchecked(offset + 1, (byte) (value >>> 8));
-        setS8AtUnchecked(offset + 2, (byte) (value >>> 16));
-        setS8AtUnchecked(offset + 3, (byte) (value >>> 24));
-        setS8AtUnchecked(offset + 4, (byte) (value >>> 32));
-        setS8AtUnchecked(offset + 5, (byte) (value >>> 40));
+        final var byteArray = new byte[6];
+        BinaryMath.setS48LeAt(byteArray, 0, value);
+        setAtUnchecked(offset, byteArray, 0, 6);
     }
 
     @Override
@@ -611,15 +595,16 @@ public abstract class AbstractBuffer implements Buffer {
         }
         final var remaining = source.remaining();
         ensureWriteLength(remaining);
-        getAtUnchecked(writeOffset, source);
+        setAtUnchecked(writeOffset, source);
         writeOffset += remaining;
     }
 
     @Override
-    public void write(final byte value, final int length) {
+    public void fill(final byte value, final int length) {
         checkIfOpen();
         ensureWriteLength(length);
-        setAtUnchecked(writeOffset, value, length);
+        fillAtUnchecked(writeOffset, value, length);
+        writeOffset += length;
     }
 
     @Override

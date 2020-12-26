@@ -45,10 +45,10 @@ public interface BufferWriter extends AutoCloseable {
 
     void setAt(int offset, ByteBuffer source);
 
-    void setAt(int offset, byte value, int length);
+    void fillAt(int offset, byte value, int length);
 
-    default void setZeroAt(final int offset, final int length) {
-        setAt(offset, (byte) 0, length);
+    default void zeroAt(final int offset, final int length) {
+        fillAt(offset, (byte) 0, length);
     }
 
     default void setF32At(final int offset, final float value) {
@@ -192,10 +192,10 @@ public interface BufferWriter extends AutoCloseable {
 
     void write(ByteBuffer source);
 
-    void write(byte value, int length);
+    void fill(byte value, int length);
 
-    default void writeZero(final int length) {
-        write((byte) 0, length);
+    default void zero(final int length) {
+        fill((byte) 0, length);
     }
 
     default void writeF32(final float value) {

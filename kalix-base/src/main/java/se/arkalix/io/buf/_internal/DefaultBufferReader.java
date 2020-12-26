@@ -177,6 +177,6 @@ public class DefaultBufferReader implements BufferReader {
 
     @Override
     public void close() {
-        inner = ClosedBuffer.instance();
+        inner = BufferClosed.instance();
     }
 }

@@ -1,7 +1,7 @@
 package se.arkalix.io.buf;
 
-import se.arkalix.io.buf._internal.NioBuffer;
-import se.arkalix.io.buf._internal.ByteArrayBuffer;
+import se.arkalix.io.buf._internal.BufferNio;
+import se.arkalix.io.buf._internal.BufferHeap;
 import se.arkalix.io.buf._internal.DefaultBufferReader;
 import se.arkalix.io.buf._internal.DefaultBufferWriter;
 
@@ -12,22 +12,22 @@ public interface Buffer extends BufferReader, BufferWriter {
         if (initialCapacity < 0) {
             throw new IndexOutOfBoundsException();
         }
-        return new NioBuffer(ByteBuffer.allocateDirect(initialCapacity), maximumCapacity);
+        return new BufferNio(ByteBuffer.allocateDirect(initialCapacity), maximumCapacity);
     }
 
     static Buffer allocateHeap(final int initialCapacity, final int maximumCapacity) {
         if (initialCapacity < 0) {
             throw new IndexOutOfBoundsException();
         }
-        return new ByteArrayBuffer(new byte[initialCapacity], maximumCapacity);
+        return new BufferHeap(new byte[initialCapacity], maximumCapacity);
     }
 
     static Buffer wrap(final ByteBuffer byteBuffer) {
-        return new NioBuffer(byteBuffer, byteBuffer.capacity());
+        return new BufferNio(byteBuffer, byteBuffer.capacity());
     }
 
     static Buffer wrap(final byte[] byteArray) {
-        return new ByteArrayBuffer(byteArray, byteArray.length);
+        return new BufferHeap(byteArray, byteArray.length);
     }
 
     void clear();

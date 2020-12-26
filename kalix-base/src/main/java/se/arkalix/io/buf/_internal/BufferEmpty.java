@@ -8,14 +8,14 @@ import se.arkalix.util.annotation.Internal;
 import java.nio.ByteBuffer;
 
 @Internal
-public class EmptyBuffer extends AbstractBuffer {
-    private static final EmptyBuffer instance = new EmptyBuffer();
+public class BufferEmpty extends BufferChecked {
+    private static final BufferEmpty instance = new BufferEmpty();
 
-    public static EmptyBuffer instance() {
+    public static BufferEmpty instance() {
         return instance;
     }
 
-    private EmptyBuffer() {}
+    private BufferEmpty() {}
 
     @Override
     public int writeEnd() {
@@ -95,7 +95,7 @@ public class EmptyBuffer extends AbstractBuffer {
     }
 
     @Override
-    protected void setAtUnchecked(final int offset, final byte value, final int length) {
+    protected void fillAtUnchecked(final int offset, final byte value, final int length) {
         throw new IllegalStateException();
     }
 

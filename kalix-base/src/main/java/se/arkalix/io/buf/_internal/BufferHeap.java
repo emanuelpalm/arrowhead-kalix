@@ -11,13 +11,13 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 @Internal
-public class ByteArrayBuffer extends AbstractBuffer {
+public class BufferHeap extends BufferChecked {
     private final int maximumCapacity;
 
     private byte[] byteArray;
     private int writeEnd;
 
-    public ByteArrayBuffer(final byte[] byteArray, final int maximumCapacity) {
+    public BufferHeap(final byte[] byteArray, final int maximumCapacity) {
         if (byteArray == null) {
             throw new NullPointerException("byteArray");
         }
@@ -30,7 +30,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         writeEnd = byteArray.length;
     }
 
-    private ByteArrayBuffer(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
+    private BufferHeap(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
         this.byteArray = byteArray;
         this.writeEnd = writeEnd;
         this.maximumCapacity = maximumCapacity;
@@ -39,7 +39,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
     @Override
     protected Buffer copyUnchecked(final int readOffset, final int length) {
         final var writeOffset = readOffset + length;
-        final var copy = new ByteArrayBuffer(
+        final var copy = new BufferHeap(
             Arrays.copyOfRange(byteArray, readOffset, writeOffset),
             writeOffset,
             maximumCapacity
@@ -51,7 +51,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
     @Override
     protected Buffer dupeUnchecked(final int readOffset, final int length) {
         final var writeOffset = readOffset + length;
-        final var dupe = new ByteArrayBuffer(byteArray, writeOffset, byteArray.length);
+        final var dupe = new BufferHeap(byteArray, writeOffset, byteArray.length);
         dupe.offsets(readOffset, writeOffset);
         return dupe;
     }
@@ -229,7 +229,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
     }
 
     @Override
-    protected void setAtUnchecked(final int offset, final byte value, final int length) {
+    protected void fillAtUnchecked(final int offset, final byte value, final int length) {
         Arrays.fill(byteArray, offset, offset + length, value);
     }
 

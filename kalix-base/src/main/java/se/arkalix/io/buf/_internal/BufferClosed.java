@@ -9,14 +9,14 @@ import se.arkalix.util.annotation.Internal;
 import java.nio.ByteBuffer;
 
 @Internal
-public class ClosedBuffer implements Buffer {
-    private static final ClosedBuffer instance = new ClosedBuffer();
+public class BufferClosed implements Buffer {
+    private static final BufferClosed instance = new BufferClosed();
 
-    public static ClosedBuffer instance() {
+    public static BufferClosed instance() {
         return instance;
     }
 
-    private ClosedBuffer() {}
+    private BufferClosed() {}
 
     @Override
     public void clear() {
@@ -249,7 +249,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void setAt(final int offset, final byte value, final int length) {
+    public void fillAt(final int offset, final byte value, final int length) {
         throw new BufferIsClosed();
     }
 
@@ -319,7 +319,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void write(final byte value, final int length) {
+    public void fill(final byte value, final int length) {
         throw new BufferIsClosed();
     }
 

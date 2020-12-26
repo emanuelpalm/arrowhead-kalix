@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PageBuffer extends AbstractBuffer {
+public class BufferPaged extends BufferChecked {
     private final int maximumCapacity;
 
     private int currentCapacity = 0;
@@ -20,7 +20,7 @@ public class PageBuffer extends AbstractBuffer {
     private PageSet readSet = null;
     private PageSet writeSet = null;
 
-    public PageBuffer(final int maximumCapacity, final PageCache pageCache) {
+    public BufferPaged(final int maximumCapacity, final PageCache pageCache) {
         if (maximumCapacity < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -241,7 +241,7 @@ public class PageBuffer extends AbstractBuffer {
     }
 
     @Override
-    protected void setAtUnchecked(int offset, final byte value, int length) {
+    protected void fillAtUnchecked(int offset, final byte value, int length) {
         var pageByteBuffer = writeSet.getPageByteBufferPositionedAt(offset);
         while (true) {
             var remainder = Math.min(pageByteBuffer.remaining(), length);

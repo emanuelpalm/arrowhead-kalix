@@ -66,8 +66,8 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void setAt(final int offset, final byte value, final int length) {
-        inner.setAt(offset, value, length);
+    public void fillAt(final int offset, final byte value, final int length) {
+        inner.fillAt(offset, value, length);
     }
 
     @Override
@@ -136,8 +136,8 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void write(final byte value, final int length) {
-        inner.write(value, length);
+    public void fill(final byte value, final int length) {
+        inner.fill(value, length);
     }
 
     @Override
@@ -192,6 +192,6 @@ public class DefaultBufferWriter implements BufferWriter {
 
     @Override
     public void close() {
-        inner = ClosedBuffer.instance();
+        inner = BufferClosed.instance();
     }
 }
