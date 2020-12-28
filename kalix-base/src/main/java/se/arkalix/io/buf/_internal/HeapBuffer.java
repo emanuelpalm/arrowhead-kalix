@@ -11,13 +11,13 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 @Internal
-public class BufferHeap extends BufferChecked {
+public class HeapBuffer extends CheckedBuffer {
     private final int maximumCapacity;
 
     private byte[] byteArray;
     private int writeEnd;
 
-    public BufferHeap(final byte[] byteArray, final int maximumCapacity) {
+    public HeapBuffer(final byte[] byteArray, final int maximumCapacity) {
         if (byteArray == null) {
             throw new NullPointerException("byteArray");
         }
@@ -30,29 +30,24 @@ public class BufferHeap extends BufferChecked {
         writeEnd = byteArray.length;
     }
 
-    private BufferHeap(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
+    private HeapBuffer(final byte[] byteArray, final int writeEnd, final int maximumCapacity) {
         this.byteArray = byteArray;
         this.writeEnd = writeEnd;
         this.maximumCapacity = maximumCapacity;
     }
 
     @Override
-    protected Buffer copyUnchecked(final int readOffset, final int length) {
-        final var writeOffset = readOffset + length;
-        final var copy = new BufferHeap(
-            Arrays.copyOfRange(byteArray, readOffset, writeOffset),
-            writeOffset,
-            maximumCapacity
-        );
-        copy.offsets(readOffset, writeOffset);
+    protected Buffer copyUnchecked(final int offset, final int length) {
+        final var byteArrayCopy = Arrays.copyOfRange(byteArray, offset, offset + length);
+        final var copy = new HeapBuffer(byteArrayCopy, length, maximumCapacity);
+        copy.offsets(0, length);
         return copy;
     }
 
     @Override
-    protected Buffer dupeUnchecked(final int readOffset, final int length) {
-        final var writeOffset = readOffset + length;
-        final var dupe = new BufferHeap(byteArray, writeOffset, byteArray.length);
-        dupe.offsets(readOffset, writeOffset);
+    protected Buffer dupeUnchecked() {
+        final var dupe = new HeapBuffer(byteArray, writeEnd, byteArray.length);
+        dupe.offsets(readOffset(), writeOffset());
         return dupe;
     }
 
@@ -72,13 +67,9 @@ public class BufferHeap extends BufferChecked {
             this.writeEnd = writeEnd;
             return;
         }
-        byteArray = onExpand(byteArray, writeEnd);
-    }
-
-    protected byte[] onExpand(final byte[] oldByteArray, final int newCapacity) {
-        final var newByteArray = new byte[newCapacity];
-        System.arraycopy(oldByteArray, 0, newByteArray, 0, writeOffset());
-        return newByteArray;
+        final var newByteArray = new byte[writeEnd];
+        System.arraycopy(byteArray, 0, newByteArray, 0, writeOffset());
+        byteArray = newByteArray;
     }
 
     @Override

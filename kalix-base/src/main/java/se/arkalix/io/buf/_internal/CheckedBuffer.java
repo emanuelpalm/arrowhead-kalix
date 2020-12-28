@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 @Internal
-public abstract class BufferChecked implements Buffer {
+public abstract class CheckedBuffer implements Buffer {
     private int readOffset;
     private int writeOffset;
     private boolean isClosed = false;
@@ -26,13 +26,12 @@ public abstract class BufferChecked implements Buffer {
     protected abstract Buffer copyUnchecked(final int offset, final int length);
 
     @Override
-    public final Buffer dupe(final int offset, final int length) {
+    public final Buffer dupe() {
         checkIfOpen();
-        checkCopyRange(offset, length);
-        return dupeUnchecked(offset, length);
+        return dupeUnchecked();
     }
 
-    protected abstract Buffer dupeUnchecked(final int offset, final int length);
+    protected abstract Buffer dupeUnchecked();
 
     @Override
     public void offsets(final int readOffset, final int writeOffset) {

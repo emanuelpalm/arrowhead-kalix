@@ -10,12 +10,12 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 @Internal
-public class BufferNio extends BufferChecked {
+public class NioBuffer extends CheckedBuffer {
     private final int maximumCapacity;
 
     private ByteBuffer byteBuffer;
 
-    public BufferNio(final ByteBuffer byteBuffer, final int maximumCapacity) {
+    public NioBuffer(final ByteBuffer byteBuffer, final int maximumCapacity) {
         if (byteBuffer == null) {
             throw new NullPointerException("byteBuffer");
         }
@@ -33,29 +33,24 @@ public class BufferNio extends BufferChecked {
     }
 
     @Override
-    protected Buffer copyUnchecked(final int readOffset, final int length) {
-        final var writeOffset = readOffset + length;
-        final var byteBufferCopy = ByteBuffer.allocateDirect(byteBuffer.capacity() - readOffset)
+    protected Buffer copyUnchecked(final int offset, final int length) {
+        final var byteBufferCopy = (byteBuffer.isDirect()
+            ? ByteBuffer.allocateDirect(length)
+            : ByteBuffer.allocate(length))
             .put(byteBuffer.asReadOnlyBuffer()
-                .position(readOffset)
-                .limit(writeOffset))
-            .position(0)
-            .limit(length);
+                .position(offset)
+                .limit(offset + length))
+            .flip();
 
-        final var copy = new BufferNio(byteBufferCopy, maximumCapacity);
-        copy.offsets(readOffset, writeOffset);
+        final var copy = new NioBuffer(byteBufferCopy, maximumCapacity);
+        copy.offsets(0, length);
         return copy;
     }
 
     @Override
-    protected Buffer dupeUnchecked(final int readOffset, final int length) {
-        final var writeOffset = readOffset + length;
-        final var byteBufferDupe = byteBuffer.duplicate()
-            .position(readOffset)
-            .limit(writeOffset);
-
-        final var dupe = new BufferNio(byteBufferDupe, byteBuffer.capacity());
-        dupe.offsets(readOffset, writeOffset);
+    protected Buffer dupeUnchecked() {
+        final var dupe = new NioBuffer(byteBuffer.duplicate(), byteBuffer.capacity());
+        dupe.offsets(readOffset(), writeOffset());
         return dupe;
     }
 
@@ -75,14 +70,10 @@ public class BufferNio extends BufferChecked {
             truncateOffsetsTo(writeEnd);
             return;
         }
-        byteBuffer = onExpand(byteBuffer, writeEnd);
-    }
-
-    protected ByteBuffer onExpand(final ByteBuffer oldByteBuffer, final int newCapacity) {
-        return ByteBuffer.allocateDirect(newCapacity)
-            .position(0)
-            .limit(writeOffset())
-            .put(oldByteBuffer.position(0)
+        byteBuffer = (byteBuffer.isDirect()
+            ? ByteBuffer.allocateDirect(writeEnd)
+            : ByteBuffer.allocate(writeEnd))
+            .put(byteBuffer.position(0)
                 .limit(writeOffset()))
             .clear();
     }
@@ -100,9 +91,7 @@ public class BufferNio extends BufferChecked {
         final int length
     ) {
         byteBuffer.asReadOnlyBuffer()
-            .clear()
             .position(offset)
-            .limit(offset + length)
             .get(destination, destinationOffset, length);
     }
 
@@ -114,7 +103,6 @@ public class BufferNio extends BufferChecked {
         final int length
     ) {
         destination.setAt(destinationOffset, byteBuffer.asReadOnlyBuffer()
-            .clear()
             .position(offset)
             .limit(offset + length));
     }
@@ -122,7 +110,6 @@ public class BufferNio extends BufferChecked {
     @Override
     protected void getAtUnchecked(final int offset, final ByteBuffer destination) {
         destination.put(byteBuffer.asReadOnlyBuffer()
-            .clear()
             .position(offset)
             .limit(offset + destination.remaining()));
     }
@@ -150,9 +137,7 @@ public class BufferNio extends BufferChecked {
     @Override
     protected void setAtUnchecked(final int offset, final byte[] source, final int sourceOffset, final int length) {
         byteBuffer.duplicate()
-            .clear()
             .position(offset)
-            .limit(offset + length)
             .put(source, sourceOffset, length);
     }
 
@@ -164,7 +149,6 @@ public class BufferNio extends BufferChecked {
         final int length
     ) {
         source.getAt(sourceOffset, byteBuffer.duplicate()
-            .clear()
             .position(offset)
             .limit(offset + length));
     }
@@ -172,9 +156,7 @@ public class BufferNio extends BufferChecked {
     @Override
     protected void setAtUnchecked(final int offset, final ByteBuffer source) {
         byteBuffer.duplicate()
-            .clear()
             .position(offset)
-            .limit(offset + source.remaining())
             .put(source);
     }
 
@@ -187,7 +169,6 @@ public class BufferNio extends BufferChecked {
         }
 
         final var duplicate = byteBuffer.duplicate()
-            .clear()
             .position(offset)
             .limit(offset + length);
 

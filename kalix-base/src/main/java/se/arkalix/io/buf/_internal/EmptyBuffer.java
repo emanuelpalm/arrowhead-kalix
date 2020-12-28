@@ -8,14 +8,14 @@ import se.arkalix.util.annotation.Internal;
 import java.nio.ByteBuffer;
 
 @Internal
-public class BufferEmpty extends BufferChecked {
-    private static final BufferEmpty instance = new BufferEmpty();
+public class EmptyBuffer extends CheckedBuffer {
+    private static final EmptyBuffer instance = new EmptyBuffer();
 
-    public static BufferEmpty instance() {
+    public static EmptyBuffer instance() {
         return instance;
     }
 
-    private BufferEmpty() {}
+    private EmptyBuffer() {}
 
     @Override
     public int writeEnd() {
@@ -40,7 +40,7 @@ public class BufferEmpty extends BufferChecked {
     }
 
     @Override
-    protected Buffer dupeUnchecked(final int offset, final int length) {
+    protected Buffer dupeUnchecked() {
         return this;
     }
 

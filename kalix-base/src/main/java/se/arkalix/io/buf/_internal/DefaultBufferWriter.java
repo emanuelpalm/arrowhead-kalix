@@ -192,6 +192,6 @@ public class DefaultBufferWriter implements BufferWriter {
 
     @Override
     public void close() {
-        inner = BufferClosed.instance();
+        inner = ClosedBuffer.instance();
     }
 }
