@@ -23,10 +23,8 @@ public class EmptyBuffer extends CheckedBuffer {
     }
 
     @Override
-    public void writeEnd(final int writeEnd) {
-        if (writeEnd != 0) {
-            throw new IndexOutOfBoundsException();
-        }
+    public void writeEndUnchecked(final int writeEnd) {
+        // Does nothing.
     }
 
     @Override

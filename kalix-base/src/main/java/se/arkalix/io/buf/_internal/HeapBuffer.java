@@ -57,11 +57,7 @@ public class HeapBuffer extends CheckedBuffer {
     }
 
     @Override
-    public void writeEnd(final int writeEnd) {
-        checkIfOpen();
-        if (writeEnd < 0 || writeEnd > maximumCapacity) {
-            throw new IndexOutOfBoundsException();
-        }
+    public void writeEndUnchecked(final int writeEnd) {
         if (byteArray.length >= writeEnd) {
             truncateOffsetsTo(writeEnd);
             this.writeEnd = writeEnd;

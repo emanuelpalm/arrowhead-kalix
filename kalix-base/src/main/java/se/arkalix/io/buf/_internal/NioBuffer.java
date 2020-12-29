@@ -60,11 +60,7 @@ public class NioBuffer extends CheckedBuffer {
     }
 
     @Override
-    public void writeEnd(final int writeEnd) {
-        checkIfOpen();
-        if (writeEnd < 0 || writeEnd > maximumCapacity) {
-            throw new IndexOutOfBoundsException();
-        }
+    public void writeEndUnchecked(final int writeEnd) {
         if (byteBuffer.capacity() >= writeEnd) {
             byteBuffer.limit(writeEnd);
             truncateOffsetsTo(writeEnd);

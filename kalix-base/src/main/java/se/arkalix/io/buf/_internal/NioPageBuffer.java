@@ -47,9 +47,9 @@ public class NioPageBuffer extends CheckedBuffer {
 
         offsets(original.readOffset(), original.writeOffset());
 
-        if (maximumCapacity < writeEnd) {
-            truncateOffsetsTo(maximumCapacity);
-            writeEnd = maximumCapacity;
+        if (original.currentCapacity < original.writeEnd) {
+            truncateOffsetsTo(original.currentCapacity);
+            writeEnd = original.currentCapacity;
         }
     }
 
@@ -59,11 +59,7 @@ public class NioPageBuffer extends CheckedBuffer {
     }
 
     @Override
-    public void writeEnd(final int writeEnd) {
-        checkIfOpen();
-        if (writeEnd < 0 || writeEnd > maximumCapacity) {
-            throw new IndexOutOfBoundsException();
-        }
+    public void writeEndUnchecked(final int writeEnd) {
         if (currentCapacity >= writeEnd) {
             truncateOffsetsTo(writeEnd);
         }

@@ -387,6 +387,17 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
+    public void writeEnd(final int writeEnd) {
+        checkIfOpen();
+        if (writeEnd < 0 || writeEnd > writeEndMax()) {
+            throw new IndexOutOfBoundsException();
+        }
+        writeEndUnchecked(writeEnd);
+    }
+
+    protected abstract void writeEndUnchecked(final int writeEnd);
+
+    @Override
     public int writeOffset() {
         return writeOffset;
     }
