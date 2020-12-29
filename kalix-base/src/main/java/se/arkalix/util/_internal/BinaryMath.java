@@ -56,6 +56,16 @@ public class BinaryMath {
             : Optional.of(value);
     }
 
+    public static Optional<Integer> roundUpToMultipleOfPowerOfTwo(final int value, final int powerOfTwo) {
+        if (powerOfTwo <= 0 || Integer.bitCount(powerOfTwo) != 1) {
+            throw new IllegalArgumentException("powerOfTwo (" + powerOfTwo + ") not a positive power of 2");
+        }
+        if (value < 0) {
+            return Optional.empty();
+        }
+        return Optional.of(value + (powerOfTwo - 1) & -powerOfTwo);
+    }
+
     public static short getS16BeAt(final byte[] byteArray, final int offset) {
         return (short) (byteArray[offset] << 8 | byteArray[offset + 1] & 0xFF);
     }

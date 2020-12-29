@@ -19,7 +19,7 @@ public class NioPageList {
         this.pageThreshold = pageThreshold;
     }
 
-    public ByteBuffer pop() {
+    public ByteBuffer popOrAllocateNew() {
         var head = list.poll();
         if (head == null) {
             if (isUsingDirectBuffers) {
