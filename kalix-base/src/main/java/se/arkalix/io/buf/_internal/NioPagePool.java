@@ -11,10 +11,10 @@ import java.util.ArrayList;
 
 @Internal
 public class NioPagePool implements BufferAllocator {
-    private static final int PAGE_SIZE_NORMAL;
-    private static final int PAGE_SIZE_LARGE;
-    private static final int PAGE_SIZE_HUGE;
-    private static final int PAGE_SIZE_MAX;
+    private static final int NORMAL_PAGE_SIZE;
+    private static final int LARGE_PAGE_SIZE;
+    private static final int HUGE_PAGE_SIZE;
+    private static final int GIANT_PAGE_SIZE;
     private static final int PAGE_THRESHOLD_REGULAR;
     private static final int PAGE_THRESHOLD_LARGE;
     private static final int PAGE_THRESHOLD_HUGE;
@@ -24,19 +24,19 @@ public class NioPagePool implements BufferAllocator {
     private final NioPageList freeListLarge;
     private final NioPageList freeListHuge;
 
+    public static NioPagePool create() {
+        return new NioPagePool(false);
+    }
+
     public static NioPagePool createDirect() {
         return new NioPagePool(true);
     }
 
-    public static NioPagePool createHeap() {
-        return new NioPagePool(false);
-    }
-
     private NioPagePool(final boolean isUsingDirectBuffers) {
         this.isUsingDirectBuffers = isUsingDirectBuffers;
-        freeListRegular = new NioPageList(isUsingDirectBuffers, PAGE_SIZE_NORMAL, PAGE_THRESHOLD_REGULAR);
-        freeListLarge = new NioPageList(isUsingDirectBuffers, PAGE_SIZE_LARGE, PAGE_THRESHOLD_LARGE);
-        freeListHuge = new NioPageList(isUsingDirectBuffers, PAGE_SIZE_HUGE, PAGE_THRESHOLD_HUGE);
+        freeListRegular = new NioPageList(isUsingDirectBuffers, NORMAL_PAGE_SIZE, PAGE_THRESHOLD_REGULAR);
+        freeListLarge = new NioPageList(isUsingDirectBuffers, LARGE_PAGE_SIZE, PAGE_THRESHOLD_LARGE);
+        freeListHuge = new NioPageList(isUsingDirectBuffers, HUGE_PAGE_SIZE, PAGE_THRESHOLD_HUGE);
     }
 
     public int allocate(final ArrayList<ByteBuffer> destination, int sizeInBytes) {
@@ -49,8 +49,8 @@ public class NioPagePool implements BufferAllocator {
 
         int actualSizeInBytes = 0;
 
-        if (sizeInBytes > PAGE_SIZE_MAX) {
-            actualSizeInBytes = BinaryMath.roundUpToMultipleOfPowerOfTwo(sizeInBytes, PAGE_SIZE_NORMAL)
+        if (sizeInBytes > GIANT_PAGE_SIZE) {
+            actualSizeInBytes = BinaryMath.roundUpToMultipleOfPowerOfTwo(sizeInBytes, NORMAL_PAGE_SIZE)
                 .orElseThrow(IllegalStateException::new);
 
             destination.add(isUsingDirectBuffers
@@ -60,22 +60,22 @@ public class NioPagePool implements BufferAllocator {
             return actualSizeInBytes;
         }
 
-        while (sizeInBytes >= PAGE_SIZE_HUGE) {
-            sizeInBytes -= PAGE_SIZE_HUGE;
-            actualSizeInBytes += PAGE_SIZE_HUGE;
-            destination.add(freeListHuge.popOrAllocateNew());
+        while (sizeInBytes >= HUGE_PAGE_SIZE) {
+            sizeInBytes -= HUGE_PAGE_SIZE;
+            actualSizeInBytes += HUGE_PAGE_SIZE;
+            destination.add(freeListHuge.popOrAllocate());
         }
 
-        while (sizeInBytes >= PAGE_SIZE_LARGE) {
-            sizeInBytes -= PAGE_SIZE_LARGE;
-            actualSizeInBytes += PAGE_SIZE_LARGE;
-            destination.add(freeListLarge.popOrAllocateNew());
+        while (sizeInBytes >= LARGE_PAGE_SIZE) {
+            sizeInBytes -= LARGE_PAGE_SIZE;
+            actualSizeInBytes += LARGE_PAGE_SIZE;
+            destination.add(freeListLarge.popOrAllocate());
         }
 
         while (sizeInBytes > 0) {
-            sizeInBytes -= PAGE_SIZE_NORMAL;
-            actualSizeInBytes += PAGE_SIZE_NORMAL;
-            destination.add(freeListRegular.popOrAllocateNew());
+            sizeInBytes -= NORMAL_PAGE_SIZE;
+            actualSizeInBytes += NORMAL_PAGE_SIZE;
+            destination.add(freeListRegular.popOrAllocate());
         }
 
         return actualSizeInBytes;
@@ -86,22 +86,22 @@ public class NioPagePool implements BufferAllocator {
             for (final var page : pages) {
                 final var capacity = page.capacity();
 
-                if (capacity == PAGE_SIZE_NORMAL) {
-                    freeListRegular.push(page);
+                if (capacity == NORMAL_PAGE_SIZE) {
+                    freeListRegular.pushOrFree(page);
                     continue;
                 }
 
-                if (capacity == PAGE_SIZE_LARGE) {
-                    freeListLarge.push(page);
+                if (capacity == LARGE_PAGE_SIZE) {
+                    freeListLarge.pushOrFree(page);
                     continue;
                 }
 
-                if (capacity == PAGE_SIZE_HUGE) {
-                    freeListHuge.push(page);
+                if (capacity == HUGE_PAGE_SIZE) {
+                    freeListHuge.pushOrFree(page);
                     continue;
                 }
 
-                free(page);
+                ByteBuffers.free(page);
             }
         }
         finally {
@@ -109,71 +109,69 @@ public class NioPagePool implements BufferAllocator {
         }
     }
 
-    @SuppressWarnings("unused")
-    private void free(final ByteBuffer page) {
-        // TODO: Make best-effort attempt to free byteBuffer immediately.
-    }
-
     @Override
     public Buffer allocate(final int initialCapacity, final int maximumCapacity) {
+        if (initialCapacity < 0 || initialCapacity > maximumCapacity) {
+            throw new IndexOutOfBoundsException();
+        }
         final var buffer = new NioPageBuffer(maximumCapacity, this);
         buffer.writeEnd(initialCapacity);
         return buffer;
     }
 
     static {
-        PAGE_SIZE_NORMAL = SystemProperties.getInteger("se.arkalix.io.buf.pageSizeNormal")
+        NORMAL_PAGE_SIZE = SystemProperties.getInteger("se.arkalix.io.buf.normalPageSize")
             .orElse(8192);
 
-        PAGE_SIZE_LARGE = SystemProperties.getInteger("se.arkalix.io.buf.pageSizeLarge")
-            .orElse(PAGE_SIZE_NORMAL * 8);
+        LARGE_PAGE_SIZE = SystemProperties.getInteger("se.arkalix.io.buf.largePageSize")
+            .orElse(NORMAL_PAGE_SIZE * 8);
 
-        PAGE_SIZE_HUGE = SystemProperties.getInteger("se.arkalix.io.buf.pageSizeHuge")
-            .orElse(PAGE_SIZE_LARGE * 8);
+        HUGE_PAGE_SIZE = SystemProperties.getInteger("se.arkalix.io.buf.hugePageSize")
+            .orElse(LARGE_PAGE_SIZE * 8);
 
-        PAGE_SIZE_MAX = SystemProperties.getInteger("se.arkalix.io.buf.pageSizeMax")
-            .orElse(PAGE_SIZE_HUGE * 8);
+        GIANT_PAGE_SIZE = SystemProperties.getInteger("se.arkalix.io.buf.giantPageSize")
+            .orElse(HUGE_PAGE_SIZE * 8);
 
-        if (Integer.bitCount(PAGE_SIZE_NORMAL) != 1 || PAGE_SIZE_NORMAL < 512) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageSizeNormal' " +
+        if (Integer.bitCount(NORMAL_PAGE_SIZE) != 1 || NORMAL_PAGE_SIZE < 512) {
+            throw new IllegalStateException("'se.arkalix.io.buf.normalPageSize' " +
                 "must be a power of 2 larger than or equal to 512");
         }
-        if (Integer.bitCount(PAGE_SIZE_LARGE) != 1 || PAGE_SIZE_LARGE < PAGE_SIZE_NORMAL) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageSizeLarge' " +
+        if (Integer.bitCount(LARGE_PAGE_SIZE) != 1 || LARGE_PAGE_SIZE < NORMAL_PAGE_SIZE) {
+            throw new IllegalStateException("'se.arkalix.io.buf.largePageSize' " +
                 "must be a power of 2 larger than or equal to " +
-                "'se.arkalix.io.buf.pageSizeNormal'");
+                "'se.arkalix.io.buf.normalPageSize'");
         }
-        if (Integer.bitCount(PAGE_SIZE_HUGE) != 1 || PAGE_SIZE_HUGE < PAGE_SIZE_LARGE) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageSizeHuge' " +
+        if (Integer.bitCount(HUGE_PAGE_SIZE) != 1 || HUGE_PAGE_SIZE < LARGE_PAGE_SIZE) {
+            throw new IllegalStateException("'se.arkalix.io.buf.hugePageSize' " +
                 "must be a power of 2 larger than or equal to " +
-                "'se.arkalix.io.buf.pageSizeLarge'");
+                "'se.arkalix.io.buf.largePageSize'");
         }
-        if (Integer.bitCount(PAGE_SIZE_MAX) != 1 || PAGE_SIZE_MAX < PAGE_SIZE_HUGE) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageSizeMax' " +
+        if (Integer.bitCount(GIANT_PAGE_SIZE) != 1 || GIANT_PAGE_SIZE < HUGE_PAGE_SIZE) {
+            throw new IllegalStateException("'se.arkalix.io.buf.giantPageSize' " +
                 "must be a power of 2 larger than or equal to" +
-                "'se.arkalix.io.buf.pageSizeHuge'");
+                "'se.arkalix.io.buf.hugePageSize'");
         }
 
-        PAGE_THRESHOLD_REGULAR = SystemProperties.getInteger("se.arkalix.io.buf.pageThresholdRegular")
+        PAGE_THRESHOLD_REGULAR = SystemProperties.getInteger("se.arkalix.io.buf.regularPurgeInterval")
             .orElse(256);
 
-        PAGE_THRESHOLD_LARGE = SystemProperties.getInteger("se.arkalix.io.buf.pageThresholdLarge")
+        PAGE_THRESHOLD_LARGE = SystemProperties.getInteger("se.arkalix.io.buf.largePurgeInterval")
             .orElse(Math.max(PAGE_THRESHOLD_REGULAR / 4, 1));
 
-        PAGE_THRESHOLD_HUGE = SystemProperties.getInteger("se.arkalix.io.buf.pageThresholdHuge")
+        PAGE_THRESHOLD_HUGE = SystemProperties.getInteger("se.arkalix.io.buf.hugePurgeInterval")
             .orElse(Math.max(PAGE_THRESHOLD_LARGE / 4, 1));
 
         if (PAGE_THRESHOLD_REGULAR < 1) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageThresholdRegular' " +
+            throw new IllegalStateException("'se.arkalix.io.buf.regularPurgeInterval' " +
                 "must be larger than or equal to 1");
         }
         if (PAGE_THRESHOLD_LARGE < PAGE_THRESHOLD_REGULAR) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageThresholdLarge' " +
-                "must be larger than or equal to 'se.arkalix.io.buf.pageThresholdRegular'");
+            throw new IllegalStateException("'se.arkalix.io.buf.largePurgeInterval' " +
+                "must be larger than or equal to 'se.arkalix.io.buf.regularPurgeInterval'");
         }
         if (PAGE_THRESHOLD_HUGE < PAGE_THRESHOLD_LARGE) {
-            throw new IllegalStateException("'se.arkalix.io.buf.pageThresholdHuge' " +
-                "must be larger than or equal to 'se.arkalix.io.buf.pageThresholdLarge'");
+            throw new IllegalStateException("'se.arkalix.io.buf.hugePurgeInterval' " +
+                "must be larger than or equal to 'se.arkalix.io.buf.largePurgeInterval'");
         }
     }
 }

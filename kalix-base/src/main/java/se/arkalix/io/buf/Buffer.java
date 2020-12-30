@@ -9,14 +9,14 @@ import java.nio.ByteBuffer;
 
 public interface Buffer extends BufferReader, BufferWriter {
     static Buffer allocate(final int initialCapacity, final int maximumCapacity) {
-        if (initialCapacity < 0) {
+        if (initialCapacity < 0 || initialCapacity > maximumCapacity) {
             throw new IndexOutOfBoundsException();
         }
         return new HeapBuffer(new byte[initialCapacity], maximumCapacity);
     }
 
     static Buffer allocateDirect(final int initialCapacity, final int maximumCapacity) {
-        if (initialCapacity < 0) {
+        if (initialCapacity < 0 || initialCapacity > maximumCapacity) {
             throw new IndexOutOfBoundsException();
         }
         return new NioBuffer(ByteBuffer.allocateDirect(initialCapacity), maximumCapacity);

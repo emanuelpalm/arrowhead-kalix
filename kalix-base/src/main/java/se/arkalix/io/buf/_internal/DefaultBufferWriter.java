@@ -76,13 +76,13 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void setS16At(final int offset, final short value) {
-        inner.setS16At(offset, value);
+    public void setS16NeAt(final int offset, final short value) {
+        inner.setS16NeAt(offset, value);
     }
 
     @Override
-    public void setS24At(final int offset, final int value) {
-        inner.setS24At(offset, value);
+    public void setS24NeAt(final int offset, final int value) {
+        inner.setS24NeAt(offset, value);
     }
 
     @Override
@@ -96,13 +96,13 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void setS32At(final int offset, final int value) {
-        inner.setS32At(offset, value);
+    public void setS32NeAt(final int offset, final int value) {
+        inner.setS32NeAt(offset, value);
     }
 
     @Override
-    public void setS48At(final int offset, final long value) {
-        inner.setS48At(offset, value);
+    public void setS48NeAt(final int offset, final long value) {
+        inner.setS48NeAt(offset, value);
     }
 
     @Override
@@ -116,8 +116,8 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void setS64At(final int offset, final long value) {
-        inner.setS64At(offset, value);
+    public void setS64NeAt(final int offset, final long value) {
+        inner.setS64NeAt(offset, value);
     }
 
     @Override
@@ -146,13 +146,13 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void writeS16(final short value) {
-        inner.writeS16(value);
+    public void writeS16Ne(final short value) {
+        inner.writeS16Ne(value);
     }
 
     @Override
-    public void writeS24(final int value) {
-        inner.writeS24(value);
+    public void writeS24Ne(final int value) {
+        inner.writeS24Ne(value);
     }
 
     @Override
@@ -166,13 +166,13 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void writeS32(final int value) {
-        inner.writeS32(value);
+    public void writeS32Ne(final int value) {
+        inner.writeS32Ne(value);
     }
 
     @Override
-    public void writeS48(final long value) {
-        inner.writeS48(value);
+    public void writeS48Ne(final long value) {
+        inner.writeS48Ne(value);
     }
 
     @Override
@@ -186,8 +186,8 @@ public class DefaultBufferWriter implements BufferWriter {
     }
 
     @Override
-    public void writeS64(final long value) {
-        inner.writeS64(value);
+    public void writeS64Ne(final long value) {
+        inner.writeS64Ne(value);
     }
 
     @Override

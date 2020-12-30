@@ -34,43 +34,43 @@ public interface BufferReader extends AutoCloseable {
     void getAt(int offset, ByteBuffer destination);
 
     default float getF32At(final int offset) {
-        return Float.intBitsToFloat(getS32At(offset));
+        return Float.intBitsToFloat(getS32NeAt(offset));
     }
 
     default double getF64At(final int offset) {
-        return Double.longBitsToDouble(getS64At(offset));
+        return Double.longBitsToDouble(getS64NeAt(offset));
     }
 
     byte getS8At(int offset);
 
-    short getS16At(int offset);
-
     default short getS16BeAt(final int offset) {
-        var value = getS16At(offset);
+        var value = getS16NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Short.reverseBytes(value);
         }
         return value;
     }
 
+    short getS16NeAt(int offset);
+
     default short getS16LeAt(final int offset) {
-        var value = getS16At(offset);
+        var value = getS16NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Short.reverseBytes(value);
         }
         return value;
     }
 
-    default int getS24At(final int offset) {
-        var value = getU24At(offset);
+    default int getS24BeAt(final int offset) {
+        var value = getU24BeAt(offset);
         if ((value & 0x800000) != 0) {
             value |= 0xff000000;
         }
         return value;
     }
 
-    default int getS24BeAt(final int offset) {
-        var value = getU24BeAt(offset);
+    default int getS24NeAt(final int offset) {
+        var value = getU24NeAt(offset);
         if ((value & 0x800000) != 0) {
             value |= 0xff000000;
         }
@@ -85,34 +85,34 @@ public interface BufferReader extends AutoCloseable {
         return value;
     }
 
-    int getS32At(final int offset);
-
     default int getS32BeAt(final int offset) {
-        var value = getS32At(offset);
+        var value = getS32NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Integer.reverseBytes(value);
         }
         return value;
     }
 
+    int getS32NeAt(final int offset);
+
     default int getS32LeAt(final int offset) {
-        var value = getS32At(offset);
+        var value = getS32NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Integer.reverseBytes(value);
         }
         return value;
     }
 
-    default long getS48At(final int offset) {
-        var value = getU48At(offset);
+    default long getS48BeAt(final int offset) {
+        var value = getU48BeAt(offset);
         if ((value & 0x800000000000L) != 0) {
             value |= 0xffff000000000000L;
         }
         return value;
     }
 
-    default long getS48BeAt(final int offset) {
-        var value = getU48BeAt(offset);
+    default long getS48NeAt(final int offset) {
+        var value = getU48NeAt(offset);
         if ((value & 0x800000000000L) != 0) {
             value |= 0xffff000000000000L;
         }
@@ -127,18 +127,18 @@ public interface BufferReader extends AutoCloseable {
         return value;
     }
 
-    long getS64At(final int offset);
-
     default long getS64BeAt(final int offset) {
-        var value = getS64At(offset);
+        var value = getS64NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Long.reverseBytes(value);
         }
         return value;
     }
 
+    long getS64NeAt(final int offset);
+
     default long getS64LeAt(final int offset) {
-        var value = getS64At(offset);
+        var value = getS64NeAt(offset);
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Long.reverseBytes(value);
         }
@@ -149,39 +149,39 @@ public interface BufferReader extends AutoCloseable {
         return Byte.toUnsignedInt(getS8At(offset));
     }
 
-    default int getU16At(final int offset) {
-        return Short.toUnsignedInt(getS16At(offset));
-    }
-
     default int getU16BeAt(final int offset) {
         return Short.toUnsignedInt(getS16BeAt(offset));
+    }
+
+    default int getU16NeAt(final int offset) {
+        return Short.toUnsignedInt(getS16NeAt(offset));
     }
 
     default int getU16LeAt(final int offset) {
         return Short.toUnsignedInt(getS16LeAt(offset));
     }
 
-    int getU24At(final int offset);
-
     int getU24BeAt(final int offset);
+
+    int getU24NeAt(final int offset);
 
     int getU24LeAt(final int offset);
 
-    default long getU32At(final int offset) {
-        return Integer.toUnsignedLong(getS32At(offset));
-    }
-
     default long getU32BeAt(final int offset) {
         return Integer.toUnsignedLong(getS32BeAt(offset));
+    }
+
+    default long getU32NeAt(final int offset) {
+        return Integer.toUnsignedLong(getS32NeAt(offset));
     }
 
     default long getU32LeAt(final int offset) {
         return Integer.toUnsignedLong(getS32LeAt(offset));
     }
 
-    long getU48At(final int offset);
-
     long getU48BeAt(final int offset);
+
+    long getU48NeAt(final int offset);
 
     long getU48LeAt(final int offset);
 
@@ -205,43 +205,43 @@ public interface BufferReader extends AutoCloseable {
     void read(ByteBuffer destination);
 
     default float readF32() {
-        return Float.intBitsToFloat(readS32());
+        return Float.intBitsToFloat(readS32Ne());
     }
 
     default double readF64() {
-        return Double.longBitsToDouble(readS64());
+        return Double.longBitsToDouble(readS64Ne());
     }
 
     byte readS8();
 
-    short readS16();
-
     default short readS16Be() {
-        var value = readS16();
+        var value = readS16Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Short.reverseBytes(value);
         }
         return value;
     }
 
+    short readS16Ne();
+
     default short readS16Le() {
-        var value = readS16();
+        var value = readS16Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Short.reverseBytes(value);
         }
         return value;
     }
 
-    default int readS24() {
-        var value = readU24();
+    default int readS24Be() {
+        var value = readU24Be();
         if ((value & 0x800000) != 0) {
             value |= 0xff000000;
         }
         return value;
     }
 
-    default int readS24Be() {
-        var value = readU24Be();
+    default int readS24Ne() {
+        var value = readU24Ne();
         if ((value & 0x800000) != 0) {
             value |= 0xff000000;
         }
@@ -256,34 +256,34 @@ public interface BufferReader extends AutoCloseable {
         return value;
     }
 
-    int readS32();
-
     default int readS32Be() {
-        var value = readS32();
+        var value = readS32Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Integer.reverseBytes(value);
         }
         return value;
     }
 
+    int readS32Ne();
+
     default int readS32Le() {
-        var value = readS32();
+        var value = readS32Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Integer.reverseBytes(value);
         }
         return value;
     }
 
-    default long readS48() {
-        var value = readU48();
+    default long readS48Be() {
+        var value = readU48Be();
         if ((value & 0x800000000000L) != 0) {
             value |= 0xffff000000000000L;
         }
         return value;
     }
 
-    default long readS48Be() {
-        var value = readU48Be();
+    default long readS48Ne() {
+        var value = readU48Ne();
         if ((value & 0x800000000000L) != 0) {
             value |= 0xffff000000000000L;
         }
@@ -298,18 +298,18 @@ public interface BufferReader extends AutoCloseable {
         return value;
     }
 
-    long readS64();
-
     default long readS64Be() {
-        var value = readS64();
+        var value = readS64Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             value = Long.reverseBytes(value);
         }
         return value;
     }
 
+    long readS64Ne();
+
     default long readS64Le() {
-        var value = readS64();
+        var value = readS64Ne();
         if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
             value = Long.reverseBytes(value);
         }
@@ -320,39 +320,39 @@ public interface BufferReader extends AutoCloseable {
         return Byte.toUnsignedInt(readS8());
     }
 
-    default int readU16() {
-        return Short.toUnsignedInt(readS16());
-    }
-
     default int readU16Be() {
         return Short.toUnsignedInt(readS16Be());
+    }
+
+    default int readU16Ne() {
+        return Short.toUnsignedInt(readS16Ne());
     }
 
     default int readU16Le() {
         return Short.toUnsignedInt(readS16Le());
     }
 
-    int readU24();
-
     int readU24Be();
+
+    int readU24Ne();
 
     int readU24Le();
 
-    default long readU32() {
-        return Integer.toUnsignedLong(readS32());
-    }
-
     default long readU32Be() {
         return Integer.toUnsignedLong(readS32Be());
+    }
+
+    default long readU32Ne() {
+        return Integer.toUnsignedLong(readS32Ne());
     }
 
     default long readU32Le() {
         return Integer.toUnsignedLong(readS32Le());
     }
 
-    long readU48();
-
     long readU48Be();
+
+    long readU48Ne();
 
     long readU48Le();
 

@@ -3,23 +3,24 @@ package se.arkalix.io.buf._internal;
 import se.arkalix.util.annotation.Internal;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 @Internal
 public class NioPageList {
     private final boolean isUsingDirectBuffers;
     private final int pageSize;
-    private final int pageThreshold;
+    private final int purgeInterval;
     private final LinkedList<ByteBuffer> list = new LinkedList<>();
 
-    public NioPageList(final boolean isUsingDirectBuffers, final int pageSize, final int pageThreshold) {
+    private int freeCount = 0;
+
+    public NioPageList(final boolean isUsingDirectBuffers, final int pageSize, final int purgeInterval) {
         this.isUsingDirectBuffers = isUsingDirectBuffers;
         this.pageSize = pageSize;
-        this.pageThreshold = pageThreshold;
+        this.purgeInterval = purgeInterval;
     }
 
-    public ByteBuffer popOrAllocateNew() {
+    public ByteBuffer popOrAllocate() {
         var head = list.poll();
         if (head == null) {
             if (isUsingDirectBuffers) {
@@ -32,9 +33,19 @@ public class NioPageList {
         return head;
     }
 
-    public void push(final ByteBuffer page) {
+    public void pushOrFree(final ByteBuffer page) {
         assert page.capacity() == pageSize;
 
         list.push(page);
+
+        if (++freeCount >= purgeInterval) {
+            freeCount = 0;
+            try {
+                list.forEach(ByteBuffers::free);
+            }
+            finally {
+                list.clear();
+            }
+        }
     }
 }

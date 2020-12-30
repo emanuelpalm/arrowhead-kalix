@@ -61,23 +61,23 @@ public class DefaultBufferReader implements BufferReader {
     }
 
     @Override
-    public short getS16At(final int offset) {
-        return inner.getS16At(offset);
+    public short getS16NeAt(final int offset) {
+        return inner.getS16NeAt(offset);
     }
 
     @Override
-    public int getS32At(final int offset) {
-        return inner.getS32At(offset);
+    public int getS32NeAt(final int offset) {
+        return inner.getS32NeAt(offset);
     }
 
     @Override
-    public long getS64At(final int offset) {
-        return inner.getS64At(offset);
+    public long getS64NeAt(final int offset) {
+        return inner.getS64NeAt(offset);
     }
 
     @Override
-    public int getU24At(final int offset) {
-        return inner.getU24At(offset);
+    public int getU24NeAt(final int offset) {
+        return inner.getU24NeAt(offset);
     }
 
     @Override
@@ -91,8 +91,8 @@ public class DefaultBufferReader implements BufferReader {
     }
 
     @Override
-    public long getU48At(final int offset) {
-        return inner.getU48At(offset);
+    public long getU48NeAt(final int offset) {
+        return inner.getU48NeAt(offset);
     }
 
     @Override
@@ -126,23 +126,23 @@ public class DefaultBufferReader implements BufferReader {
     }
 
     @Override
-    public short readS16() {
-        return inner.readS16();
+    public short readS16Ne() {
+        return inner.readS16Ne();
     }
 
     @Override
-    public int readS32() {
-        return inner.readS32();
+    public int readS32Ne() {
+        return inner.readS32Ne();
     }
 
     @Override
-    public long readS64() {
-        return inner.readS64();
+    public long readS64Ne() {
+        return inner.readS64Ne();
     }
 
     @Override
-    public int readU24() {
-        return inner.readU24();
+    public int readU24Ne() {
+        return inner.readU24Ne();
     }
 
     @Override
@@ -156,8 +156,8 @@ public class DefaultBufferReader implements BufferReader {
     }
 
     @Override
-    public long readU48() {
-        return inner.readU48();
+    public long readU48Ne() {
+        return inner.readU48Ne();
     }
 
     @Override

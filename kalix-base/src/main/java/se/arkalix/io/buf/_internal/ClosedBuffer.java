@@ -84,22 +84,22 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public short getS16At(final int offset) {
+    public short getS16NeAt(final int offset) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public int getS32At(final int offset) {
+    public int getS32NeAt(final int offset) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public long getS64At(final int offset) {
+    public long getS64NeAt(final int offset) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public int getU24At(final int offset) {
+    public int getU24NeAt(final int offset) {
         throw new BufferIsClosed();
     }
 
@@ -114,7 +114,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public long getU48At(final int offset) {
+    public long getU48NeAt(final int offset) {
         throw new BufferIsClosed();
     }
 
@@ -149,22 +149,22 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public short readS16() {
+    public short readS16Ne() {
         throw new BufferIsClosed();
     }
 
     @Override
-    public int readS32() {
+    public int readS32Ne() {
         throw new BufferIsClosed();
     }
 
     @Override
-    public long readS64() {
+    public long readS64Ne() {
         throw new BufferIsClosed();
     }
 
     @Override
-    public int readU24() {
+    public int readU24Ne() {
         throw new BufferIsClosed();
     }
 
@@ -179,7 +179,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public long readU48() {
+    public long readU48Ne() {
         throw new BufferIsClosed();
     }
 
@@ -259,12 +259,12 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void setS16At(final int offset, final short value) {
+    public void setS16NeAt(final int offset, final short value) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public void setS24At(final int offset, final int value) {
+    public void setS24NeAt(final int offset, final int value) {
         throw new BufferIsClosed();
     }
 
@@ -279,12 +279,12 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void setS32At(final int offset, final int value) {
+    public void setS32NeAt(final int offset, final int value) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public void setS48At(final int offset, final long value) {
+    public void setS48NeAt(final int offset, final long value) {
         throw new BufferIsClosed();
     }
 
@@ -299,7 +299,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void setS64At(final int offset, final long value) {
+    public void setS64NeAt(final int offset, final long value) {
         throw new BufferIsClosed();
     }
 
@@ -329,12 +329,12 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS16(final short value) {
+    public void writeS16Ne(final short value) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public void writeS24(final int value) {
+    public void writeS24Ne(final int value) {
         throw new BufferIsClosed();
     }
 
@@ -349,12 +349,12 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS32(final int value) {
+    public void writeS32Ne(final int value) {
         throw new BufferIsClosed();
     }
 
     @Override
-    public void writeS48(final long value) {
+    public void writeS48Ne(final long value) {
         throw new BufferIsClosed();
     }
 
@@ -369,7 +369,7 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS64(final long value) {
+    public void writeS64Ne(final long value) {
         throw new BufferIsClosed();
     }
 

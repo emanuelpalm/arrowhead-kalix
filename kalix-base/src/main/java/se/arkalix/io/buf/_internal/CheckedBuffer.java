@@ -138,7 +138,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract byte getS8AtUnchecked(int offset);
 
     @Override
-    public short getS16At(final int offset) {
+    public short getS16NeAt(final int offset) {
         checkIfOpen();
         checkReadRange(offset, 2);
         return getS16AtUnchecked(offset);
@@ -147,7 +147,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract short getS16AtUnchecked(int offset);
 
     @Override
-    public int getS32At(final int offset) {
+    public int getS32NeAt(final int offset) {
         checkIfOpen();
         checkReadRange(offset, 4);
         return getS32AtUnchecked(offset);
@@ -156,7 +156,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract int getS32AtUnchecked(int offset);
 
     @Override
-    public long getS64At(final int offset) {
+    public long getS64NeAt(final int offset) {
         checkIfOpen();
         checkReadRange(offset, 8);
         return getS64AtUnchecked(offset);
@@ -165,7 +165,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract long getS64AtUnchecked(int offset);
 
     @Override
-    public int getU24At(final int offset) {
+    public int getU24NeAt(final int offset) {
         checkIfOpen();
         checkReadRange(offset, 3);
         return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
@@ -206,7 +206,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public long getU48At(final int offset) {
+    public long getU48NeAt(final int offset) {
         checkIfOpen();
         checkReadRange(offset, 6);
         return getU48AtUnchecked(offset);
@@ -289,7 +289,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public short readS16() {
+    public short readS16Ne() {
         checkIfOpen();
         checkReadLength(2);
         final var value = getS16AtUnchecked(readOffset);
@@ -298,7 +298,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public int readS32() {
+    public int readS32Ne() {
         checkIfOpen();
         checkReadLength(4);
         final var value = getS32AtUnchecked(readOffset);
@@ -307,7 +307,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public long readS64() {
+    public long readS64Ne() {
         checkIfOpen();
         checkReadLength(8);
         final var value = getS64AtUnchecked(readOffset);
@@ -316,7 +316,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public int readU24() {
+    public int readU24Ne() {
         checkIfOpen();
         checkReadLength(3);
         final var value = getU24AtUnchecked(readOffset);
@@ -343,7 +343,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public long readU48() {
+    public long readU48Ne() {
         checkIfOpen();
         checkReadLength(6);
         final var value = getU48AtUnchecked(readOffset);
@@ -464,7 +464,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract void setS8AtUnchecked(final int offset, final byte value);
 
     @Override
-    public void setS16At(final int offset, final short value) {
+    public void setS16NeAt(final int offset, final short value) {
         checkIfOpen();
         ensureWriteRange(offset, 2);
         setS16AtUnchecked(offset, value);
@@ -473,7 +473,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract void setS16AtUnchecked(final int offset, final short value);
 
     @Override
-    public void setS24At(final int offset, final int value) {
+    public void setS24NeAt(final int offset, final int value) {
         checkIfOpen();
         ensureWriteRange(offset, 3);
         setS24AtUnchecked(offset, value);
@@ -515,7 +515,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void setS32At(final int offset, final int value) {
+    public void setS32NeAt(final int offset, final int value) {
         checkIfOpen();
         ensureWriteRange(offset, 4);
         setS32AtUnchecked(offset, value);
@@ -524,7 +524,7 @@ public abstract class CheckedBuffer implements Buffer {
     protected abstract void setS32AtUnchecked(int offset, int value);
 
     @Override
-    public void setS48At(final int offset, final long value) {
+    public void setS48NeAt(final int offset, final long value) {
         checkIfOpen();
         ensureWriteRange(offset, 6);
         setS48AtUnchecked(offset, value);
@@ -566,7 +566,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void setS64At(final int offset, final long value) {
+    public void setS64NeAt(final int offset, final long value) {
         checkIfOpen();
         ensureWriteRange(offset, 8);
         setS64AtUnchecked(offset, value);
@@ -626,7 +626,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS16(final short value) {
+    public void writeS16Ne(final short value) {
         checkIfOpen();
         ensureWriteLength(2);
         setS16AtUnchecked(writeOffset, value);
@@ -634,7 +634,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS24(final int value) {
+    public void writeS24Ne(final int value) {
         checkIfOpen();
         ensureWriteLength(3);
         setS24AtUnchecked(writeOffset, value);
@@ -658,7 +658,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS32(final int value) {
+    public void writeS32Ne(final int value) {
         checkIfOpen();
         ensureWriteLength(4);
         setS32AtUnchecked(writeOffset, value);
@@ -666,7 +666,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS48(final long value) {
+    public void writeS48Ne(final long value) {
         checkIfOpen();
         ensureWriteLength(6);
         setS48AtUnchecked(writeOffset, value);
@@ -690,7 +690,7 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public void writeS64(final long value) {
+    public void writeS64Ne(final long value) {
         checkIfOpen();
         ensureWriteLength(8);
         setS64AtUnchecked(writeOffset, value);
