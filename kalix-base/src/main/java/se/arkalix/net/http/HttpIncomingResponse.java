@@ -34,7 +34,7 @@ public interface HttpIncomingResponse<Self, Request extends HttpOutgoingRequest<
         if (status().isSuccess()) {
             return bodyTo(decoder);
         }
-        return Future.failure(reject());
+        return Future.fault(reject());
     }
 
     /**
@@ -64,7 +64,7 @@ public interface HttpIncomingResponse<Self, Request extends HttpOutgoingRequest<
         if (status().isSuccess()) {
             return bodyTo(decoder);
         }
-        return Future.failure(reject());
+        return Future.fault(reject());
     }
 
     /**
@@ -94,7 +94,7 @@ public interface HttpIncomingResponse<Self, Request extends HttpOutgoingRequest<
         if (status().isSuccess()) {
             return bodyTo(decoder, codec);
         }
-        return Future.failure(reject());
+        return Future.fault(reject());
     }
 
     /**
@@ -154,7 +154,7 @@ public interface HttpIncomingResponse<Self, Request extends HttpOutgoingRequest<
     default Future<?> rejectIfNotSuccess() {
         return status().isSuccess()
             ? Future.done()
-            : Future.failure(reject());
+            : Future.fault(reject());
     }
 
     /**
@@ -175,7 +175,7 @@ public interface HttpIncomingResponse<Self, Request extends HttpOutgoingRequest<
     default Future<?> rejectIfNotSuccess(final String reason) {
         return status().isSuccess()
             ? Future.done()
-            : Future.failure(reject(reason));
+            : Future.fault(reject(reason));
     }
 
     /**

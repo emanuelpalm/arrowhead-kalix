@@ -81,7 +81,7 @@ public class NettyHttpClientConnection
                     try {
                         if (future.isSuccess()) {
                             sslSession = sslHandler.engine().getSession();
-                            futureConnection.complete(Result.success(this));
+                            futureConnection.complete(Result.ofValue(this));
                             futureConnection = null;
                             return;
                         }
@@ -93,7 +93,7 @@ public class NettyHttpClientConnection
                         cause = throwable;
                     }
                     if (futureConnection != null) {
-                        futureConnection.complete(Result.failure(cause));
+                        futureConnection.complete(Result.ofFault(cause));
                         futureConnection = null;
                     }
                     else if (cause instanceof ClosedChannelException) {
@@ -110,7 +110,7 @@ public class NettyHttpClientConnection
                 });
             }
             else {
-                futureConnection.complete(Result.success(this));
+                futureConnection.complete(Result.ofValue(this));
                 futureConnection = null;
             }
         }
@@ -145,7 +145,7 @@ public class NettyHttpClientConnection
             return;
         }
         incomingResponse = new NettyHttpClientResponse(ctx.alloc(), this, futureRequestResponse.request(), response);
-        futureRequestResponse.complete(Result.success(incomingResponse));
+        futureRequestResponse.complete(Result.ofValue(incomingResponse));
     }
 
 
@@ -174,7 +174,7 @@ public class NettyHttpClientConnection
             return;
         }
         if (futureConnection != null) {
-            futureConnection.complete(Result.failure(cause));
+            futureConnection.complete(Result.ofFault(cause));
             futureConnection = null;
             return;
         }
@@ -187,7 +187,7 @@ public class NettyHttpClientConnection
             }
         }
         if (requestResponseQueue.size() > 0) {
-            requestResponseQueue.remove().complete(Result.failure(cause));
+            requestResponseQueue.remove().complete(Result.ofFault(cause));
             return;
         }
         ctx.fireExceptionCaught(cause);
@@ -205,7 +205,7 @@ public class NettyHttpClientConnection
                 return;
             }
             if (futureConnection != null) {
-                futureConnection.complete(Result.failure(new HttpClientConnectionException("Timeout exceeded")));
+                futureConnection.complete(Result.ofFault(new HttpClientConnectionException("Timeout exceeded")));
                 futureConnection = null;
                 return;
             }
@@ -219,7 +219,7 @@ public class NettyHttpClientConnection
             }
             if (requestResponseQueue.size() > 0) {
                 final var pendingResponse = requestResponseQueue.remove();
-                pendingResponse.complete(Result.failure(
+                pendingResponse.complete(Result.ofFault(
                     new HttpOutgoingRequestException(pendingResponse.request(), "Incoming response timed out")));
             }
         }
@@ -343,7 +343,7 @@ public class NettyHttpClientConnection
             return futureRequestResponse;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 

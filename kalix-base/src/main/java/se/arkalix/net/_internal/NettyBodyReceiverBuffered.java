@@ -34,7 +34,7 @@ public class NettyBodyReceiverBuffered implements NettyBodyReceiver, Future<Read
 
     @Override
     public void abort(final Throwable cause) {
-        result = Result.failure(cause);
+        result = Result.ofFault(cause);
         if (consumer != null) {
             final var consumer0 = consumer;
             consumer = null;
@@ -65,7 +65,7 @@ public class NettyBodyReceiverBuffered implements NettyBodyReceiver, Future<Read
     @Override
     public void close() {
         if (result == null) {
-            result = Result.success(new ReadableBufferOfByteBuf(buffer));
+            result = Result.ofValue(new ReadableBufferOfByteBuf(buffer));
         }
         if (consumer != null) {
             final var consumer0 = consumer;

@@ -1,7 +1,7 @@
 package se.arkalix.security.identity._internal;
 
 /**
- * Represents the failure to parse an LDAP DN, potentially associated with some
+ * Represents the fault to parse an LDAP DN, potentially associated with some
  * x.509 certificate.
  */
 public class X509NameException extends IllegalArgumentException {

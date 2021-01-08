@@ -53,8 +53,8 @@ import java.util.function.Supplier;
  *             System.out.println("Received counter-offer in " + negotiation);
  *             System.out.println("Rejecting counter-offer ...");
  *             responder.reject()
- *                 .ifSuccess(ignored -&gt; System.out.println("Rejected counter-offer"))
- *                 .onFailure(Throwable::printStackTrace);
+ *                 .ifValue(ignored -&gt; System.out.println("Rejected counter-offer"))
+ *                 .onFault(Throwable::printStackTrace);
  *         }
  *
  *         &#64;Override
@@ -87,12 +87,12 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
         }
         final var attached = new Attached(system, (ArEventSubscriberPluginFacade) eventSubscriber);
         return attached.subscribe()
-            .ifSuccess(ignored -> {
+            .ifValue(ignored -> {
                 if (logger.isInfoEnabled()) {
                     logger.info("HTTP/JSON contract negotiator plugin attached to \"{}\"", system.name());
                 }
             })
-            .ifFailure(Throwable.class, throwable -> {
+            .ifFault(Throwable.class, throwable -> {
                 if (logger.isErrorEnabled()) {
                     logger.error("HTTP/JSON contract negotiator plugin " +
                         "failed to attached to \"" + system.name() + "\"", throwable);
@@ -163,7 +163,7 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                             "[data={}, metadata={}]", data, metadata);
                     }
                 })
-                .ifSuccess(handle -> {
+                .ifValue(handle -> {
                     synchronized (this) {
                         eventSubscriptionHandle = handle;
                     }
@@ -209,7 +209,7 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                 return system.consume()
                     .oneUsing(HttpJsonTrustedContractNegotiationService.factory())
                     .flatMap(service -> service.offer(offer))
-                    .ifSuccess(negotiationId -> expectedEvents.add(new ExpectedResponseToOffer(
+                    .ifValue(negotiationId -> expectedEvents.add(new ExpectedResponseToOffer(
                         system, handler,
                         offer.offerorName(), offer.receiverName(), negotiationId, offer.expiresIn())));
             }
@@ -265,8 +265,8 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                                     "present negotiation update to " +
                                     "negotiation handler"))))
                         .flatMap(expectedEvent::handle)
-                        .ifSuccess(optionalNewExpectedEvent -> optionalNewExpectedEvent.ifPresent(this::add))
-                        .onFailure(fault -> logger.error("Failed to handle " +
+                        .ifValue(optionalNewExpectedEvent -> optionalNewExpectedEvent.ifPresent(this::add))
+                        .onFault(fault -> logger.error("Failed to handle " +
                             "negotiation [offeror=" + offerorName + ", " +
                             "receiver=" + receiverName + ", id=" +
                             negotiationId + ", status=" + status + "]", fault));
@@ -458,7 +458,7 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                                     .acceptorName(negotiation.offer().receiverName())
                                     .acceptedAt(Instant.now())
                                     .build()))
-                                .ifSuccess(ignored -> close());
+                                .ifValue(ignored -> close());
                         }
 
                         @Override
@@ -475,12 +475,12 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                             return system.consume()
                                 .oneUsing(HttpJsonTrustedContractNegotiationService.factory())
                                 .flatMap(service -> service.counterOffer(counterOffer))
-                                .ifSuccess(ignored -> {
+                                .ifValue(ignored -> {
                                     refresh(counterOffer);
-                                    future.complete(Result.success(Optional.of(ExpectedResponseToOffer.this)));
+                                    future.complete(Result.ofValue(Optional.of(ExpectedResponseToOffer.this)));
                                 })
-                                .ifFailure(Throwable.class, ignored ->
-                                    future.complete(Result.success(Optional.empty())));
+                                .ifFault(Throwable.class, ignored ->
+                                    future.complete(Result.ofValue(Optional.empty())));
                         }
 
                         @Override
@@ -493,7 +493,7 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
                                     .rejectorName(negotiation.offer().receiverName())
                                     .rejectedAt(Instant.now())
                                     .build()))
-                                .ifSuccess(ignored -> close());
+                                .ifValue(ignored -> close());
                         }
                     });
                     return future;
@@ -510,7 +510,7 @@ public class HttpJsonTrustedContractNegotiatorPlugin implements ArTrustedContrac
             catch (final Throwable throwable) {
                 handler.onFault(negotiationId, throwable);
             }
-            return Future.success(Optional.empty());
+            return Future.value(Optional.empty());
         }
 
         @Override

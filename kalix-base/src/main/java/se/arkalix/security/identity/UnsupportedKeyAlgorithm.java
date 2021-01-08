@@ -1,7 +1,7 @@
 package se.arkalix.security.identity;
 
 /**
- * Represents the failure to handle a public or private key associated with an
+ * Represents the fault to handle a public or private key associated with an
  * algorithm that is not supported.
  *
  * @see java.security.PublicKey

@@ -102,9 +102,9 @@ public class HttpFilter implements HttpRoutable {
                     .map(ignored -> response.status().isPresent());
             }
             catch (final Throwable throwable) {
-                return Future.failure(throwable);
+                return Future.fault(throwable);
             }
         }
-        return Future.success(false);
+        return Future.value(false);
     }
 }

@@ -20,7 +20,7 @@ public class EncodableConstraintViolated extends CodecException {
      * @param codecType    Codec being applied when exception was thrown.
      * @param writer      Writer to which encoded object was to be written.
      * @param object      Object violating codec, if relevant.
-     * @param description Description of failure.
+     * @param description Description of fault.
      */
     public EncodableConstraintViolated(
         final CodecType codecType,

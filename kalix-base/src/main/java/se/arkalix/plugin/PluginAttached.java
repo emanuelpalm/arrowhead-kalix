@@ -141,6 +141,6 @@ public interface PluginAttached {
     default Future<Collection<ServiceRecord>> onServiceQueried(final ServiceQuery query)
         throws Exception
     {
-        return Future.success(Collections.emptyList());
+        return Future.value(Collections.emptyList());
     }
 }

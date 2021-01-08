@@ -58,12 +58,12 @@ public class HttpJsonTrustedContractObserverPlugin implements ArTrustedContractO
         }
         final var attached = new Attached(system, (ArEventSubscriberPluginFacade) eventSubscriber);
         return attached.subscribe()
-            .ifSuccess(ignored -> {
+            .ifValue(ignored -> {
                 if (logger.isInfoEnabled()) {
                     logger.info("HTTP/JSON contract observer plugin attached to \"{}\"", system.name());
                 }
             })
-            .ifFailure(Throwable.class, throwable -> {
+            .ifFault(Throwable.class, throwable -> {
                 if (logger.isErrorEnabled()) {
                     logger.error("HTTP/JSON contract observer plugin " +
                         "failed to attached to \"" + system.name() + "\"", throwable);
@@ -125,7 +125,7 @@ public class HttpJsonTrustedContractObserverPlugin implements ArTrustedContractO
                                 "via service \"" + service.service().name() +
                                 "\"; cannot present session update to " +
                                 "negotiation observers"))))
-                        .ifSuccess(session -> {
+                        .ifValue(session -> {
                             for (final var observer : observers) {
                                 try {
                                     observer.onUpdate(session);
@@ -138,11 +138,11 @@ public class HttpJsonTrustedContractObserverPlugin implements ArTrustedContractO
                                 }
                             }
                         })
-                        .onFailure(throwable -> logger.error("" +
+                        .onFault(throwable -> logger.error("" +
                             "HTTP/JSON contract observer caught unexpected " +
                             "exception while trying to query session update", throwable));
                 })
-                .ifSuccess(handle -> {
+                .ifValue(handle -> {
                     synchronized (this) {
                         eventSubscriptionHandle = handle;
                     }

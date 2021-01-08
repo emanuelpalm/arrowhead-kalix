@@ -92,7 +92,7 @@ public class DefaultSystem implements ArSystem {
 
         scheduler = Schedulers.fixed();
         schedulerShutdownListener = (scheduler) -> shutdown()
-            .onFailure(fault -> {
+            .onFault(fault -> {
                 if (logger.isErrorEnabled()) {
                     logger.error("Shutdown of \"" + name + "\" failed", fault);
                 }
@@ -106,7 +106,7 @@ public class DefaultSystem implements ArSystem {
 
     private Future<?> attachPlugins() {
         return pluginNotifier.onAttach()
-            .ifSuccess(pluginClassToFacade -> this.pluginClassToFacade = pluginClassToFacade);
+            .ifValue(pluginClassToFacade -> this.pluginClassToFacade = pluginClassToFacade);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class DefaultSystem implements ArSystem {
                 logger.trace("Service cache contained at least one service " +
                     "matching the given query");
             }
-            return Future.success(matchingServices);
+            return Future.value(matchingServices);
         }
 
         if (isTraceEnabled) {
@@ -180,7 +180,7 @@ public class DefaultSystem implements ArSystem {
                 "matching the given query, delegating query to plugins ...");
         }
         return pluginNotifier.onServiceQueried(query)
-            .ifSuccess(services -> {
+            .ifValue(services -> {
                 if (isTraceEnabled) {
                     logger.trace("Retrieved the following entries from " +
                         "plugins, which will be used to update the service " +
@@ -191,7 +191,7 @@ public class DefaultSystem implements ArSystem {
             .map(services -> services.stream()
                 .filter(query::matches)
                 .collect(Collectors.toUnmodifiableSet()))
-            .ifSuccess(services -> {
+            .ifValue(services -> {
                 if (isTraceEnabled) {
                     logger.trace("The following entries matched the given " +
                         "query: {}", services);
@@ -209,7 +209,7 @@ public class DefaultSystem implements ArSystem {
         Objects.requireNonNull(service, "service");
 
         if (isShuttingDown.get()) {
-            return Future.failure(new IllegalStateException("System is shutting down; cannot " +
+            return Future.fault(new IllegalStateException("System is shutting down; cannot " +
                 "provide service \"" + service.name() + "\""));
         }
 
@@ -234,7 +234,7 @@ public class DefaultSystem implements ArSystem {
                 continue;
             }
             final var result = optional.get();
-            if (result.isFailure()) {
+            if (result.hasFault()) {
                 continue;
             }
             final var server = result.value();
@@ -268,7 +268,7 @@ public class DefaultSystem implements ArSystem {
                 continue;
             }
             final var result = optional.get();
-            if (result.isFailure()) {
+            if (result.hasFault()) {
                 logger.warn("Could not shut down " + entry.getKey() +
                     " server; it never started due to the following " +
                     "exception", result.fault());
@@ -387,7 +387,7 @@ public class DefaultSystem implements ArSystem {
                     .pass(system);
             }
             catch (final Throwable throwable) {
-                return Future.failure(throwable);
+                return Future.fault(throwable);
             }
         }
     }

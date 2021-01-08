@@ -111,7 +111,7 @@ public class DefaultHttpConsumer implements HttpConsumer {
                 else {
                     identity = null;
                 }
-                return Future.success(new DefaultHttpConsumerConnection(system, codecType, authorization, identity, connection));
+                return Future.value(new DefaultHttpConsumerConnection(system, codecType, authorization, identity, connection));
             });
     }
 }

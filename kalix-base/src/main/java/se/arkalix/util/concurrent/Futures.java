@@ -158,14 +158,14 @@ public final class Futures {
         final Iterator<Future<T>> iterator
     ) {
         if (!iterator.hasNext()) {
-            return Future.success(identity);
+            return Future.value(identity);
         }
         try {
             return iterator.next()
                 .flatMap(element -> reduce(accumulator.apply(identity, element), accumulator, iterator));
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -324,7 +324,7 @@ public final class Futures {
         final Iterator<Future<T>> iterator
     ) {
         if (!iterator.hasNext()) {
-            return Future.success(identity);
+            return Future.value(identity);
         }
         try {
             return iterator.next()
@@ -332,7 +332,7 @@ public final class Futures {
                 .flatMap(element -> flatReduce(element, accumulator, iterator));
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -487,14 +487,14 @@ public final class Futures {
         final Iterator<T> iterator
     ) {
         if (!iterator.hasNext()) {
-            return Future.success(identity);
+            return Future.value(identity);
         }
         try {
             return accumulator.apply(identity, iterator.next())
                 .flatMap(element -> flatReducePlain(element, accumulator, iterator));
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -582,13 +582,13 @@ public final class Futures {
     {
         if (!iterator.hasNext()) {
             return fault == null
-                ? Future.success(values)
-                : Future.failure(fault);
+                ? Future.value(values)
+                : Future.fault(fault);
         }
         return iterator.next()
             .flatMapResult(result -> {
                 final Throwable fault0;
-                if (result.isSuccess()) {
+                if (result.hasValue()) {
                     values.add(result.value());
                     fault0 = fault;
                 }

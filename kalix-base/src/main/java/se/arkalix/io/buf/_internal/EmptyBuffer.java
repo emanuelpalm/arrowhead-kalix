@@ -118,7 +118,12 @@ public class EmptyBuffer extends CheckedBuffer {
     }
 
     @Override
-    protected void onClose() {
+    public void close() {
         // Does nothing.
+    }
+
+    @Override
+    protected void onClose() {
+        throw new IllegalStateException();
     }
 }

@@ -38,10 +38,10 @@ abstract class AbstractScheduler implements Scheduler {
                 Result<Object> result;
                 try {
                     task.run();
-                    result = Result.success(null);
+                    result = Result.ofValue(null);
                 }
                 catch (final Throwable throwable) {
-                    result = Result.failure(throwable);
+                    result = Result.ofFault(throwable);
                 }
                 adapter.complete(result);
             });
@@ -49,7 +49,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -60,10 +60,10 @@ abstract class AbstractScheduler implements Scheduler {
             final var future = executor().submit(() -> {
                 Result<V> result;
                 try {
-                    result = Result.success(task.call());
+                    result = Result.ofValue(task.call());
                 }
                 catch (final Throwable throwable) {
-                    result = Result.failure(throwable);
+                    result = Result.ofFault(throwable);
                 }
                 adapter.complete(result);
             });
@@ -71,7 +71,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -83,10 +83,10 @@ abstract class AbstractScheduler implements Scheduler {
                 Result<V> result0;
                 try {
                     task.run();
-                    result0 = Result.success(result);
+                    result0 = Result.ofValue(result);
                 }
                 catch (final Throwable throwable) {
-                    result0 = Result.failure(throwable);
+                    result0 = Result.ofFault(throwable);
                 }
                 adapter.complete(result0);
             });
@@ -94,7 +94,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -109,7 +109,7 @@ abstract class AbstractScheduler implements Scheduler {
                     result0 = Result.done();
                 }
                 catch (final Throwable throwable) {
-                    result0 = Result.failure(throwable);
+                    result0 = Result.ofFault(throwable);
                 }
                 adapter.complete(result0);
             }, delay.toMillis(), TimeUnit.MILLISECONDS);
@@ -117,7 +117,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -128,10 +128,10 @@ abstract class AbstractScheduler implements Scheduler {
             final var future = executor().schedule(() -> {
                 Result<V> result0;
                 try {
-                    result0 = Result.success(callable.call());
+                    result0 = Result.ofValue(callable.call());
                 }
                 catch (final Throwable throwable) {
-                    result0 = Result.failure(throwable);
+                    result0 = Result.ofFault(throwable);
                 }
                 adapter.complete(result0);
             }, delay.toMillis(), TimeUnit.MILLISECONDS);
@@ -139,7 +139,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -152,7 +152,7 @@ abstract class AbstractScheduler implements Scheduler {
                     command.run();
                 }
                 catch (final Throwable throwable) {
-                    adapter.complete(Result.failure(throwable));
+                    adapter.complete(Result.ofFault(throwable));
                     adapter.cancel(false);
                 }
             }, initialDelay.toMillis(), rate.toMillis(), TimeUnit.MILLISECONDS);
@@ -160,7 +160,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -173,7 +173,7 @@ abstract class AbstractScheduler implements Scheduler {
                     command.run();
                 }
                 catch (final Throwable throwable) {
-                    adapter.complete(Result.failure(throwable));
+                    adapter.complete(Result.ofFault(throwable));
                     adapter.cancel(false);
                 }
             }, initalDelay.toMillis(), delay.toMillis(), TimeUnit.MILLISECONDS);
@@ -181,7 +181,7 @@ abstract class AbstractScheduler implements Scheduler {
             return adapter;
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 

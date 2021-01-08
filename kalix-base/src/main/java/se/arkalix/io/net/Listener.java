@@ -1,9 +1,8 @@
 package se.arkalix.io.net;
 
+import se.arkalix.util.concurrent.Publisher;
 import se.arkalix.util.concurrent.Future;
 
-import java.util.concurrent.Flow;
-
-public interface Listener<T extends Socket> extends Flow.Publisher<T> {
+public interface Listener<S extends Socket> extends Publisher<S> {
     Future<?> close();
 }

@@ -1,7 +1,7 @@
 package se.arkalix.core.plugin;
 
 /**
- * Signifies the failure to complete a task related to becoming or remaining a
+ * Signifies the fault to complete a task related to becoming or remaining a
  * member of an Arrowhead local cloud.
  * <p>
  * Examples of such tasks could be registering a provided service with the

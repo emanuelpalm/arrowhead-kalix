@@ -72,7 +72,7 @@ public class HttpServer implements ArServer {
                 });
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -105,19 +105,19 @@ public class HttpServer implements ArServer {
         }
 
         if (isShuttingDown.get()) {
-            return Future.failure(cannotProvideServiceShuttingDownException(null));
+            return Future.fault(cannotProvideServiceShuttingDownException(null));
         }
 
         return pluginNotifier.onServicePrepared(service).flatMapResult(result0 -> {
-            if (result0.isFailure()) {
-                return Future.failure(result0.fault());
+            if (result0.hasFault()) {
+                return Future.fault(result0.fault());
             }
             final var httpService = new HttpServerService(system, (HttpService) service);
             final var key = httpService.basePath().orElse("/");
 
             final var existingService = services.putIfAbsent(key, httpService);
             if (existingService != null) {
-                return Future.failure(new IllegalStateException("Base path " +
+                return Future.fault(new IllegalStateException("Base path " +
                     "(qualifier) \"" + key + "\" already in use by  \"" +
                     existingService.name() + "\"; cannot provide service \"" +
                     httpService.name() + "\""));
@@ -125,7 +125,7 @@ public class HttpServer implements ArServer {
 
             if (isShuttingDown.get()) {
                 services.remove(key);
-                return Future.failure(cannotProvideServiceShuttingDownException(null));
+                return Future.fault(cannotProvideServiceShuttingDownException(null));
             }
 
             final var handle = new ServiceHandle(httpService, key);
@@ -135,11 +135,11 @@ public class HttpServer implements ArServer {
                     synchronized (handles) {
                         handles.add(handle);
                     }
-                    if (result1.isSuccess() && !isShuttingDown.get()) {
-                        return Result.success(handle);
+                    if (result1.hasValue() && !isShuttingDown.get()) {
+                        return Result.ofValue(handle);
                     }
                     handle.dismiss();
-                    return Result.failure(cannotProvideServiceShuttingDownException(result1.fault()));
+                    return Result.ofFault(cannotProvideServiceShuttingDownException(result1.fault()));
                 });
         });
     }

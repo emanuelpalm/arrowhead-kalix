@@ -45,7 +45,7 @@ public class HttpJsonServices {
                 .map(Optional::of);
         }
         if (status == HttpStatus.NOT_FOUND) {
-            return Future.success(Optional.empty());
+            return Future.value(Optional.empty());
         }
         return handleError(response);
     }
@@ -58,6 +58,6 @@ public class HttpJsonServices {
                     .mapThrow(error -> new ErrorResponseException(response, error));
             }
         }
-        return Future.failure(response.reject());
+        return Future.fault(response.reject());
     }
 }

@@ -11,7 +11,7 @@ public class NioPageSet implements AutoCloseable {
     private int pageStartOffset;
     private int pageStopOffset;
 
-    public NioPageSet(ArrayList<ByteBuffer> pages) {
+    public NioPageSet(final ArrayList<ByteBuffer> pages) {
         this.pages = pages;
     }
 
@@ -61,4 +61,48 @@ public class NioPageSet implements AutoCloseable {
         copy.pageStopOffset = original.pageStopOffset;
         return copy;
     }
+/*
+    public int getAt(final int offset, final GatheringByteChannel destination, int length) throws IOException {
+        pageAt(offset);
+        final int startPageIndex = pageIndex;
+
+        int numberReadOfPages = 1;
+        while (true) {
+            length -= page.capacity();
+            if (length <= 0) {
+                page.limit(page.capacity() + length);
+                break;
+            }
+            numberReadOfPages += 1;
+            nextPage();
+        }
+        try {
+            return (int) destination.write(pages.toArray(new ByteBuffer[0]), startPageIndex, numberReadOfPages);
+        }
+        finally {
+            page.clear();
+        }
+    }
+
+    public int setAt(final int offset, final ScatteringByteChannel source, int length) throws IOException {
+        pageAt(offset);
+        final int startPageIndex = pageIndex;
+
+        int numberWrittenOfPages = 1;
+        while (true) {
+            length -= page.capacity();
+            if (length <= 0) {
+                page.limit(page.capacity() + length);
+                break;
+            }
+            numberWrittenOfPages += 1;
+            nextPage();
+        }
+        try {
+            return (int) source.read(pages.toArray(new ByteBuffer[0]), startPageIndex, numberWrittenOfPages);
+        }
+        finally {
+            page.clear();
+        }
+    }*/
 }

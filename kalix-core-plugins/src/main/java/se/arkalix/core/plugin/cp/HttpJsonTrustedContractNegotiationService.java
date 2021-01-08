@@ -88,16 +88,16 @@ public class HttpJsonTrustedContractNegotiationService implements ArConsumer, Ar
                 if (logger.isDebugEnabled()) {
                     logger.debug("Sent offer resulted in {}", result);
                 }
-                if (result.isFailure()) {
-                    return Future.failure(result.fault());
+                if (result.hasFault()) {
+                    return Future.fault(result.fault());
                 }
                 final var response = result.value();
                 if (!response.status().isSuccess()) {
-                    return Future.failure(response.reject());
+                    return Future.fault(response.reject());
                 }
                 final var optionalLocation = response.header("location");
                 if (optionalLocation.isEmpty()) {
-                    return Future.failure(response.reject("No location " +
+                    return Future.fault(response.reject("No location " +
                         "header in response; cannot determine negotiation id"));
                 }
                 var location = optionalLocation.get();
@@ -106,7 +106,7 @@ public class HttpJsonTrustedContractNegotiationService implements ArConsumer, Ar
                 }
                 final var idOffset = location.lastIndexOf('/');
                 if (idOffset == -1) {
-                    return Future.failure(response.reject("No valid URI in " +
+                    return Future.fault(response.reject("No valid URI in " +
                         "location header; cannot determine negotiation id"));
                 }
                 final long negotiationId;
@@ -114,7 +114,7 @@ public class HttpJsonTrustedContractNegotiationService implements ArConsumer, Ar
                     negotiationId = Long.parseLong(location, idOffset + 1, location.length(), 10);
                 }
                 catch (final NumberFormatException exception) {
-                    return Future.failure(response.reject("Last segment of " +
+                    return Future.fault(response.reject("Last segment of " +
                         "location header does not contain a number; cannot " +
                         "determine negotiation id", exception));
                 }

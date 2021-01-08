@@ -94,7 +94,7 @@ public class PluginNotifier {
             .stream()
             .map(dependencyClass -> handlers.stream()
                 .filter(handler -> dependencyClass.isAssignableFrom(handler.plugin().getClass()))
-                .map(Future::success)
+                .map(Future::value)
                 .findAny()
                 .orElseGet(() -> load(dependencyClass, handlers))))
             .flatMap(handlers0 -> {
@@ -211,7 +211,7 @@ public class PluginNotifier {
                     return handler.attached().onServiceQueried(query);
                 }
                 catch (final Throwable throwable) {
-                    return Future.failure(throwable);
+                    return Future.fault(throwable);
                 }
             }))
             .map(collections -> collections.stream()
@@ -227,7 +227,7 @@ public class PluginNotifier {
                     return function.apply(handler.attached());
                 }
                 catch (final Throwable throwable) {
-                    return Future.failure(throwable);
+                    return Future.fault(throwable);
                 }
             }));
     }

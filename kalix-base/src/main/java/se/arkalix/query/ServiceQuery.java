@@ -234,7 +234,7 @@ public class ServiceQuery {
     public <C extends ArConsumer> Future<Stream<C>> allUsing(final ArConsumerFactory<C> factory) {
         final var throwable = updateAndValidateUsing(factory);
         if (throwable != null) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
         return resolveAll()
             .map(services -> services.stream()
@@ -258,7 +258,7 @@ public class ServiceQuery {
     public <C extends ArConsumer> Future<C> oneUsing(final ArConsumerFactory<C> factory) {
         final var throwable = updateAndValidateUsing(factory);
         if (throwable != null) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
         return resolveOne()
             .map(service -> factory.create(consumer, service, codecTypes));
@@ -428,7 +428,7 @@ public class ServiceQuery {
             return resolver.apply(this);
         }
         catch (final Throwable throwable) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
     }
 
@@ -444,14 +444,14 @@ public class ServiceQuery {
      */
     public Future<ServiceRecord> resolveOne() {
         return resolveAll().mapResult(result -> {
-            if (result.isFailure()) {
-                return Result.failure(result.fault());
+            if (result.hasFault()) {
+                return Result.ofFault(result.fault());
             }
             return result.value()
                 .stream()
                 .findFirst()
-                .map(Result::success)
-                .orElseGet(() -> Result.failure(new ServiceNotFoundException(this)));
+                .map(Result::ofValue)
+                .orElseGet(() -> Result.ofFault(new ServiceNotFoundException(this)));
         });
     }
 

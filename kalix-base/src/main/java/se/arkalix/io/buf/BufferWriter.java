@@ -3,6 +3,7 @@ package se.arkalix.io.buf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+@SuppressWarnings("unused")
 public interface BufferWriter extends AutoCloseable {
     int writableBytes();
 
@@ -319,6 +320,8 @@ public interface BufferWriter extends AutoCloseable {
     default void writeU48Le(final long value) {
         writeS48Le(value);
     }
+
+    boolean isClosed();
 
     @Override
     void close();

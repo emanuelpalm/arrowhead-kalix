@@ -25,7 +25,7 @@ public interface EventLoop {
 
     Future<File> open(File.Options options);
 
-    Future<Task> schedule(Task.Options task);
+    <V> Task<V> schedule(Task.Options<V> task);
 
     Future<?> shutdown();
 }

@@ -1,11 +1,9 @@
 package se.arkalix.io.buf;
 
-import se.arkalix.io.buf._internal.NioBuffer;
-import se.arkalix.io.buf._internal.HeapBuffer;
-import se.arkalix.io.buf._internal.DefaultBufferReader;
-import se.arkalix.io.buf._internal.DefaultBufferWriter;
+import se.arkalix.io.buf._internal.*;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 
 public interface Buffer extends BufferReader, BufferWriter {
     static Buffer allocate(final int initialCapacity, final int maximumCapacity) {
@@ -20,6 +18,10 @@ public interface Buffer extends BufferReader, BufferWriter {
             throw new IndexOutOfBoundsException();
         }
         return new NioBuffer(ByteBuffer.allocateDirect(initialCapacity), maximumCapacity);
+    }
+
+    static Buffer empty() {
+        return EmptyBuffer.instance();
     }
 
     static Buffer wrap(final ByteBuffer byteBuffer) {

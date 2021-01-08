@@ -43,7 +43,7 @@ public class FutureConsumption<V> implements Future<V> {
     }
 
     @Override
-    public void cancel(final boolean mayInterruptIfRunning) {
-        parent.cancel(mayInterruptIfRunning);
+    public void cancel() {
+        parent.cancel();
     }
 }

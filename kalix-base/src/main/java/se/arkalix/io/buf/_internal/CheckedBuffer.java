@@ -698,7 +698,12 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     @Override
-    public final void close() {
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    @Override
+    public void close() {
         isClosed = true;
         onClose();
     }

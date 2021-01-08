@@ -49,22 +49,22 @@ public class HttpRouteSequence {
     public Future<Boolean> tryHandle(final HttpRouteTask task) {
         final var pathParameters = new ArrayList<String>(route.pattern().map(HttpPattern::nParameters).orElse(0));
         if (!route.match(task, pathParameters)) {
-            return Future.success(false);
+            return Future.value(false);
         }
         return tryFilters(task, 0)
             .flatMap(isHandled -> {
                 if (isHandled) {
-                    return Future.success(true);
+                    return Future.value(true);
                 }
                 final var response = task.response();
                 return route
                     .handle(task.request().cloneAndSet(pathParameters), response)
                     .mapResult(result -> {
-                        if (result.isFailure()) {
-                            return Result.failure(result.fault());
+                        if (result.hasFault()) {
+                            return Result.ofFault(result.fault());
                         }
                         if (response.status().isEmpty()) {
-                            return Result.failure(new IllegalStateException("" +
+                            return Result.ofFault(new IllegalStateException("" +
                                 "HTTP route " +
                                 route.method()
                                     .map(Object::toString)
@@ -77,7 +77,7 @@ public class HttpRouteSequence {
                                 " never set a status code; a status " +
                                 " must be set"));
                         }
-                        return Result.success(true);
+                        return Result.ofValue(true);
                     });
             })
             .flatMapCatch(Throwable.class, throwable -> tryCatchers(throwable, task, 0));
@@ -85,13 +85,13 @@ public class HttpRouteSequence {
 
     private Future<Boolean> tryFilters(final HttpRouteTask task, final int index) {
         if (index >= filters.length) {
-            return Future.success(false);
+            return Future.value(false);
         }
         final var filter = filters[index];
         return filter.tryHandle(task)
             .flatMap(isHandled -> {
                 if (isHandled) {
-                    return Future.success(true);
+                    return Future.value(true);
                 }
                 return tryFilters(task, index + 1);
             });
@@ -99,13 +99,13 @@ public class HttpRouteSequence {
 
     private Future<Boolean> tryCatchers(final Throwable throwable, final HttpRouteTask task, final int index) {
         if (index >= catchers.length) {
-            return Future.failure(throwable);
+            return Future.fault(throwable);
         }
         final var catcher = catchers[index];
         return catcher.tryHandle(throwable, task)
             .flatMap(isHandled -> {
                 if (isHandled) {
-                    return Future.success(true);
+                    return Future.value(true);
                 }
                 return tryCatchers(throwable, task, index + 1);
             });

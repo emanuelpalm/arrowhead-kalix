@@ -105,7 +105,7 @@ public class HttpJsonCloudPlugin implements Plugin {
         final ArSystem system,
         final Map<Class<? extends Plugin>, PluginFacade> dependencies
     ) {
-        return Future.success(new Attached(system));
+        return Future.value(new Attached(system));
     }
 
     private class Attached implements PluginAttached {
@@ -148,7 +148,7 @@ public class HttpJsonCloudPlugin implements Plugin {
             final var accessPolicy = service.accessPolicy();
             if (accessPolicy instanceof AccessByToken) {
                 return requestAuthorizationKey()
-                    .ifSuccess(((AccessByToken) accessPolicy)::authorizationKey);
+                    .ifValue(((AccessByToken) accessPolicy)::authorizationKey);
             }
             return done();
         }
@@ -185,10 +185,10 @@ public class HttpJsonCloudPlugin implements Plugin {
                                 .flatMap(ignored -> serviceDiscovery.register(registration)
                                     .pass(null));
                         }
-                        return Future.failure(fault);
+                        return Future.fault(fault);
                     })
                     .mapResult(result -> {
-                        if (result.isSuccess()) {
+                        if (result.hasValue()) {
                             if (logger.isInfoEnabled()) {
                                 logger.info("HTTP/JSON cloud plugin " +
                                         "registered the \"{}\" service " +
@@ -231,7 +231,7 @@ public class HttpJsonCloudPlugin implements Plugin {
                     providerSocketAddress.getHostString(),
                     providerSocketAddress.getPort()))
                 .onResult(result -> {
-                    if (result.isSuccess()) {
+                    if (result.hasValue()) {
                         if (logger.isInfoEnabled()) {
                             logger.info("HTTP/JSON cloud plugin " +
                                 "unregistered the \"{}\" service " +
@@ -267,7 +267,7 @@ public class HttpJsonCloudPlugin implements Plugin {
                     }
                 }
                 if (services.stream().anyMatch(query::matches)) {
-                    return Future.success(services);
+                    return Future.value(services);
                 }
                 return executeOrchestrationQueryUsing(query, pattern);
             }, orchestrationStrategy.patterns());
@@ -280,7 +280,7 @@ public class HttpJsonCloudPlugin implements Plugin {
             Objects.requireNonNull(pattern, "pattern");
 
             return requestOrchestration()
-                .ifSuccess(ignored -> {
+                .ifValue(ignored -> {
                     if (logger.isTraceEnabled()) {
                         logger.trace("HTTP/JSON cloud plugin is about to " +
                             "execute {} ...", query);
@@ -307,13 +307,13 @@ public class HttpJsonCloudPlugin implements Plugin {
                 }
                 serviceDiscoveryAnnouncement = client.connect(serviceRegistrySocketAddress)
                     .mapResult(result -> {
-                        if (result.isFailure()) {
-                            return Result.failure(result.fault());
+                        if (result.hasFault()) {
+                            return Result.ofFault(result.fault());
                         }
                         final var connection = result.value();
                         final var isSecure = connection.isSecure();
                         if (isSecure != system.isSecure()) {
-                            return Result.failure(new CloudException("" +
+                            return Result.ofFault(new CloudException("" +
                                 "HTTP/JSON cloud plugin connected to system " +
                                 "at " + serviceRegistrySocketAddress +
                                 " and found that it is " + (isSecure
@@ -326,7 +326,7 @@ public class HttpJsonCloudPlugin implements Plugin {
                             final var identity = new SystemIdentity(connection.remoteCertificateChain());
                             final var name = identity.name();
                             if (!Objects.equals(name, "service_registry")) {
-                                return Result.failure(new CloudException("" +
+                                return Result.ofFault(new CloudException("" +
                                     "HTTP/JSON cloud plugin connected to " +
                                     "system at " + serviceRegistrySocketAddress +
                                     " and found that its certificate name " +
@@ -357,9 +357,9 @@ public class HttpJsonCloudPlugin implements Plugin {
                                 "at {}", serviceRegistrySocketAddress);
                         }
 
-                        return Result.success(serviceDiscovery);
+                        return Result.ofValue(serviceDiscovery);
                     })
-                    .ifFailure(Throwable.class, fault -> {
+                    .ifFault(Throwable.class, fault -> {
                         if (logger.isErrorEnabled()) {
                             logger.error("HTTP/JSON cloud plugin failed to " +
                                 "connect to \"service_registry\" system at " +
@@ -381,12 +381,12 @@ public class HttpJsonCloudPlugin implements Plugin {
                         .name("auth-public-key")
                         .build()))
                     .mapResult(result -> {
-                        if (result.isFailure()) {
-                            return Result.failure(result.fault());
+                        if (result.hasFault()) {
+                            return Result.ofFault(result.fault());
                         }
                         final var services = result.value().services();
                         if (services.size() == 0) {
-                            return Result.failure(new CloudException("" +
+                            return Result.ofFault(new CloudException("" +
                                 "No \"auth-public-key\" service seems to be " +
                                 "available via the service registry at: " +
                                 serviceRegistrySocketAddress + "; token " +
@@ -402,7 +402,7 @@ public class HttpJsonCloudPlugin implements Plugin {
                             }
                         }
                         if (publicKeyBase64 == null) {
-                            return Result.failure(new CloudException("" +
+                            return Result.ofFault(new CloudException("" +
                                 "Even though the service registry provided " +
                                 "descriptions for " + services.size() + " " +
                                 "\"auth-public-key\" service(s), none of them " +
@@ -415,7 +415,7 @@ public class HttpJsonCloudPlugin implements Plugin {
                             publicKey = X509Keys.parsePublicKey(publicKeyBase64);
                         }
                         catch (final UnsupportedKeyAlgorithm exception) {
-                            return Result.failure(new CloudException("" +
+                            return Result.ofFault(new CloudException("" +
                                 "The \"auth-public-key\" service provider public " +
                                 "key seems to use an unsupported key algorithm; " +
                                 "token authorization not possible", exception));
@@ -425,9 +425,9 @@ public class HttpJsonCloudPlugin implements Plugin {
                             logger.info("Authorization key retrieved: {}", publicKeyBase64);
                         }
 
-                        return Result.success(publicKey);
+                        return Result.ofValue(publicKey);
                     })
-                    .ifFailure(Throwable.class, fault -> {
+                    .ifFault(Throwable.class, fault -> {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Failed to retrieve authorization key", fault);
                         }
@@ -451,13 +451,13 @@ public class HttpJsonCloudPlugin implements Plugin {
                         .accessPolicyTypes(isSecure ? CERTIFICATE : NOT_SECURE)
                         .build()))
                     .flatMapResult(result -> {
-                        if (result.isFailure()) {
-                            return Future.failure(result.fault());
+                        if (result.hasFault()) {
+                            return Future.fault(result.fault());
                         }
                         final var queryResult = result.value();
                         final var services = queryResult.services();
                         if (services.isEmpty()) {
-                            return Future.failure(new CloudException("" +
+                            return Future.fault(new CloudException("" +
                                 "No orchestration service available; cannot " +
                                 "request orchestration rules"));
                         }
@@ -472,9 +472,9 @@ public class HttpJsonCloudPlugin implements Plugin {
                                 orchestration.service().provider().socketAddress());
                         }
 
-                        return Future.success(orchestration);
+                        return Future.value(orchestration);
                     })
-                    .ifFailure(Throwable.class, fault -> {
+                    .ifFault(Throwable.class, fault -> {
                         if (logger.isErrorEnabled()) {
                             logger.error("HTTP/JSON cloud plugin failed " +
                                 "to connect to \"orchestrator\" system", fault);

@@ -21,8 +21,8 @@
  *         .flatMap(consumer -&gt; consumer.send(new HttpConsumerRequest()
  *            {...})
  *         .flatMap(HttpConsumerResponse::bodyAsString)
- *         .ifSuccess(body -&gt; System.out.println(body))
- *         .onFailure(Throwable::printStackTrace);
+ *         .ifValue(body -&gt; System.out.println(body))
+ *         .onFault(Throwable::printStackTrace);
  * </pre>
  * It should be noted that all functionality provided by this package is
  * <i>non-blocking</i> by virtue of all I/O operations being handled by the

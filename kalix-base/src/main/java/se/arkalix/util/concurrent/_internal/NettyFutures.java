@@ -31,8 +31,8 @@ public class NettyFutures {
                 future.removeListener(listener);
             }
             future.addListener(listener = future -> consumer.accept(future.isSuccess()
-                ? Result.success(future.channel())
-                : Result.failure(future.cause())));
+                ? Result.ofValue(future.channel())
+                : Result.ofFault(future.cause())));
         }
 
         @Override

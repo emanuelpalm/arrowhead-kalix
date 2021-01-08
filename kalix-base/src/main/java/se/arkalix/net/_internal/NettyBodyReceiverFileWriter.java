@@ -44,7 +44,7 @@ public class NettyBodyReceiverFileWriter implements NettyBodyReceiver, Future<Lo
 
     @Override
     public void abort(final Throwable cause) {
-        result = Result.failure(cause);
+        result = Result.ofFault(cause);
         if (consumer != null) {
             final var consumer0 = consumer;
             consumer = null;
@@ -99,7 +99,7 @@ public class NettyBodyReceiverFileWriter implements NettyBodyReceiver, Future<Lo
         Result<Long> result = null;
         try {
             stream.close();
-            result = Result.success(numberOfBytesWritten);
+            result = Result.ofValue(numberOfBytesWritten);
             if (consumer != null) {
                 final var consumer0 = consumer;
                 consumer = null;

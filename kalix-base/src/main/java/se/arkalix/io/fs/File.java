@@ -6,21 +6,17 @@ import se.arkalix.util.concurrent.Future;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public interface File extends AutoCloseable {
+public interface File extends FileReader, FileWriter {
     Path path();
-
-    default Future<FileType> type() {
-        return metadata().map(FileMetadata::type);
-    }
 
     Future<FileMetadata> metadata();
 
+    FileReader reader();
+
+    FileWriter writer();
+
     @Override
     void close();
-
-    FileReader closeAndRead();
-
-    FileWriter closeAndWrite();
 
     class Options {
         private boolean isAppending;

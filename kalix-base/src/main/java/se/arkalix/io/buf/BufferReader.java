@@ -3,6 +3,7 @@ package se.arkalix.io.buf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+@SuppressWarnings("unused")
 public interface BufferReader extends AutoCloseable {
     int readableBytes();
 
@@ -357,6 +358,8 @@ public interface BufferReader extends AutoCloseable {
     long readU48Le();
 
     void skip(int bytesToSkip);
+
+    boolean isClosed();
 
     @Override
     void close();

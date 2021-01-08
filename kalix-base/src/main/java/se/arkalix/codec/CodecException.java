@@ -3,7 +3,7 @@ package se.arkalix.codec;
 import java.util.Objects;
 
 /**
- * Represents the failure to carry out an operation related to an {@link
+ * Represents the fault to carry out an operation related to an {@link
  * CodecType}.
  */
 public abstract class CodecException extends RuntimeException {

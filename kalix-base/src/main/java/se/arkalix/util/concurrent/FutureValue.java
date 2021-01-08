@@ -11,21 +11,22 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 /**
- * A {@code Future} that always completes with a predetermined result.
+ * A {@code Future} that always succeeds with a predetermined value.
  *
- * @param <V> Type of value that is included if the result is successful.
+ * @param <V> Type of value.
  */
-class FutureResult<V> implements Future<V> {
-    private final Result<V> result;
+class FutureValue<V> implements Future<V> {
+    static final FutureValue<?> NULL = new FutureValue<>(null);
+
+    private final V value;
 
     /**
-     * Creates new {@link Future} that always completes with the given
-     * {@code result}.
+     * Creates new successful {@link Future}.
      *
-     * @param result Result to include in {@code Future}.
+     * @param value Value to include in {@code Future}.
      */
-    public FutureResult(final Result<V> result) {
-        this.result = result;
+    public FutureValue(final V value) {
+        this.value = value;
     }
 
     @Override
@@ -33,7 +34,7 @@ class FutureResult<V> implements Future<V> {
         if (consumer == null) {
             throw new NullPointerException("consumer");
         }
-        consumer.accept(result);
+        consumer.accept(Result.ofValue(value));
     }
 
     @Override
@@ -46,9 +47,6 @@ class FutureResult<V> implements Future<V> {
         if (consumer == null) {
             throw new NullPointerException("consumer");
         }
-        if (result.hasFault()) {
-            consumer.accept(result.fault());
-        }
     }
 
     @Override
@@ -56,13 +54,11 @@ class FutureResult<V> implements Future<V> {
         if (consumer == null) {
             throw new NullPointerException("consumer");
         }
-        if (result.hasValue()) {
-            try {
-                consumer.accept(result.value());
-            }
-            catch (final Throwable fault0) {
-                return Future.fault(fault0);
-            }
+        try {
+            consumer.accept(value);
+        }
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
         return this;
     }
@@ -71,16 +67,6 @@ class FutureResult<V> implements Future<V> {
     public Future<V> ifFault(final ThrowingConsumer<Throwable> consumer) {
         if (consumer == null) {
             throw new NullPointerException("consumer");
-        }
-        if (result.hasFault()) {
-            final var fault = result.fault();
-            try {
-                consumer.accept(fault);
-            }
-            catch (final Throwable fault0) {
-                fault0.addSuppressed(fault);
-                return Future.fault(fault0);
-            }
         }
         return this;
     }
@@ -93,18 +79,6 @@ class FutureResult<V> implements Future<V> {
         if (consumer == null) {
             throw new NullPointerException("consumer");
         }
-        if (result.hasFault()) {
-            final var fault = result.fault();
-            if (class_.isAssignableFrom(fault.getClass())) {
-                try {
-                    consumer.accept(class_.cast(fault));
-                }
-                catch (final Throwable fault0) {
-                    fault0.addSuppressed(fault);
-                    return Future.fault(fault0);
-                }
-            }
-        }
         return this;
     }
 
@@ -114,13 +88,10 @@ class FutureResult<V> implements Future<V> {
             throw new NullPointerException("consumer");
         }
         try {
-            consumer.accept(result);
+            consumer.accept(Result.ofValue(value));
         }
-        catch (final Throwable fault0) {
-            if (result.hasFault()) {
-                fault0.addSuppressed(result.fault());
-            }
-            return Future.fault(fault0);
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
         return this;
     }
@@ -130,19 +101,12 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        Throwable fault;
-        if (result.hasValue()) {
-            try {
-                return Future.value(mapper.apply(result.value()));
-            }
-            catch (final Throwable throwable) {
-                fault = throwable;
-            }
+        try {
+            return Future.value(mapper.apply(value));
         }
-        else {
-            fault = result.fault();
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
-        return Future.fault(fault);
     }
 
     @Override
@@ -150,24 +114,13 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasValue()) {
-            return this;
-        }
-        var fault = result.fault();
-        try {
-            return Future.value(mapper.apply(fault));
-        }
-        catch (final Throwable fault0) {
-            fault.addSuppressed(fault0);
-            fault = fault0;
-        }
-        return Future.fault(fault);
+        return this;
     }
 
     @Override
-    public <T extends Throwable> Future<V> mapCatch(
-        final Class<T> class_,
-        final ThrowingFunction<T, ? extends V> mapper
+    public <U extends Throwable> Future<V> mapCatch(
+        final Class<U> class_,
+        final ThrowingFunction<U, ? extends V> mapper
     ) {
         if (class_ == null) {
             throw new NullPointerException("class_");
@@ -175,20 +128,15 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasValue()) {
-            return this;
+        return this;
+    }
+
+    @Override
+    public Future<V> mapFault(final ThrowingFunction<Throwable, Throwable> mapper) {
+        if (mapper == null) {
+            throw new NullPointerException("mapper");
         }
-        var fault = result.fault();
-        if (class_.isAssignableFrom(fault.getClass())) {
-            try {
-                return Future.value(mapper.apply(class_.cast(fault)));
-            }
-            catch (final Throwable fault0) {
-                fault0.addSuppressed(fault);
-                fault = fault0;
-            }
-        }
-        return Future.fault(fault);
+        return this;
     }
 
     @Override
@@ -202,20 +150,7 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasValue()) {
-            return this;
-        }
-        var fault = result.fault();
-        if (class_.isAssignableFrom(fault.getClass())) {
-            try {
-                fault = mapper.apply(class_.cast(fault));
-            }
-            catch (final Throwable fault0) {
-                fault0.addSuppressed(fault);
-                fault = fault0;
-            }
-        }
-        return Future.fault(fault);
+        return this;
     }
 
     @Override
@@ -224,29 +159,21 @@ class FutureResult<V> implements Future<V> {
             throw new NullPointerException("mapper");
         }
         try {
-            return Future.of(mapper.apply(result));
+            return new FutureResult<>(mapper.apply(Result.ofValue(value)));
         }
-        catch (final Throwable fault0) {
-            return Future.fault(fault0);
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
     }
 
     @Override
     public Future<V> mapThrow(final ThrowingFunction<? super V, Throwable> mapper) {
-        if (mapper == null) {
-            throw new NullPointerException("mapper");
-        }
         Throwable fault;
-        if (result.hasValue()) {
-            try {
-                fault = mapper.apply(result.value());
-            }
-            catch (final Throwable throwable) {
-                fault = throwable;
-            }
+        try {
+            fault = mapper.apply(value);
         }
-        else {
-            fault = result.fault();
+        catch (final Throwable throwable) {
+            fault = throwable;
         }
         return Future.fault(fault);
     }
@@ -256,19 +183,20 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        Throwable fault;
-        if (result.hasValue()) {
-            try {
-                return mapper.apply(result.value());
-            }
-            catch (final Throwable throwable) {
-                fault = throwable;
-            }
+        try {
+            return mapper.apply(value);
         }
-        else {
-            fault = result.fault();
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
-        return Future.fault(fault);
+    }
+
+    @Override
+    public Future<V> flatMapCatch(final ThrowingFunction<Throwable, ? extends Future<V>> mapper) {
+        if (mapper == null) {
+            throw new NullPointerException("mapper");
+        }
+        return this;
     }
 
     @Override
@@ -282,20 +210,15 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasValue()) {
-            return this;
+        return this;
+    }
+
+    @Override
+    public Future<V> flatMapFault(final ThrowingFunction<Throwable, ? extends Future<Throwable>> mapper) {
+        if (mapper == null) {
+            throw new NullPointerException("mapper");
         }
-        var fault = result.fault();
-        if (class_.isAssignableFrom(fault.getClass())) {
-            try {
-                return mapper.apply(class_.cast(fault));
-            }
-            catch (final Throwable fault0) {
-                fault0.addSuppressed(fault);
-                fault = fault0;
-            }
-        }
-        return Future.fault(fault);
+        return this;
     }
 
     @Override
@@ -309,29 +232,19 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasValue() || !class_.isAssignableFrom(result.fault().getClass())) {
-            return this;
-        }
-        try {
-            final var future0 = mapper.apply(class_.cast(result.fault()));
-            final var future1 = new FutureConsumption<V>(this);
-            future0.onResult(result -> future1.consume(Result.ofFault(result.hasValue()
-                ? result.value()
-                : result.fault())));
-            return future1;
-        }
-        catch (final Throwable fault) {
-            return Future.fault(fault);
-        }
+        return this;
     }
 
     @Override
     public <U> Future<U> flatMapResult(final ThrowingFunction<Result<V>, ? extends Future<U>> mapper) {
-        try {
-            return mapper.apply(result);
+        if (mapper == null) {
+            throw new NullPointerException("mapper");
         }
-        catch (final Throwable fault) {
-            return Future.fault(fault);
+        try {
+            return mapper.apply(Result.ofValue(value));
+        }
+        catch (final Throwable throwable) {
+            return Future.fault(throwable);
         }
     }
 
@@ -340,11 +253,8 @@ class FutureResult<V> implements Future<V> {
         if (mapper == null) {
             throw new NullPointerException("mapper");
         }
-        if (result.hasFault()) {
-            return this;
-        }
         try {
-            final var future0 = mapper.apply(result.value());
+            final var future0 = mapper.apply(value);
             final var future1 = new FutureConsumption<V>(this);
             future0.onResult(result -> future1.consume(Result.ofFault(result.hasValue()
                 ? result.value()
@@ -361,20 +271,15 @@ class FutureResult<V> implements Future<V> {
         if (value == null) {
             throw new NullPointerException("value");
         }
-        return result.hasValue()
-            ? Future.value(value)
-            : Future.fault(result.fault());
+        return Future.value(value);
     }
 
     @Override
-    public <U> Future<U> fail(final Throwable fault) {
-        if (fault == null) {
-            throw new NullPointerException("fault");
+    public <U> Future<U> fail(final Throwable throwable) {
+        if (throwable == null) {
+            throw new NullPointerException("throwable");
         }
-        if (result.hasFault()) {
-            fault.addSuppressed(result.fault());
-        }
-        return Future.fault(fault);
+        return Future.fault(throwable);
     }
 
     @Override
@@ -384,7 +289,7 @@ class FutureResult<V> implements Future<V> {
         }
         final var future = new FutureConsumptionWithExtraCancelTarget<V>(this);
         future.extraCancelTarget(Schedulers.fixed()
-            .schedule(duration, () -> future.consume(result)));
+            .schedule(duration, () -> future.consume(Result.ofValue(value))));
         return future;
     }
 
@@ -393,6 +298,7 @@ class FutureResult<V> implements Future<V> {
         if (baseline == null) {
             throw new NullPointerException("baseline");
         }
+        final var result = Result.ofValue(value);
         final var future = new FutureConsumptionWithExtraCancelTarget<V>(this);
         final var duration = Duration.between(baseline, Instant.now());
         if (duration.isNegative() || duration.isZero()) {
@@ -407,20 +313,16 @@ class FutureResult<V> implements Future<V> {
 
     @Override
     public V await() {
-        return result.valueOrThrow();
+        return value;
     }
 
     @Override
     public V await(final Duration timeout) {
-        return result.valueOrThrow();
+        return value;
     }
 
     @Override
     public String toString() {
-        return "Future{" +
-            (result.hasValue()
-                ? "value=" + result.value()
-                : "fault=" + result.fault()) +
-            '}';
+        return "Future{value=" + value + '}';
     }
 }

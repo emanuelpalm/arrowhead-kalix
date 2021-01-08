@@ -31,7 +31,7 @@ public class DecoderReadUnexpectedToken extends CodecException {
      * @param reader      Reader allowing for the source in question to be readByte.
      * @param token       Representation of bytes causing decoding to fail.
      * @param offset      Reader position at which reading failed.
-     * @param description Description of failure.
+     * @param description Description of fault.
      */
     public DecoderReadUnexpectedToken(
         final CodecType codecType,
@@ -50,7 +50,7 @@ public class DecoderReadUnexpectedToken extends CodecException {
      * @param reader      Reader allowing for the source in question to be readByte.
      * @param token       Representation of bytes causing decoding to fail.
      * @param offset      Reader position at which reading failed.
-     * @param description Description of failure.
+     * @param description Description of fault.
      */
     public DecoderReadUnexpectedToken(
         final CodecType codecType,

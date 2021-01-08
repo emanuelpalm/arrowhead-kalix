@@ -129,7 +129,7 @@ public class HttpServerService {
 
     private Future<Boolean> trySequences(final HttpRouteTask task, final int index) {
         if (index >= routeSequences.length) {
-            return Future.success(false);
+            return Future.value(false);
         }
         final var routeSequence = routeSequences[index];
         if (logger.isTraceEnabled()) {
@@ -141,7 +141,7 @@ public class HttpServerService {
                     if (logger.isTraceEnabled()) {
                         logger.trace("Matched {}", routeSequence);
                     }
-                    return Future.success(true);
+                    return Future.value(true);
                 }
                 else if (logger.isTraceEnabled()) {
                     logger.trace("Failed to match {}", routeSequence);

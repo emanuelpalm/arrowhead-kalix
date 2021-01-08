@@ -1,15 +1,17 @@
 package se.arkalix.io.fs._internal;
 
+import se.arkalix.io.IoException;
+import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.io.buf.Buffers;
+import se.arkalix.io.evt.Task;
 import se.arkalix.io.fs.File;
 import se.arkalix.io.fs.FileMetadata;
 import se.arkalix.io.fs.FileReader;
 import se.arkalix.io.fs.FileWriter;
-import se.arkalix.io.mem.Read;
-import se.arkalix.io.mem.Write;
 import se.arkalix.util.concurrent.Future;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -59,7 +61,97 @@ public class NioFile implements File {
 
     @Override
     public Future<FileMetadata> metadata() {
-        return null;
+        return NioFileMetadata.requestForFileAt(path);
+    }
+
+    @Override
+    public FileReader reader() {
+        return new DefaultFileReader(this);
+    }
+
+    @Override
+    public FileWriter writer() {
+        return new DefaultFileWriter(this);
+    }
+
+    @Override
+    public Future<Integer> getAt(
+        final long offset,
+        final BufferWriter destination,
+        final int destinationOffset,
+        final int length
+    ) {
+        return new Task.Options<Integer>()
+            .action(() -> {
+                try {
+                    final var channel = Buffers.intoWritableByteChannel(destination);
+                    return (int) fileChannel.transferTo(destinationOffset, length, channel);
+                }
+                catch (final IOException exception) {
+                    throw new IoException(exception);
+                }
+            })
+            .isBlocking(true)
+            .schedule();
+    }
+
+    @Override
+    public Future<Integer> read(final BufferWriter destination, final int destinationOffset, final int length) {
+        return new Task.Options<Integer>()
+            .action(() -> destination.setAt(destinationOffset, fileChannel, length))
+            .isBlocking(true)
+            .schedule();
+    }
+
+    @Override
+    public Future<?> flushAll() {
+        return new Task.Options<Void>()
+            .action(() -> {
+                fileChannel.force(true);
+                return null;
+            })
+            .isBlocking(true)
+            .schedule();
+    }
+
+    @Override
+    public Future<?> flushData() {
+        return new Task.Options<Void>()
+            .action(() -> {
+                fileChannel.force(false);
+                return null;
+            })
+            .isBlocking(true)
+            .schedule();
+    }
+
+    @Override
+    public Future<Integer> setAt(
+        final long offset,
+        final BufferReader source,
+        final int sourceOffset,
+        final int length
+    ) {
+        return new Task.Options<Integer>()
+            .action(() -> {
+                try {
+                    final var channel = Buffers.intoReadableByteChannel(source);
+                    return (int) fileChannel.transferFrom(channel, sourceOffset, length);
+                }
+                catch (final IOException exception) {
+                    throw new IoException(exception);
+                }
+            })
+            .isBlocking(true)
+            .schedule();
+    }
+
+    @Override
+    public Future<Integer> write(final BufferReader source, final int sourceOffset, final int length) {
+        return new Task.Options<Integer>()
+            .action(() -> source.getSomeAt(sourceOffset, fileChannel, length))
+            .isBlocking(true)
+            .schedule();
     }
 
     @Override
@@ -68,17 +160,7 @@ public class NioFile implements File {
             fileChannel.close();
         }
         catch (final IOException exception) {
-            throw new UncheckedIOException(exception);
+            throw new IoException(exception);
         }
-    }
-
-    @Override
-    public FileReader closeAndRead() {
-        return null;
-    }
-
-    @Override
-    public FileWriter closeAndWrite() {
-        return null;
     }
 }

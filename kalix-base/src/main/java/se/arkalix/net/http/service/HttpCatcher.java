@@ -118,9 +118,9 @@ public class HttpCatcher<T extends Throwable> implements HttpRoutable {
             }
             catch (final Throwable throwable1) {
                 throwable1.addSuppressed(throwable);
-                return Future.failure(throwable);
+                return Future.fault(throwable);
             }
         }
-        return Future.success(false);
+        return Future.value(false);
     }
 }
