@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 @Internal
 public class FutureCompletionUnsafe<V> implements Future<V> {
-    private Consumer<Boolean> cancelCallback = null;
+    private Runnable cancelCallback = null;
     private Consumer<Result<V>> consumer = null;
     private Result<V> result = null;
 
@@ -37,7 +37,7 @@ public class FutureCompletionUnsafe<V> implements Future<V> {
         isCompleted = true;
     }
 
-    public void setCancelCallback(final Consumer<Boolean> cancelCallback) {
+    public void setCancelCallback(final Runnable cancelCallback) {
         if (!isCancelled) {
             this.cancelCallback = cancelCallback;
         }
@@ -56,9 +56,9 @@ public class FutureCompletionUnsafe<V> implements Future<V> {
     }
 
     @Override
-    public void cancel(final boolean mayInterruptIfRunning) {
+    public void cancel() {
         if (cancelCallback != null) {
-            cancelCallback.accept(mayInterruptIfRunning);
+            cancelCallback.run();
             cancelCallback = null;
         }
         consumer = null;

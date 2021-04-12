@@ -5,9 +5,9 @@ import se.arkalix.io.buf.BufferWriter;
 import se.arkalix.util.concurrent.Future;
 
 public interface FileReader extends ChannelReader {
-    default Future<Integer> getAt(final long offset, final BufferWriter destination) {
+    default Future<?> getAt(final long offset, final BufferWriter destination) {
         return getAt(offset, destination, destination.writeOffset(), destination.writableBytes());
     }
 
-    Future<Integer> getAt(long offset, BufferWriter destination, int destinationOffset, int length);
+    Future<?> getAt(long offset, BufferWriter destination, int destinationOffset, int length);
 }

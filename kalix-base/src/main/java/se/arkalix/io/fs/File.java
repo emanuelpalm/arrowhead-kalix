@@ -1,12 +1,13 @@
 package se.arkalix.io.fs;
 
+import se.arkalix.io.Channel;
 import se.arkalix.io.evt.EventLoop;
 import se.arkalix.util.concurrent.Future;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
-public interface File extends FileReader, FileWriter {
+public interface File extends Channel, FileReader, FileWriter {
     Path path();
 
     Future<FileMetadata> metadata();

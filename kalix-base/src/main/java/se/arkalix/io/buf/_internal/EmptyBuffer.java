@@ -126,4 +126,9 @@ public class EmptyBuffer extends CheckedBuffer {
     protected void onClose() {
         throw new IllegalStateException();
     }
+
+    @Override
+    public ByteBuffer[] toByteBuffers() {
+        return new ByteBuffer[0];
+    }
 }

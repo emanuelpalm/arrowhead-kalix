@@ -50,17 +50,17 @@ public class ClosedFile implements File {
     }
 
     @Override
-    public Future<Integer> flushAll() {
-        throw new FileIsClosed();
-    }
-
-    @Override
-    public Future<Integer> flushData() {
+    public Future<?> flushDataOnly() {
         throw new FileIsClosed();
     }
 
     @Override
     public Future<Integer> setAt(final long offset, final BufferReader source, final int sourceOffset, final int length) {
+        throw new FileIsClosed();
+    }
+
+    @Override
+    public Future<?> flush() {
         throw new FileIsClosed();
     }
 

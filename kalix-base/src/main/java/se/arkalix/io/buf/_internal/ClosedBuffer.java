@@ -39,6 +39,11 @@ public class ClosedBuffer implements Buffer {
     }
 
     @Override
+    public ByteBuffer[] toByteBuffers() {
+        throw new BufferIsClosed();
+    }
+
+    @Override
     public int readableBytes() {
         throw new BufferIsClosed();
     }

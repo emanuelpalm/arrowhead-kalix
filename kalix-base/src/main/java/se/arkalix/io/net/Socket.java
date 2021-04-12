@@ -1,16 +1,23 @@
 package se.arkalix.io.net;
 
 import se.arkalix.io.buf.BufferReader;
-import se.arkalix.util.concurrent.Publisher;
 import se.arkalix.util.concurrent.Future;
+import se.arkalix.util.concurrent._internal.FlowPublishers;
 
-public interface Socket extends Publisher<BufferReader> {
-    default Future<?> writeAndClose(BufferReader bufferReader) {
+import java.util.concurrent.Flow;
+import java.util.function.Consumer;
+
+public interface Socket extends Flow.Publisher<BufferReader> {
+    default Future<?> read(final Consumer<BufferReader> consumer) {
+        return FlowPublishers.consume(this, consumer);
+    }
+
+    default Future<?> writeAndCloseBuffer(final BufferReader bufferReader) {
         return write(bufferReader)
             .always(ignored -> bufferReader.close());
     }
 
     Future<?> write(BufferReader buffer);
 
-    Future<?> close();
+    void close();
 }

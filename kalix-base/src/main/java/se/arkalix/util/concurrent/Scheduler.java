@@ -113,7 +113,7 @@ public interface Scheduler {
      * <p>
      * Execution will stop if any of the following three conditions occur:
      * <ol>
-     *     <li>The {@link Future#cancel(boolean) cancel} method of the returned
+     *     <li>The {@link Future#cancel() cancel} method of the returned
      *     {@code Future} is called.</li>
      *     <li>This scheduler is shut down.</li>
      *     <li>The given {@code command} throws an exception.</li>
@@ -140,7 +140,7 @@ public interface Scheduler {
      * <p>
      * Execution will stop if any of the following three conditions occur:
      * <ol>
-     *     <li>The {@link Future#cancel(boolean) cancel} method of the returned
+     *     <li>The {@link Future#cancel() cancel} method of the returned
      *     {@code Future} is called.</li>
      *     <li>This scheduler is shut down.</li>
      *     <li>The given {@code command} throws an exception.</li>

@@ -197,4 +197,9 @@ public class NioBuffer extends CheckedBuffer {
     protected void onClose() {
         byteBuffer = null;
     }
+
+    @Override
+    public ByteBuffer[] toByteBuffers() {
+        return new ByteBuffer[]{byteBuffer};
+    }
 }

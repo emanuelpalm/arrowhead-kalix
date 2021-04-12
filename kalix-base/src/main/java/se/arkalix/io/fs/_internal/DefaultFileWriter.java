@@ -14,22 +14,22 @@ public class DefaultFileWriter implements FileWriter {
     }
 
     @Override
-    public Future<?> flushAll() {
-        return inner.flushAll();
+    public Future<?> flushDataOnly() {
+        return inner.flushDataOnly();
     }
 
     @Override
-    public Future<?> flushData() {
-        return inner.flushData();
-    }
-
-    @Override
-    public Future<Integer> setAt(final long offset, final BufferReader source, final int sourceOffset, final int length) {
+    public Future<?> setAt(final long offset, final BufferReader source, final int sourceOffset, final int length) {
         return inner.setAt(offset, source, sourceOffset, length);
     }
 
     @Override
-    public Future<Integer> write(final BufferReader source, final int sourceOffset, final int length) {
+    public Future<?> flush() {
+        return inner.flush();
+    }
+
+    @Override
+    public Future<?> write(final BufferReader source, final int sourceOffset, final int length) {
         return inner.write(source, sourceOffset, length);
     }
 

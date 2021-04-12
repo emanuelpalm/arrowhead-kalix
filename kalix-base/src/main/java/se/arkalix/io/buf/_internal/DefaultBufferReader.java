@@ -176,6 +176,11 @@ public class DefaultBufferReader implements BufferReader {
     }
 
     @Override
+    public boolean isClosed() {
+        return inner.isClosed();
+    }
+
+    @Override
     public void close() {
         inner = ClosedBuffer.instance();
     }

@@ -10,7 +10,7 @@ public interface Buffer extends BufferReader, BufferWriter {
         if (initialCapacity < 0 || initialCapacity > maximumCapacity) {
             throw new IndexOutOfBoundsException();
         }
-        return new HeapBuffer(new byte[initialCapacity], maximumCapacity);
+        return new NioBuffer(ByteBuffer.allocate(initialCapacity), maximumCapacity);
     }
 
     static Buffer allocateDirect(final int initialCapacity, final int maximumCapacity) {
@@ -29,7 +29,7 @@ public interface Buffer extends BufferReader, BufferWriter {
     }
 
     static Buffer wrap(final byte[] byteArray) {
-        return new HeapBuffer(byteArray, byteArray.length);
+        return new NioBuffer(ByteBuffer.wrap(byteArray), byteArray.length);
     }
 
     void clear();
@@ -51,4 +51,6 @@ public interface Buffer extends BufferReader, BufferWriter {
     default BufferWriter writer() {
         return new DefaultBufferWriter(this);
     }
+
+    ByteBuffer[] toByteBuffers();
 }

@@ -1,5 +1,6 @@
 package se.arkalix.io.evt;
 
+import se.arkalix.io.evt._internal.NioEventLoop;
 import se.arkalix.io.fs.File;
 import se.arkalix.io.net.TcpListener;
 import se.arkalix.io.net.TcpSocket;
@@ -12,7 +13,7 @@ import se.arkalix.util.concurrent.Future;
  */
 public interface EventLoop {
     static EventLoop main() {
-        throw new IllegalStateException();
+        return NioEventLoop.main();
     }
 
     Future<TcpSocket> connect(TcpSocket.Options options);

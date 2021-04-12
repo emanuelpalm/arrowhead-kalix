@@ -49,16 +49,9 @@ public class FutureAnnouncement<V> {
      * this call. The completer of the {@link Future} this announcement
      * contains may receive a notification about the cancellation, and might
      * react to receiving it.
-     *
-     * @param mayInterruptIfRunning Whether or not the thread executing the
-     *                              task associated with the {@code Future}
-     *                              wrapped by this announcement, if any,
-     *                              should be interrupted. If not, in-progress
-     *                              tasks are allowed to complete. This
-     *                              parameter may be ignored.
      */
-    public void cancel(final boolean mayInterruptIfRunning) {
-        future.cancel(mayInterruptIfRunning);
+    public void cancel() {
+        future.cancel();
     }
 
     /**
@@ -93,7 +86,7 @@ public class FutureAnnouncement<V> {
                 return Future.of(result);
             }
             completion = new FutureCompletion<>();
-            completion.setCancelCallback(ignored -> {
+            completion.setCancelCallback(()-> {
                 synchronized (this) {
                     if (!isAnnouncing) {
                         subscribers.remove(completion);

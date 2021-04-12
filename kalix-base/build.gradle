@@ -3,6 +3,7 @@ plugins {
 }
 
 ext {
+    versionJcTools = '3.1.0'
     versionJose4j = '0.7.2'
     versionJunitJupiter = '5.7.0'
     versionNetty = '4.1.52.Final'
@@ -12,6 +13,7 @@ ext {
 dependencies {
     implementation "io.netty:netty-all:$versionNetty"
     implementation "org.bitbucket.b_c:jose4j:$versionJose4j"
+    implementation "org.jctools:jctools-core:$versionJcTools"
     api "org.slf4j:slf4j-api:$versionSlf4j"
 
     testImplementation "org.junit.jupiter:junit-jupiter:$versionJunitJupiter"

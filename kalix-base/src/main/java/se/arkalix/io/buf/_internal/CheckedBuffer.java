@@ -1,9 +1,6 @@
 package se.arkalix.io.buf._internal;
 
-import se.arkalix.io.buf.Buffer;
-import se.arkalix.io.buf.BufferIsClosed;
-import se.arkalix.io.buf.BufferReader;
-import se.arkalix.io.buf.BufferWriter;
+import se.arkalix.io.buf.*;
 import se.arkalix.util._internal.BinaryMath;
 import se.arkalix.util.annotation.Internal;
 
@@ -474,6 +471,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS24NeAt(final int offset, final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteRange(offset, 3);
         setS24AtUnchecked(offset, value);
@@ -490,6 +488,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS24BeAt(final int offset, final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteRange(offset, 3);
         setS24BeAtUnchecked(offset, value);
@@ -503,6 +502,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS24LeAt(final int offset, final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteRange(offset, 3);
         setS24LeAtUnchecked(offset, value);
@@ -525,6 +525,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS48NeAt(final int offset, final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteRange(offset, 6);
         setS48AtUnchecked(offset, value);
@@ -541,6 +542,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS48BeAt(final int offset, final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteRange(offset, 6);
         setS48BeAtUnchecked(offset, value);
@@ -554,6 +556,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void setS48LeAt(final int offset, final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteRange(offset, 6);
         setS48LeAtUnchecked(offset, value);
@@ -635,6 +638,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS24Ne(final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteLength(3);
         setS24AtUnchecked(writeOffset, value);
@@ -643,6 +647,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS24Be(final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteLength(3);
         setS24BeAtUnchecked(writeOffset, value);
@@ -651,6 +656,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS24Le(final int value) {
+        checkS24(value);
         checkIfOpen();
         ensureWriteLength(3);
         setS24LeAtUnchecked(writeOffset, value);
@@ -667,6 +673,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS48Ne(final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteLength(6);
         setS48AtUnchecked(writeOffset, value);
@@ -675,6 +682,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS48Be(final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteLength(6);
         setS48BeAtUnchecked(writeOffset, value);
@@ -683,6 +691,7 @@ public abstract class CheckedBuffer implements Buffer {
 
     @Override
     public void writeS48Le(final long value) {
+        checkS48(value);
         checkIfOpen();
         ensureWriteLength(6);
         setS48LeAtUnchecked(writeOffset, value);
@@ -709,6 +718,18 @@ public abstract class CheckedBuffer implements Buffer {
     }
 
     protected abstract void onClose();
+
+    protected void checkS24(final int value) {
+        if (value < -8388608 || value > 8388607) {
+            throw new BufferValueOutOfBounds(-8388608, 8388607, value);
+        }
+    }
+
+    protected void checkS48(final long value) {
+        if (value < -140737488355328L || value > 140737488355327L) {
+            throw new BufferValueOutOfBounds(-140737488355328L, 140737488355327L, value);
+        }
+    }
 
     protected void checkIfOpen() {
         if (isClosed) {

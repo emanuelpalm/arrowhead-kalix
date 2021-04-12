@@ -41,20 +41,20 @@ public final class ByteBuffers {
 
     static {
         unsafe = getUnsafeOrNull();
-        unsafeInvokeCleaner = getUnsafeInvokeCleanerOrNullUsing();
+        unsafeInvokeCleaner = getUnsafeInvokeCleanerOrNull();
     }
 
-    private static Method getUnsafeInvokeCleanerOrNullUsing() {
+    private static Method getUnsafeInvokeCleanerOrNull() {
         if (ByteBuffers.unsafe == null) {
             return null;
         }
         if (System.getSecurityManager() != null) {
-            return AccessController.doPrivileged((PrivilegedAction<Method>) ByteBuffers::getUnsafeInvokeCleanerOrNullUsing0);
+            return AccessController.doPrivileged((PrivilegedAction<Method>) ByteBuffers::getUnsafeInvokeCleanerOrNull0);
         }
-        return getUnsafeInvokeCleanerOrNullUsing0();
+        return getUnsafeInvokeCleanerOrNull0();
     }
 
-    private static Method getUnsafeInvokeCleanerOrNullUsing0() {
+    private static Method getUnsafeInvokeCleanerOrNull0() {
         final Method method;
 
         try {

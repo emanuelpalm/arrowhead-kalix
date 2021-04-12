@@ -14,7 +14,7 @@ public class DefaultFileReader implements FileReader {
     }
 
     @Override
-    public Future<Integer> getAt(
+    public Future<?> getAt(
         final long offset,
         final BufferWriter destination,
         final int destinationOffset,
@@ -24,7 +24,7 @@ public class DefaultFileReader implements FileReader {
     }
 
     @Override
-    public Future<Integer> read(final BufferWriter destination, final int destinationOffset, final int length) {
+    public Future<?> read(final BufferWriter destination, final int destinationOffset, final int length) {
         return inner.read(destination, destinationOffset, length);
     }
 

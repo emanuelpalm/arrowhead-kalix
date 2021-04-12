@@ -10,6 +10,16 @@ public class BinaryMath {
     private BinaryMath() {}
 
     /**
+     * Determines if the given {@code value} is a positive power of two.
+     *
+     * @param value Tested value.
+     * @return {@code true} only if {@code value} is a positive power of two.
+     */
+    public static boolean isPositivePowerOfTwo(final int value) {
+        return value > 0 && Integer.bitCount(value) == 1;
+    }
+
+    /**
      * Determines if the range specified by {@code offset} and {@code length}
      * does not reside within the bounds between 0 and {@code capacity}, or if
      * any of {@code offset} or {@code length} is below 0.

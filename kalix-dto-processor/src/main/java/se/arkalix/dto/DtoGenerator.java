@@ -4,9 +4,9 @@ import com.squareup.javapoet.*;
 import se.arkalix.codec.CodecType;
 import se.arkalix.codec.CodecUnsupported;
 import se.arkalix.codec.MultiEncodable;
-import se.arkalix.io._buf.old.ReadableBuffer;
-import se.arkalix.io._buf.old.WritableBuffer;
 import se.arkalix.dto.types.*;
+import se.arkalix.io.buf.BufferReader;
+import se.arkalix.io.buf.BufferWriter;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
@@ -328,7 +328,7 @@ public class DtoGenerator {
             final var decode = MethodSpec.methodBuilder("decode")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(implementationClassName)
-                .addParameter(ClassName.get(ReadableBuffer.class), "reader", Modifier.FINAL)
+                .addParameter(ClassName.get(BufferReader.class), "reader", Modifier.FINAL)
                 .addParameter(ClassName.get(CodecType.class), "codec", Modifier.FINAL);
 
             for (final var codec : dtoReadableAs.value()) {
@@ -350,7 +350,7 @@ public class DtoGenerator {
             final var encode = MethodSpec.methodBuilder("encode")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ClassName.get(WritableBuffer.class), "writer", Modifier.FINAL)
+                .addParameter(ClassName.get(BufferWriter.class), "writer", Modifier.FINAL)
                 .addParameter(ClassName.get(CodecType.class), "codec", Modifier.FINAL);
 
             for (final var codec : dtoWritableAs.value()) {

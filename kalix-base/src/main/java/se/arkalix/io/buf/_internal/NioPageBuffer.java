@@ -361,4 +361,9 @@ public class NioPageBuffer extends CheckedBuffer {
             writeSet = null;
         }
     }
+
+    @Override
+    public ByteBuffer[] toByteBuffers() {
+        return pages.toArray(new ByteBuffer[0]); // TODO: Is this really OK?
+    }
 }
